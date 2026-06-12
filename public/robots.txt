@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.amirislaminiccollection.com/sitemap.xml

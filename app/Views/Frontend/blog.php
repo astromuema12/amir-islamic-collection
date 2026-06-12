@@ -1,0 +1,12 @@
+<?php require VIEWS_PATH . '/Layouts/header.php'; ?>
+<section class="page-banner"><div class="container"><h1><?= isset($currentCategory) ? htmlspecialchars($currentCategory->name) : 'Our Blog' ?></h1><nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="<?= url() ?>">Home</a></li><li class="breadcrumb-item active">Blog</li></ol></nav></div></section>
+<section class="section-padding"><div class="container"><div class="row">
+<div class="col-lg-8"><?php if (!empty($blogs)): ?><div class="row g-4"><?php foreach ($blogs as $blog): ?><div class="col-md-6"><div class="blog-card"><div class="blog-image"><img src="<?= $blog->featured_image ? upload_url('blogs/' . $blog->featured_image) : asset('images/no-image.jpg') ?>" alt="<?= htmlspecialchars($blog->title) ?>"></div>
+<div class="blog-content"><span class="blog-date"><i class="far fa-calendar"></i> <?= date('M d, Y', strtotime($blog->published_at ?? $blog->created_at)) ?></span><h5><a href="<?= url('blog/' . $blog->slug) ?>"><?= htmlspecialchars($blog->title) ?></a></h5><p><?= htmlspecialchars(truncate(strip_tags($blog->excerpt ?: $blog->content), 150)) ?></p><a href="<?= url('blog/' . $blog->slug) ?>" class="btn-read-more">Read More <i class="fas fa-arrow-right"></i></a></div></div></div><?php endforeach; ?></div>
+<?php if (($totalPages ?? 0) > 1): ?><nav class="mt-4"><ul class="pagination"><?php for ($i = 1; $i <= $totalPages; $i++): ?><li class="page-item <?= $currentPage == $i ? 'active' : '' ?>"><a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a></li><?php endfor; ?></ul></nav><?php endif; ?>
+<?php else: ?><div class="empty-state"><i class="fas fa-blog"></i><h3>No posts yet</h3><p>Check back soon for new articles</p></div><?php endif; ?></div>
+<div class="col-lg-4"><div class="blog-sidebar">
+<div class="sidebar-widget"><h4>Categories</h4><ul class="category-list"><?php foreach ($categories as $cat): ?><li><a href="<?= url('blog/category/' . $cat->slug) ?>"><?= htmlspecialchars($cat->name) ?></a></li><?php endforeach; ?></ul></div>
+<div class="sidebar-widget"><h4>Recent Posts</h4><ul class="recent-posts"><?php foreach ($recentBlogs as $rb): ?><li><a href="<?= url('blog/' . $rb->slug) ?>"><?= htmlspecialchars($rb->title) ?></a><span><?= date('M d, Y', strtotime($rb->published_at ?? $rb->created_at)) ?></span></li><?php endforeach; ?></ul></div></div></div>
+</div></div></section>
+<?php require VIEWS_PATH . '/Layouts/footer.php'; ?>

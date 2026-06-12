@@ -1,0 +1,54 @@
+services:
+  - type: web
+    name: amir-islamic-collection
+    runtime: php
+    repo: https://github.com/YOUR_USERNAME/amir-islamic-collection
+    plan: free
+    region: oregon
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: php -S 0.0.0.0:${PORT:-10000} -t public
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://amir-islamic-collection.onrender.com
+      - key: DB_DRIVER
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: amir-islamic-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: amir-islamic-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: amir-islamic-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: amir-islamic-db
+          property: user
+      - key: DB_PASS
+        fromDatabase:
+          name: amir-islamic-db
+          property: password
+      - key: SITE_NAME
+        value: "Amir Islamic Collection"
+      - key: SITE_EMAIL
+        value: info@amirislaminiccollection.com
+      - key: SITE_PHONE
+        value: +254712345678
+      - key: SITE_CURRENCY
+        value: KES
+      - key: SITE_TAX
+        value: 16
+
+databases:
+  - name: amir-islamic-db
+    plan: free
+    region: oregon
+    postgresMajorVersion: 16
