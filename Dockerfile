@@ -1,0 +1,20 @@
+FROM php:8.2-cli
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    libzip-dev \
+    unzip \
+    git \
+    && docker-php-ext-install pdo_pgsql pdo_mysql zip
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+COPY . .
+
+RUN composer install --no-dev --optimize-autoloader
+
+EXPOSE 10000
+
+CMD ["sh", "-c", "php -S 0.0.0.0:${PORT:-10000} -t public"]

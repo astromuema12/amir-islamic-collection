@@ -1,12 +1,11 @@
 services:
   - type: web
     name: amir-islamic-collection
-    runtime: php
-    repo: https://github.com/YOUR_USERNAME/amir-islamic-collection
+    env: docker
+    repo: https://github.com/astromuema12/amir-islamic-collection
     plan: free
     region: oregon
-    buildCommand: composer install --no-dev --optimize-autoloader
-    startCommand: php -S 0.0.0.0:${PORT:-10000} -t public
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: APP_ENV
         value: production
@@ -17,8 +16,7 @@ services:
       - key: DB_DRIVER
         value: pgsql
       - key: DB_HOST
-        sync: false
-        value: db.xxxxxxxxxxxxxxx.supabase.co  # ← REPLACE with your Supabase DB host
+        value: REPLACE_ME
       - key: DB_PORT
         value: 5432
       - key: DB_NAME
@@ -26,8 +24,7 @@ services:
       - key: DB_USER
         value: postgres
       - key: DB_PASS
-        sync: false
-        value: your-supabase-db-password  # ← REPLACE with your Supabase DB password
+        value: REPLACE_ME
       - key: SITE_NAME
         value: "Amir Islamic Collection"
       - key: SITE_EMAIL
