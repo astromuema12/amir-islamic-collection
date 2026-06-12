@@ -17,25 +17,17 @@ services:
       - key: DB_DRIVER
         value: pgsql
       - key: DB_HOST
-        fromDatabase:
-          name: amir-islamic-db
-          property: host
+        sync: false
+        value: db.xxxxxxxxxxxxxxx.supabase.co  # ← REPLACE with your Supabase DB host
       - key: DB_PORT
-        fromDatabase:
-          name: amir-islamic-db
-          property: port
+        value: 5432
       - key: DB_NAME
-        fromDatabase:
-          name: amir-islamic-db
-          property: database
+        value: postgres
       - key: DB_USER
-        fromDatabase:
-          name: amir-islamic-db
-          property: user
+        value: postgres
       - key: DB_PASS
-        fromDatabase:
-          name: amir-islamic-db
-          property: password
+        sync: false
+        value: your-supabase-db-password  # ← REPLACE with your Supabase DB password
       - key: SITE_NAME
         value: "Amir Islamic Collection"
       - key: SITE_EMAIL
@@ -46,9 +38,3 @@ services:
         value: KES
       - key: SITE_TAX
         value: 16
-
-databases:
-  - name: amir-islamic-db
-    plan: free
-    region: oregon
-    postgresMajorVersion: 16
