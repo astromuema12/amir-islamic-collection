@@ -107,7 +107,7 @@ export default function AdminDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <StatsCard
           title="Total Revenue"
-          value="₦12,847,500"
+          value="KES 12,847,500"
           icon={<DollarSign className="h-5 w-5" />}
           trend={{ value: 12.5, positive: true }}
           description="Last 30 days"

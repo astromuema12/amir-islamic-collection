@@ -297,7 +297,7 @@ export default function CheckoutPage() {
                         <Input
                           label="Phone Number"
                           type="tel"
-                          placeholder="+234 800 000 0000"
+                          placeholder="+254 800 000 0000"
                           error={errors.phone?.message}
                           {...register("phone")}
                         />
@@ -427,7 +427,7 @@ export default function CheckoutPage() {
                           <div>
                             <p className="text-sm font-medium">Paystack</p>
                             <p className="text-xs text-muted-foreground">
-                              Pay with card, bank transfer, or USSD
+                              Pay with card or bank transfer
                             </p>
                           </div>
                         </div>
@@ -511,7 +511,7 @@ export default function CheckoutPage() {
                         <div className="rounded-lg bg-muted/30 p-3 text-sm text-muted-foreground">
                           <p className="font-medium text-foreground">Full Name</p>
                           <p>Street Address, City, State, ZIP</p>
-                          <p>Phone: +234 800 000 0000</p>
+                          <p>Phone: +254 800 000 0000</p>
                         </div>
                       </div>
 
@@ -549,7 +549,7 @@ export default function CheckoutPage() {
                         </div>
                         <div className="rounded-lg bg-muted/30 p-3 text-sm">
                           <p className="font-medium text-foreground capitalize">{paymentMethod}</p>
-                          <p className="text-muted-foreground">Pay with card, bank, or USSD</p>
+                          <p className="text-muted-foreground">Pay with card or bank transfer</p>
                         </div>
                       </div>
 

@@ -44,7 +44,7 @@ const faqCategories = [
     questions: [
       {
         q: "What payment methods do you accept?",
-        a: "We accept all major credit/debit cards (Visa, Mastercard, Verve), bank transfers, USSD payments, and mobile money through our payment processor Paystack. We also accept Paystack payment links for larger transactions.",
+        a: "We accept all major credit/debit cards (Visa, Mastercard), bank transfers, and mobile money through our payment processor Paystack. We also accept Paystack payment links for larger transactions.",
       },
       {
         q: "Is my payment information secure?",

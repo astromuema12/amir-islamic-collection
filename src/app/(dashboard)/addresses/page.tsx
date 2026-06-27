@@ -52,7 +52,7 @@ const initialAddresses: Address[] = [
   {
     id: "1",
     fullName: "Ahmad Abdullah",
-    phone: "+2348012345678",
+    phone: "+2548012345678",
     street: "42 Kenyatta Avenue",
     city: "Nairobi",
     state: "Nairobi County",
@@ -64,7 +64,7 @@ const initialAddresses: Address[] = [
   {
     id: "2",
     fullName: "Ahmad Abdullah",
-    phone: "+2348098765432",
+    phone: "+2548098765432",
     street: "15 Marina Road, Suite 301",
     city: "Nairobi",
     state: "Nairobi County",
@@ -323,7 +323,7 @@ export default function AddressesPage() {
             />
             <Input
               label="Phone Number"
-              placeholder="+234 801 234 5678"
+              placeholder="+254 801 234 5678"
               error={errors.phone?.message}
               {...register("phone")}
             />

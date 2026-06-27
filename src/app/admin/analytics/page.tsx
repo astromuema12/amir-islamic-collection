@@ -93,7 +93,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Total Revenue" value="₦128,475,000" icon={<DollarSign className="h-5 w-5" />} trend={{ value: 15.3, positive: true }} />
+        <StatsCard title="Total Revenue" value="KES 128,475,000" icon={<DollarSign className="h-5 w-5" />} trend={{ value: 15.3, positive: true }} />
         <StatsCard title="Total Sales" value="12,847" icon={<ShoppingBag className="h-5 w-5" />} trend={{ value: 8.7, positive: true }} />
         <StatsCard title="Total Visitors" value="284,156" icon={<TrendingUp className="h-5 w-5" />} trend={{ value: 22.4, positive: true }} />
         <StatsCard title="Conversion Rate" value="4.52%" icon={<Users className="h-5 w-5" />} trend={{ value: 1.2, positive: true }} />

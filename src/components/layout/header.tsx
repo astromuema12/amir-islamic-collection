@@ -38,7 +38,7 @@ interface HeaderProps {
 }
 
 const ANNOUNCEMENTS = [
-  "Free shipping on orders over ₦50,000",
+  "Free shipping on orders over KES 5,000",
   "New arrivals: Ramadan Collection 2025",
   "Eid gifts: Shop our curated gift boxes",
 ]
@@ -189,7 +189,7 @@ export function Header({
             <div className="flex items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
                 <Phone className="h-3 w-3" />
-                +234 800 AMIR
+                +254 800 AMIR
               </span>
               <span className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
                 <Package className="h-3 w-3" />

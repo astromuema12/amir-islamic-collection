@@ -136,13 +136,13 @@ export default function EditProductPage() {
                 />
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    label="Price (₦)"
+                    label="Price (KES)"
                     type="number"
                     error={errors.price?.message}
                     {...register("price")}
                   />
                   <Input
-                    label="Discount Price (₦)"
+                    label="Discount Price (KES)"
                     type="number"
                     error={errors.discountPrice?.message}
                     {...register("discountPrice")}

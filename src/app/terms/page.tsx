@@ -268,7 +268,7 @@ You agree that any cause of action arising from our services must be commenced w
     content: `For questions, concerns, or inquiries regarding these Terms and Conditions, please contact us:
 
 Email: legal@amirislamic.com
-Phone: +234 800 AMIR ISLAM
+Phone: +254 800 AMIR ISLAM
 Address: Kimathi Street, Nairobi, Kenya
 
 We strive to respond to all inquiries within 48 business hours.

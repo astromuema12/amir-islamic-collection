@@ -113,8 +113,8 @@ export function ProductFilters({ categories, brands }: ProductFiltersProps) {
             step={1000}
           />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>₦{priceRange[0].toLocaleString()}</span>
-            <span>₦{priceRange[1].toLocaleString()}</span>
+            <span>KES {priceRange[0].toLocaleString()}</span>
+            <span>KES {priceRange[1].toLocaleString()}</span>
           </div>
         </div>
       </div>

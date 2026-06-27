@@ -64,7 +64,7 @@ const mockOrders: Order[] = Array.from({ length: 15 }, (_, i) => ({
   id: `ORD-${String(1000 + i).padStart(4, "0")}`,
   customer: ["Aisha J.", "Fatima S.", "Zainab M.", "Khadija R.", "Mariam I.", "Aminah B.", "Safiya K.", "Halima D."][i % 8],
   email: `customer${i + 1}@email.com`,
-  phone: "+234 800 000 000" + i,
+  phone: "+254 800 000 000" + i,
   address: "123 Moi Avenue, Nairobi, Kenya",
   items: [
     {

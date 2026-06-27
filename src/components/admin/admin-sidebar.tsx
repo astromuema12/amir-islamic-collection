@@ -130,17 +130,13 @@ export function AdminSidebar() {
 
       {/* Footer */}
       <div className="border-t border-sidebar-border p-3 space-y-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground"
-          asChild
+        <Link
+          href="/"
+          className="flex w-full items-center justify-start gap-2 rounded-lg px-3 py-2 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:bg-accent hover:text-sidebar-foreground"
         >
-          <Link href="/">
-            <LogOut className="h-4 w-4 mr-2" />
-            Back to Site
-          </Link>
-        </Button>
+          <LogOut className="h-4 w-4" />
+          Back to Site
+        </Link>
         <div className="flex items-center justify-between px-2">
           <span className="text-xs text-muted-foreground">Theme</span>
           <Button

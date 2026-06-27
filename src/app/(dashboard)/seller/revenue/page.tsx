@@ -247,7 +247,7 @@ export default function SellerRevenuePage() {
                   tick={{ fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
-                    tickFormatter={(v: unknown) => `₦${(Number(v) / 1000).toFixed(0)}k`}
+                    tickFormatter={(v: unknown) => `KES ${(Number(v) / 1000).toFixed(0)}k`}
                   className="text-muted-foreground"
                 />
                 <Tooltip

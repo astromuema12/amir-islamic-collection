@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     if (amount < 100) {
       return NextResponse.json(
-        { status: "error", message: "Amount must be at least ₦100" },
+        { status: "error", message: "Amount must be at least KES 100" },
         { status: 400 }
       );
     }

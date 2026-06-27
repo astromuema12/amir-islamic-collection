@@ -1,6 +1,6 @@
 "use client"
 
-import React, { forwardRef, cloneElement, isValidElement, type ButtonHTMLAttributes } from "react"
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -47,16 +47,22 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean
   asChild?: boolean
+  children?: ReactNode
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, isLoading, disabled, children, asChild, ...props }, ref) => {
-    if (asChild && isValidElement(children)) {
-      const child = children as React.ReactElement & { props: Record<string, unknown> }
-      return cloneElement(child, {
-        className: cn(buttonVariants({ variant, size, className }), child.props.className as string),
-        ...props,
-      } as Record<string, unknown>)
+    if (asChild) {
+      return (
+        <span
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          {...props}
+        >
+          {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {children}
+        </span>
+      )
     }
     return (
       <button

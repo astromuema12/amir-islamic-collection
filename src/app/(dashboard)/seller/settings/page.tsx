@@ -61,7 +61,7 @@ export default function SellerSettingsPage() {
       description:
         "Premium Islamic products including prayer mats, Qur'an, hijabs, perfumes, and more. Authentic products with fast delivery across Kenya.",
       email: "store@amirislamic.com",
-      phone: "+234 800 000 0000",
+      phone: "+254 800 000 0000",
       city: "Nairobi",
       state: "Nairobi County",
       country: "Kenya",
@@ -215,7 +215,7 @@ export default function SellerSettingsPage() {
                   />
                   <Input
                     label="Phone"
-                    placeholder="+234 800 000 0000"
+                    placeholder="+254 800 000 0000"
                     icon={<Phone className="h-4 w-4" />}
                     {...register("phone")}
                   />

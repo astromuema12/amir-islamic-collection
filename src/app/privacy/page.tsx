@@ -181,8 +181,8 @@ Significant changes will be communicated at least 30 days in advance to allow yo
     content: `If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact our Data Protection Officer:
 
 Email: privacy@amirislamic.com
-Phone: +234 800 AMIR ISLAM
-Address: 42 Ahmadu Bello Way, Nairobi, Kenya
+Phone: +254 800 AMIR ISLAM
+Address: Moi Avenue, Nairobi, Kenya
 
 We are committed to resolving your concerns promptly and transparently. If you are not satisfied with our response, you have the right to lodge a complaint with the Office of the Data Protection Commissioner (ODPC) or your local data protection authority.
 

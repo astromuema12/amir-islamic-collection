@@ -19,21 +19,21 @@ export const metadata: Metadata = {
 const shippingMethods = [
   {
     name: "Standard Shipping",
-    price: "₦1,500",
+    price: "KES 150",
     days: "5-7 business days",
     icon: Package,
-    description: "Reliable delivery to your doorstep. Free on orders over ₦50,000.",
+    description: "Reliable delivery to your doorstep. Free on orders over KES 5,000.",
   },
   {
     name: "Express Shipping",
-    price: "₦3,500",
+    price: "KES 350",
     days: "2-3 business days",
     icon: Clock,
     description: "Priority handling and faster delivery for urgent orders.",
   },
   {
     name: "Next Day Delivery",
-    price: "₦5,000",
+    price: "KES 500",
     days: "1 business day",
     icon: Truck,
     description: "Order before 12 PM for delivery the next business day (Nairobi only).",
@@ -84,7 +84,7 @@ export default function ShippingPage() {
             </div>
             <p className="text-sm text-muted-foreground mt-4 flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-success" />
-              Free standard shipping on all orders above ₦50,000
+              Free standard shipping on all orders above KES 5,000
             </p>
           </section>
 
@@ -114,10 +114,10 @@ export default function ShippingPage() {
                 <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-medium text-foreground">Delivery Zones</h3>
-                  <p>We deliver to all 36 states and the Federal Capital Territory (Abuja). Delivery times vary by location:</p>
+                  <p>We deliver to all 47 counties in Kenya. Delivery times vary by location:</p>
                   <ul className="list-disc ml-5 mt-2 space-y-1">
                     <li>Nairobi Metro: 1-3 business days (express available)</li>
-                    <li>Other State Capitals: 3-5 business days</li>
+                    <li>County Capitals: 3-5 business days</li>
                     <li>Remote/Rural Areas: 5-7 business days</li>
                   </ul>
                 </div>

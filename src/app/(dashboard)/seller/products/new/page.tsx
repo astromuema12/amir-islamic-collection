@@ -440,7 +440,7 @@ export default function NewProductPage() {
                       ? watch("discountPrice")
                         ? formatPrice(Number(watch("discountPrice")))
                         : formatPrice(Number(watch("price")))
-                      : "₦0.00"}
+                      : "KES 0.00"}
                   </p>
                   {watch("discountPrice") && watch("price") && (
                     <p className="text-sm text-muted-foreground line-through">

@@ -211,7 +211,7 @@ export default function AdminCouponsPage() {
                 </Select>
               </div>
             </div>
-            <Input label={formType === "percentage" ? "Discount (%)" : "Discount Amount (₦)"} type="number" value={formValue} onChange={e => setFormValue(e.target.value)} />
+            <Input label={formType === "percentage" ? "Discount (%)" : "Discount Amount (KES)"} type="number" value={formValue} onChange={e => setFormValue(e.target.value)} />
             <div className="grid grid-cols-2 gap-4">
               <Input label="Min Order Amount" type="number" value={formMinOrder} onChange={e => setFormMinOrder(e.target.value)} placeholder="Optional" />
               <Input label="Max Discount" type="number" value={formMaxDiscount} onChange={e => setFormMaxDiscount(e.target.value)} placeholder="Optional" />

@@ -31,7 +31,7 @@ async function seedUsers() {
       password: hashedPassword,
       role: "admin",
       emailVerified: true,
-      phone: "+2348011111111",
+      phone: "+2548011111111",
       bio: "Platform administrator",
     })
     .onConflictDoNothing()
@@ -45,7 +45,7 @@ async function seedUsers() {
       password: hashedPassword,
       role: "seller",
       emailVerified: true,
-      phone: "+2348022222222",
+      phone: "+2548022222222",
       bio: "Islamic products seller",
     })
     .onConflictDoNothing()
@@ -59,7 +59,7 @@ async function seedUsers() {
       password: hashedPassword,
       role: "user",
       emailVerified: true,
-      phone: "+2348033333333",
+      phone: "+2548033333333",
       bio: "Regular customer",
     })
     .onConflictDoNothing()
@@ -80,7 +80,7 @@ async function seedSellerProfile(sellerId: string) {
       storeSlug: "al-misk-islamic-store",
       description:
         "Premium Islamic products sourced from around the world. Authentic, high-quality items for the Muslim ummah.",
-      phone: "+2348022222222",
+      phone: "+2548022222222",
       address: "25 Kenyatta Avenue",
       city: "Nairobi",
       state: "Nairobi County",

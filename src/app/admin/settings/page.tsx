@@ -61,7 +61,7 @@ export default function AdminSettingsPage() {
               <h3 className="text-sm font-semibold">Contact Information</h3>
               <div className="grid grid-cols-2 gap-4">
                 <Input label="Support Email" defaultValue="support@amirislamic.com" type="email" />
-                <Input label="Support Phone" defaultValue="+234 800 264 7526" />
+                <Input label="Support Phone" defaultValue="+254 800 264 7526" />
               </div>
               <Input label="Address" defaultValue="Nairobi, Kenya" />
               <Separator />
@@ -71,7 +71,7 @@ export default function AdminSettingsPage() {
                 <Input label="Twitter URL" defaultValue="https://twitter.com/amirislamic" />
                 <Input label="Instagram URL" defaultValue="https://instagram.com/amirislamic" />
                 <Input label="YouTube URL" defaultValue="https://youtube.com/@amirislamic" />
-                <Input label="WhatsApp Number" defaultValue="+2348002647526" />
+                <Input label="WhatsApp Number" defaultValue="+2548002647526" />
               </div>
               <Button onClick={() => handleSave("General")} isLoading={saving}>
                 <Save className="mr-2 h-4 w-4" /> Save General Settings
@@ -180,11 +180,11 @@ export default function AdminSettingsPage() {
                 <Truck className="h-5 w-5 text-primary" />
                 <p className="text-sm text-muted-foreground">Shipping rates in KES</p>
               </div>
-              <Input label="Free Shipping Threshold (₦)" type="number" defaultValue="50000" />
+              <Input label="Free Shipping Threshold (KES)" type="number" defaultValue="5000" />
               <div className="grid grid-cols-3 gap-4">
-                <Input label="Standard Rate (₦)" type="number" defaultValue="1500" />
-                <Input label="Express Rate (₦)" type="number" defaultValue="3500" />
-                <Input label="Next Day Rate (₦)" type="number" defaultValue="5000" />
+                <Input label="Standard Rate (KES)" type="number" defaultValue="150" />
+                <Input label="Express Rate (KES)" type="number" defaultValue="350" />
+                <Input label="Next Day Rate (KES)" type="number" defaultValue="500" />
               </div>
               <Button onClick={() => handleSave("Shipping")} isLoading={saving}>
                 <Save className="mr-2 h-4 w-4" /> Save Shipping Settings

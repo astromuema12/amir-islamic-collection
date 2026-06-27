@@ -40,7 +40,7 @@ export default function AccountPage() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: "Ahmad Abdullah",
-      phone: "+2348012345678",
+      phone: "+2548012345678",
       bio: "Islamic art enthusiast and collector. Love exploring beautiful prayer mats and Quranic calligraphy.",
     },
   })
@@ -157,7 +157,7 @@ export default function AccountPage() {
               <Input
                 label="Phone Number"
                 type="tel"
-                placeholder="+234 801 234 5678"
+                placeholder="+254 801 234 5678"
                 error={errors.phone?.message}
                 {...register("phone")}
               />

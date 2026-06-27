@@ -186,11 +186,11 @@ export default function ComparePage() {
                           {product.discountPrice ? (
                             <div className="space-y-0.5">
                               <span className="text-2xl font-bold text-primary">
-                                ₦{product.discountPrice.toLocaleString()}
+                                KES {product.discountPrice.toLocaleString()}
                               </span>
                               <div>
                                 <span className="text-sm text-muted-foreground line-through">
-                                  ₦{product.price.toLocaleString()}
+                                  KES {product.price.toLocaleString()}
                                 </span>
                                 <Badge variant="success" className="ml-2 text-xs">
                                   Save {Math.round((1 - product.discountPrice / product.price) * 100)}%
@@ -199,7 +199,7 @@ export default function ComparePage() {
                             </div>
                           ) : (
                             <span className="text-2xl font-bold">
-                              ₦{product.price.toLocaleString()}
+                              KES {product.price.toLocaleString()}
                             </span>
                           )}
                         </div>

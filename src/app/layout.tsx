@@ -101,12 +101,12 @@ const jsonLd = {
   name: APP_NAME,
   description: APP_DESCRIPTION,
   url: siteUrl,
-  telephone: "+2348002647526",
+  telephone: "+2548002647526",
   email: "support@amirislamic.com",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Nairobi",
-    addressCountry: "NG",
+    addressCountry: "KE",
   },
   aggregateRating: {
     "@type": "AggregateRating",
