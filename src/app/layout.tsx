@@ -1,0 +1,158 @@
+import type { Metadata } from "next"
+import { Inter, Playfair_Display } from "next/font/google"
+import "./globals.css"
+import { Providers } from "@/components/layout/providers"
+import { Header } from "@/components/layout/header"
+import { Footer } from "@/components/layout/footer"
+import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants"
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+})
+
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+})
+
+const siteUrl = APP_URL
+
+export const metadata: Metadata = {
+  title: {
+    default: `${APP_NAME} - Premium Islamic Products Marketplace`,
+    template: `%s | ${APP_NAME}`,
+  },
+  description: APP_DESCRIPTION,
+  keywords: [
+    "Islamic products",
+    "prayer mats",
+    "Quran",
+    "hijabs",
+    "perfumes",
+    "Islamic clothing",
+    "Muslim gifts",
+    "Eid gifts",
+    "Ramadan collection",
+    "Islamic books",
+    "tasbih",
+    "abaya",
+    "thobe",
+  ],
+  authors: [{ name: APP_NAME }],
+  creator: APP_NAME,
+  publisher: APP_NAME,
+  metadataBase: new URL(siteUrl),
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: APP_NAME,
+    title: `${APP_NAME} - Premium Islamic Products Marketplace`,
+    description: APP_DESCRIPTION,
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: APP_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${APP_NAME} - Premium Islamic Products Marketplace`,
+    description: APP_DESCRIPTION,
+    images: ["/og-image.png"],
+    creator: "@amirislamic",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png" },
+    ],
+  },
+  manifest: "/manifest.json",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  verification: {
+    google: "verification_token",
+  },
+  category: "shopping",
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Store",
+  name: APP_NAME,
+  description: APP_DESCRIPTION,
+  url: siteUrl,
+  telephone: "+2348002647526",
+  email: "support@amirislamic.com",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Nairobi",
+    addressCountry: "NG",
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.8",
+    reviewCount: "50000",
+  },
+  openingHours: "Mo-Su 08:00-22:00",
+  areaServed: "Worldwide",
+  hasOfferCatalog: {
+    "@type": "OfferCatalog",
+    name: "Islamic Products",
+    itemListElement: [
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Prayer Mats" } },
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Holy Qur'an" } },
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Hijabs" } },
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Perfumes" } },
+      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Islamic Clothing" } },
+    ],
+  },
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html
+      lang="en"
+      dir="ltr"
+      className={`${inter.variable} ${playfairDisplay.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col">
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </Providers>
+      </body>
+    </html>
+  )
+}

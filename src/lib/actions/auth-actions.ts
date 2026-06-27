@@ -1,0 +1,200 @@
+"use server";
+
+import { db } from "@/lib/db";
+import { users, sessions, verificationTokens } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+import { hashPassword, verifyPassword, createSession, logout as clearSession } from "@/lib/auth";
+import { loginSchema, registerSchema } from "@/lib/validations";
+import { sendEmail } from "@/lib/resend";
+import { revalidatePath } from "next/cache";
+
+export async function register(formData: FormData) {
+  try {
+    const raw = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+      confirmPassword: formData.get("confirmPassword") as string,
+    };
+
+    const parsed = registerSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { error: parsed.error.flatten().fieldErrors };
+    }
+
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, parsed.data.email))
+      .limit(1);
+
+    if (existingUser.length > 0) {
+      return { error: { email: ["Email already in use"] } };
+    }
+
+    const hashed = await hashPassword(parsed.data.password);
+    const userId = uuidv4();
+
+    await db.insert(users).values({
+      id: userId,
+      name: parsed.data.name,
+      email: parsed.data.email,
+      password: hashed,
+    });
+
+    await createSession(userId);
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Registration failed" };
+  }
+}
+
+export async function login(formData: FormData) {
+  try {
+    const raw = {
+      email: formData.get("email") as string,
+      password: formData.get("password") as string,
+    };
+
+    const parsed = loginSchema.safeParse(raw);
+    if (!parsed.success) {
+      return { error: parsed.error.flatten().fieldErrors };
+    }
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, parsed.data.email))
+      .limit(1);
+
+    if (!user || !user.password) {
+      return { error: { email: ["Invalid email or password"] } };
+    }
+
+    const valid = await verifyPassword(parsed.data.password, user.password);
+    if (!valid) {
+      return { error: { email: ["Invalid email or password"] } };
+    }
+
+    await createSession(user.id);
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Login failed" };
+  }
+}
+
+export async function logout() {
+  await clearSession();
+  revalidatePath("/");
+}
+
+export async function forgotPassword(formData: FormData) {
+  try {
+    const email = formData.get("email") as string;
+    if (!email) return { error: "Email is required" };
+
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (!user) {
+      return { success: true };
+    }
+
+    const token = uuidv4();
+    await db.insert(verificationTokens).values({
+      id: uuidv4(),
+      email,
+      token,
+      type: "password_reset",
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+    await sendEmail({
+      to: email,
+      subject: "Reset your password",
+      html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to send reset email" };
+  }
+}
+
+export async function resetPassword(formData: FormData) {
+  try {
+    const token = formData.get("token") as string;
+    const password = formData.get("password") as string;
+
+    if (!token || !password || password.length < 6) {
+      return { error: "Invalid token or password too short" };
+    }
+
+    const [vt] = await db
+      .select()
+      .from(verificationTokens)
+      .where(
+        and(
+          eq(verificationTokens.token, token),
+          eq(verificationTokens.type, "password_reset")
+        )
+      )
+      .limit(1);
+
+    if (!vt || vt.expiresAt < new Date()) {
+      return { error: "Invalid or expired token" };
+    }
+
+    const hashed = await hashPassword(password);
+    await db.update(users).set({ password: hashed }).where(eq(users.email, vt.email));
+    await db.delete(verificationTokens).where(eq(verificationTokens.id, vt.id));
+
+    revalidatePath("/login");
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Password reset failed" };
+  }
+}
+
+export async function oauthLogin(provider: string) {
+  const providers: Record<string, string> = {
+    google: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google&response_type=code&scope=email%20profile`,
+    github: `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/github&scope=user:email`,
+  };
+
+  const url = providers[provider];
+  if (!url) return { error: "Unsupported provider" };
+
+  return { url };
+}
+
+export async function updateProfile(formData: FormData) {
+  try {
+    const { getCurrentUser } = await import("@/lib/auth");
+    const user = await getCurrentUser();
+    if (!user) return { error: "Unauthorized" };
+
+    const name = formData.get("name") as string;
+    const phone = formData.get("phone") as string;
+    const bio = formData.get("bio") as string;
+
+    await db
+      .update(users)
+      .set({ name, phone, bio, updatedAt: new Date() })
+      .where(eq(users.id, user.id));
+
+    revalidatePath("/profile");
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Update failed" };
+  }
+}
