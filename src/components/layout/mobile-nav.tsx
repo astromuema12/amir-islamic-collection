@@ -73,6 +73,7 @@ export function MobileNav({
     { href: "/faq", label: "FAQ", icon: HelpCircle },
     { href: "/privacy", label: "Privacy Policy", icon: ShieldCheck },
     { href: "/terms", label: "Terms & Conditions", icon: ShieldCheck },
+    { href: "/account-deletion", label: "Account Deletion Policy", icon: ShieldCheck },
   ]
 
   return (

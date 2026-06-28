@@ -1,10 +1,20 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { users, sessions, verificationTokens } from "@/lib/db/schema";
+import {
+  users,
+  sessions,
+  verificationTokens,
+  notifications,
+  wishlists,
+  reviews,
+  sellerProfiles,
+  cart,
+  addresses,
+} from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
-import { hashPassword, verifyPassword, createSession, logout as clearSession } from "@/lib/auth";
+import { hashPassword, verifyPassword, createSession, logout as clearSession, getCurrentUser } from "@/lib/auth";
 import { loginSchema, registerSchema } from "@/lib/validations";
 import { sendEmail } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
@@ -177,9 +187,48 @@ export async function oauthLogin(provider: string) {
   return { url };
 }
 
+export async function deleteAccount() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { error: "Unauthorized" };
+
+    // Anonymize the user record so orders remain intact for legal/accounting
+    const anonymizedEmail = `deleted-${user.id}@anonymized.invalid`;
+    await db
+      .update(users)
+      .set({
+        name: "Deleted Account",
+        email: anonymizedEmail,
+        phone: null,
+        bio: null,
+        image: null,
+        password: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id));
+
+    // Delete all cascade-able user data
+    await db.delete(sessions).where(eq(sessions.userId, user.id));
+    await db.delete(notifications).where(eq(notifications.userId, user.id));
+    await db.delete(wishlists).where(eq(wishlists.userId, user.id));
+    await db.delete(reviews).where(eq(reviews.userId, user.id));
+    await db.delete(sellerProfiles).where(eq(sellerProfiles.userId, user.id));
+    // cart cascades to cart_items, addresses cascade to order references — handled
+    await db.delete(cart).where(eq(cart.userId, user.id));
+    await db.delete(addresses).where(eq(addresses.userId, user.id));
+
+    // Clear the session cookie
+    await clearSession();
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Account deletion failed" };
+  }
+}
+
 export async function updateProfile(formData: FormData) {
   try {
-    const { getCurrentUser } = await import("@/lib/auth");
     const user = await getCurrentUser();
     if (!user) return { error: "Unauthorized" };
 

@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -37,7 +39,9 @@ import {
   AlertTriangle,
   Trash2,
   Loader2,
+  ExternalLink,
 } from "lucide-react"
+import { deleteAccount } from "@/lib/actions/auth-actions"
 
 const passwordSchema = z
   .object({
@@ -53,6 +57,7 @@ const passwordSchema = z
 type PasswordFormData = z.infer<typeof passwordSchema>
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [emailNotifs, setEmailNotifs] = useState(true)
   const [smsNotifs, setSmsNotifs] = useState(false)
@@ -84,9 +89,14 @@ export default function SettingsPage() {
   const handleDeleteAccount = async () => {
     setDeleteLoading(true)
     try {
-      await new Promise((r) => setTimeout(r, 2000))
-      toast.success("Account deletion request submitted")
-      setDeleteDialogOpen(false)
+      const result = await deleteAccount()
+      if (result.success) {
+        toast.success("Account deleted successfully")
+        setDeleteDialogOpen(false)
+        router.push("/")
+      } else {
+        toast.error(result.error || "Failed to delete account")
+      }
     } catch {
       toast.error("Failed to delete account")
     } finally {
@@ -272,23 +282,45 @@ export default function SettingsPage() {
                       Delete Account
                     </DialogTitle>
                     <DialogDescription>
-                      This action cannot be undone. All your data, orders, and
-                      preferences will be permanently deleted. Please make sure
-                      you have no pending orders before proceeding.
+                      This action is permanent and irreversible. Please read the
+                      following carefully before proceeding.
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm">
-                    <p className="font-medium text-destructive">What will be deleted:</p>
-                    <ul className="mt-1 list-inside list-disc space-y-0.5 text-muted-foreground">
-                      <li>Profile information and saved addresses</li>
-                      <li>Order history and wishlist</li>
-                      <li>Payment methods and preferences</li>
-                    </ul>
+                  <div className="space-y-3">
+                    <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm">
+                      <p className="font-medium text-destructive">Will be permanently deleted:</p>
+                      <ul className="mt-1 list-inside list-disc space-y-0.5 text-muted-foreground">
+                        <li>Profile information, photo, and saved addresses</li>
+                        <li>Wishlist, cart, and product reviews</li>
+                        <li>Notification preferences and history</li>
+                        <li>Seller profile and store data</li>
+                        <li>Active sessions — you will be logged out</li>
+                      </ul>
+                    </div>
+                    <div className="rounded-lg border border-muted bg-muted/30 p-3 text-sm">
+                      <p className="font-medium text-foreground">May be retained for legal purposes:</p>
+                      <ul className="mt-1 list-inside list-disc space-y-0.5 text-muted-foreground">
+                        <li>Completed order records (7 years, tax compliance)</li>
+                        <li>Financial transaction logs (fraud prevention)</li>
+                        <li>Anonymized analytics data</li>
+                      </ul>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      <Link
+                        href="/account-deletion"
+                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                        target="_blank"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        View full Account Deletion Policy
+                      </Link>
+                    </div>
                   </div>
-                  <DialogFooter>
+                  <DialogFooter className="flex-col sm:flex-row gap-2">
                     <Button
                       variant="outline"
                       onClick={() => setDeleteDialogOpen(false)}
+                      className="w-full sm:w-auto"
                     >
                       Cancel
                     </Button>
@@ -296,6 +328,7 @@ export default function SettingsPage() {
                       variant="danger"
                       isLoading={deleteLoading}
                       onClick={handleDeleteAccount}
+                      className="w-full sm:w-auto"
                     >
                       Yes, Delete My Account
                     </Button>

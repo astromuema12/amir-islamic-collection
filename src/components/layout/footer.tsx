@@ -43,6 +43,7 @@ const CUSTOMER_SERVICE = [
   { href: "/track-order", label: "Track Order" },
   { href: "/privacy", label: "Privacy Policy" },
   { href: "/terms", label: "Terms & Conditions" },
+  { href: "/account-deletion", label: "Account Deletion Policy" },
 ]
 
 const SOCIAL_LINKS = [
