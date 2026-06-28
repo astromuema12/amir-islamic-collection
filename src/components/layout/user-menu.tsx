@@ -58,13 +58,17 @@ export function UserMenu({
   if (!user) {
     return (
       <div className={cn("flex items-center gap-2", className)}>
-        <Button variant="ghost" size="sm" onClick={onLogin} className="gap-2">
-          <LogIn className="h-4 w-4" />
-          <span className="hidden sm:inline">Login</span>
+        <Button variant="ghost" size="sm" asChild className="gap-2">
+          <Link href="/login">
+            <LogIn className="h-4 w-4" />
+            <span className="hidden sm:inline">Login</span>
+          </Link>
         </Button>
-        <Button size="sm" onClick={onRegister} className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          <span className="hidden sm:inline">Register</span>
+        <Button size="sm" asChild className="gap-2">
+          <Link href="/register">
+            <UserPlus className="h-4 w-4" />
+            <span className="hidden sm:inline">Register</span>
+          </Link>
         </Button>
       </div>
     )

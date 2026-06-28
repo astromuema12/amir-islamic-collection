@@ -63,8 +63,8 @@ export function MobileNav({
         { href: "/account/settings", label: "Settings", icon: User },
       ]
     : [
-        { href: "#", label: "Login", icon: LogIn, onClick: onLogin },
-        { href: "#", label: "Register", icon: UserPlus, onClick: onRegister },
+        { href: "/login", label: "Login", icon: LogIn },
+        { href: "/register", label: "Register", icon: UserPlus },
       ]
 
   const customerLinks = [
@@ -118,26 +118,17 @@ export function MobileNav({
               <div className="p-4 space-y-6">
                 {!user && (
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      className="flex-1 gap-2"
-                      onClick={() => {
-                        setIsOpen(false)
-                        onLogin?.()
-                      }}
-                    >
-                      <LogIn className="h-4 w-4" />
-                      Login
+                    <Button variant="outline" className="flex-1 gap-2" asChild>
+                      <Link href="/login" onClick={() => setIsOpen(false)}>
+                        <LogIn className="h-4 w-4" />
+                        Login
+                      </Link>
                     </Button>
-                    <Button
-                      className="flex-1 gap-2"
-                      onClick={() => {
-                        setIsOpen(false)
-                        onRegister?.()
-                      }}
-                    >
-                      <UserPlus className="h-4 w-4" />
-                      Register
+                    <Button className="flex-1 gap-2" asChild>
+                      <Link href="/register" onClick={() => setIsOpen(false)}>
+                        <UserPlus className="h-4 w-4" />
+                        Register
+                      </Link>
                     </Button>
                   </div>
                 )}
