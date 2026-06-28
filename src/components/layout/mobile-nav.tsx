@@ -49,7 +49,7 @@ export function MobileNav({
 
   const mainLinks = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/shop", label: "Shop", icon: ShoppingBag },
+    { href: "/products", label: "Shop", icon: ShoppingBag },
     { href: "/wishlist", label: "Wishlist", icon: Heart, count: wishlistItemCount },
     { href: "/account", label: "My Account", icon: User },
     { href: "/orders", label: "Orders", icon: Package },
@@ -58,9 +58,9 @@ export function MobileNav({
   const accountLinks = user
     ? [
         { href: "/account", label: "My Account", icon: User },
-        { href: "/account/orders", label: "Orders", icon: Package },
+        { href: "/orders", label: "Orders", icon: Package },
         { href: "/wishlist", label: "Wishlist", icon: Heart, count: wishlistItemCount },
-        { href: "/account/settings", label: "Settings", icon: User },
+        { href: "/settings", label: "Settings", icon: User },
       ]
     : [
         { href: "/login", label: "Login", icon: LogIn },
@@ -173,11 +173,11 @@ export function MobileNav({
                     {CATEGORIES.map((category) => (
                       <li key={category.slug}>
                         <Link
-                          href={`/category/${category.slug}`}
+                          href={`/categories/${category.slug}`}
                           onClick={() => setIsOpen(false)}
                           className={cn(
                             "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                            isActive(`/category/${category.slug}`)
+                            isActive(`/categories/${category.slug}`)
                               ? "bg-primary/10 text-primary"
                               : "hover:bg-accent"
                           )}

@@ -111,7 +111,7 @@ export function UserMenu({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/account/orders" className="cursor-pointer">
+            <Link href="/orders" className="cursor-pointer">
               <Package className="mr-2 h-4 w-4" />
               My Orders
             </Link>
@@ -123,7 +123,7 @@ export function UserMenu({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/account/settings" className="cursor-pointer">
+            <Link href="/settings" className="cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </Link>

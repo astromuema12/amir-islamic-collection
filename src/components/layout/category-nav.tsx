@@ -62,7 +62,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
               onMouseEnter={() => hasChildren && setActiveMenu(category.slug)}
             >
               <Link
-                href={`/category/${category.slug}`}
+                href={`/categories/${category.slug}`}
                 className={cn(
                   "flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors",
                   "hover:text-primary hover:bg-primary/5",
@@ -115,7 +115,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
                       cat ? (
                         <li key={cat.slug}>
                           <Link
-                            href={`/category/${cat.slug}`}
+                            href={`/categories/${cat.slug}`}
                             className="text-sm text-muted-foreground hover:text-primary transition-colors"
                           >
                             {cat.icon} {cat.name}

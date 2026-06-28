@@ -188,7 +188,7 @@ export default function OrdersPage() {
                     : "You haven't placed any orders yet"}
                 </p>
                 {!search && (
-                  <Link href="/shop">
+                  <Link href="/products">
                     <Button className="mt-4 gap-2">
                       <ShoppingBag className="h-4 w-4" />
                       Start Shopping

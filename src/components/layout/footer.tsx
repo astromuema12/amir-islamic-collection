@@ -33,7 +33,7 @@ const QUICK_LINKS = [
   { href: "/faq", label: "FAQ" },
   { href: "/blog", label: "Our Blog" },
   { href: "/careers", label: "Careers" },
-  { href: "/sitemap", label: "Sitemap" },
+  { href: "/sitemap.xml", label: "Sitemap" },
 ]
 
 const CUSTOMER_SERVICE = [
@@ -144,7 +144,7 @@ export function Footer() {
               {CATEGORIES.slice(0, 8).map((category) => (
                 <li key={category.slug}>
                   <Link
-                    href={`/category/${category.slug}`}
+                    href={`/categories/${category.slug}`}
                     className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 group"
                   >
                     <ChevronRight className="h-3 w-3 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
