@@ -162,17 +162,17 @@ export default function CheckoutPage() {
             </div>
           </div>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link href="/orders">
-              <Button variant="outline" className="w-full sm:w-auto">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
+              <Link href="/orders">
                 View Orders
-              </Button>
-            </Link>
-            <Link href="/categories">
-              <Button className="w-full sm:w-auto gap-2">
+              </Link>
+            </Button>
+            <Button asChild className="w-full sm:w-auto gap-2">
+              <Link href="/categories">
                 <ShoppingBag className="h-4 w-4" />
                 Continue Shopping
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </motion.div>
       </div>
@@ -187,12 +187,12 @@ export default function CheckoutPage() {
           <h2 className="text-xl font-bold">Your cart is empty</h2>
           <p className="mt-1 text-sm text-muted-foreground">Add items to your cart before checking out</p>
         </div>
-        <Link href="/categories">
-          <Button className="gap-2 mt-2">
+        <Button asChild className="gap-2 mt-2">
+          <Link href="/categories">
             <ArrowLeft className="h-4 w-4" />
             Start Shopping
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     )
   }

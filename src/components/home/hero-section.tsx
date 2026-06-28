@@ -116,26 +116,26 @@ export function HeroSection() {
               variants={itemVariants}
               className="mt-8 flex flex-col sm:flex-row items-center gap-4"
             >
-              <Link href="/categories">
-                <Button
-                  size="xl"
-                  className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 shadow-lg shadow-amber-500/25 rounded-2xl text-base gap-2 w-full sm:w-auto"
-                >
+              <Button asChild
+                size="xl"
+                className="bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 shadow-lg shadow-amber-500/25 rounded-2xl text-base gap-2 w-full sm:w-auto"
+              >
+                <Link href="/categories">
                   <ShoppingBag className="h-5 w-5" />
                   Shop Now
                   <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/sell">
-                <Button
-                  variant="outline"
-                  size="xl"
-                  className="border-white/30 text-white hover:bg-white/10 hover:text-white rounded-2xl text-base gap-2 w-full sm:w-auto"
-                >
+                </Link>
+              </Button>
+              <Button asChild
+                variant="outline"
+                size="xl"
+                className="border-white/30 text-white hover:bg-white/10 hover:text-white rounded-2xl text-base gap-2 w-full sm:w-auto"
+              >
+                <Link href="/sell">
                   <Store className="h-5 w-5" />
                   Become a Seller
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </motion.div>
           </motion.div>
         </div>
