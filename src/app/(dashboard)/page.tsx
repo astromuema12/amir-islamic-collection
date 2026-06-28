@@ -37,6 +37,7 @@ import { formatPrice, formatDate } from "@/lib/utils"
 
 const stats = [
   {
+    href: "/orders",
     icon: <ShoppingBag className="h-5 w-5" />,
     label: "Total Orders",
     value: 12,
@@ -44,6 +45,7 @@ const stats = [
     iconClassName: "bg-emerald-500/10 text-emerald-500",
   },
   {
+    href: "/orders",
     icon: <Package className="h-5 w-5" />,
     label: "Active Orders",
     value: 3,
@@ -51,6 +53,7 @@ const stats = [
     iconClassName: "bg-amber-500/10 text-amber-500",
   },
   {
+    href: "/wishlist",
     icon: <Heart className="h-5 w-5" />,
     label: "Wishlist Items",
     value: 8,
@@ -58,6 +61,7 @@ const stats = [
     iconClassName: "bg-rose-500/10 text-rose-500",
   },
   {
+    href: "/addresses",
     icon: <MapPin className="h-5 w-5" />,
     label: "Saved Addresses",
     value: 2,
@@ -130,7 +134,9 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
-          <StatsCard key={i} {...stat} />
+          <Link key={i} href={stat.href} className="block">
+            <StatsCard {...stat} />
+          </Link>
         ))}
       </div>
 
