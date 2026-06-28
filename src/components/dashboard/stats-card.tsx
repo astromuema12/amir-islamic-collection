@@ -1,6 +1,7 @@
 "use client"
 
 import { type ReactNode } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +13,7 @@ interface StatsCardProps {
   trend?: { value: number; positive: boolean }
   className?: string
   iconClassName?: string
+  href?: string
 }
 
 export function StatsCard({
@@ -22,14 +24,22 @@ export function StatsCard({
   trend,
   className,
   iconClassName,
+  href,
 }: StatsCardProps) {
+  const router = useRouter()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
+      onClick={() => href && router.push(href)}
+      role={href ? "button" : undefined}
+      tabIndex={href ? 0 : undefined}
+      onKeyDown={(e) => { if (href && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); router.push(href) } }}
       className={cn(
         "group relative overflow-hidden rounded-xl border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-md",
+        href && "cursor-pointer hover:border-primary/30",
         className
       )}
     >
