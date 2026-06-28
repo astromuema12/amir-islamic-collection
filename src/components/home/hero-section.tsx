@@ -1,10 +1,8 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
-  Search,
   ShoppingBag,
   Store,
   Star,
@@ -14,7 +12,6 @@ import {
   TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
 const stats = [
   { icon: Package, value: "10,000+", label: "Products" },
@@ -57,15 +54,6 @@ const statVariants = {
 } as const
 
 export function HeroSection() {
-  const [searchQuery, setSearchQuery] = useState("")
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`
-    }
-  }
-
   return (
     <section className="relative overflow-hidden">
       <div className="hero-gradient">
@@ -123,30 +111,6 @@ export function HeroSection() {
               perfumes, Islamic clothing &amp; more — all with quality and
               barakah.
             </motion.p>
-
-            <motion.form
-              variants={itemVariants}
-              onSubmit={handleSearch}
-              className="mt-8 w-full max-w-xl"
-            >
-              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 group-focus-within:text-white/80 transition-colors" />
-                <Input
-                  type="text"
-                  placeholder="Search for Islamic products, brands, categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl border border-white/20 bg-white/10 text-white placeholder:text-white/40 backdrop-blur-md text-base focus-visible:ring-white/30 focus-visible:border-white/30 transition-all"
-                />
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 h-11 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-white hover:from-amber-600 hover:to-yellow-600 shadow-lg shadow-amber-500/25"
-                >
-                  Search
-                </Button>
-              </div>
-            </motion.form>
 
             <motion.div
               variants={itemVariants}

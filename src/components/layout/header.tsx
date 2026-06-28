@@ -2,17 +2,11 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import {
   ShoppingBag,
   Heart,
-  Phone,
   Moon,
   Sun,
-  Package,
-  Percent,
-  ShieldCheck,
-  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -23,7 +17,6 @@ import { SearchBar } from "./search-bar"
 import { UserMenu } from "./user-menu"
 import { CartSidebar } from "./cart-sidebar"
 import { MobileNav } from "./mobile-nav"
-import { CategoryNav } from "./category-nav"
 import { CartItem } from "@/types"
 
 interface HeaderProps {
@@ -33,12 +26,6 @@ interface HeaderProps {
   className?: string
 }
 
-const ANNOUNCEMENTS = [
-  "Free shipping on orders over KES 5,000",
-  "New arrivals: Ramadan Collection 2025",
-  "Eid gifts: Shop our curated gift boxes",
-]
-
 export function Header({
   user,
   cartItems = [],
@@ -47,9 +34,6 @@ export function Header({
 }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
-  const [announcementIndex, setAnnouncementIndex] = useState(0)
-  const [showAnnouncement, setShowAnnouncement] = useState(true)
-  const pathname = usePathname()
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
@@ -58,13 +42,6 @@ export function Header({
     }
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setAnnouncementIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length)
-    }, 5000)
-    return () => clearInterval(interval)
   }, [])
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
@@ -79,22 +56,6 @@ export function Header({
         className
       )}
     >
-      {showAnnouncement && (
-        <div className="relative bg-gradient-to-r from-primary via-primary/90 to-premium/90 dark:from-primary dark:to-premium/80">
-          <div className="mx-auto flex h-9 max-w-7xl items-center justify-center px-4">
-            <p className="text-xs font-medium text-primary-foreground animate-fade-in">
-              {ANNOUNCEMENTS[announcementIndex]}
-            </p>
-          </div>
-          <button
-            onClick={() => setShowAnnouncement(false)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-primary-foreground/80 hover:text-primary-foreground transition-colors"
-            aria-label="Dismiss announcement"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
@@ -174,32 +135,6 @@ export function Header({
                 )}
               </button>
             </CartSidebar>
-          </div>
-        </div>
-      </div>
-
-      <div className="hidden lg:block border-t">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <CategoryNav />
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
-                <Phone className="h-3 w-3" />
-                +254 800 AMIR
-              </span>
-              <span className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
-                <Package className="h-3 w-3" />
-                Track Order
-              </span>
-              <span className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
-                <Percent className="h-3 w-3" />
-                Deals
-              </span>
-              <span className="flex items-center gap-1 hover:text-primary transition-colors cursor-pointer">
-                <ShieldCheck className="h-3 w-3" />
-                Sell with us
-              </span>
-            </div>
           </div>
         </div>
       </div>
