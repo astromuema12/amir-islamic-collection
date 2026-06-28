@@ -183,7 +183,15 @@ export function MobileNav({
                               : "hover:bg-accent"
                           )}
                         >
-                          <span className="text-base">{category.icon}</span>
+                          {category.icon?.startsWith("http") ? (
+                            <img
+                              src={category.icon}
+                              alt={category.name}
+                              className="h-5 w-5 object-contain"
+                            />
+                          ) : (
+                            <span className="text-base">{category.icon}</span>
+                          )}
                           {category.name}
                         </Link>
                       </li>

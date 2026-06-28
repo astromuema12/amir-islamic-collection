@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { CATEGORIES } from "@/lib/constants"
@@ -66,7 +67,17 @@ export function FeaturedCategories() {
                 className="group flex flex-col items-center gap-3 rounded-2xl border border-border/50 bg-card p-6 text-center card-hover"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/5 text-3xl group-hover:bg-primary/10 transition-colors duration-300">
-                  {category.icon || "📦"}
+                  {category.icon?.startsWith("http") ? (
+                    <Image
+                      src={category.icon}
+                      alt={category.name}
+                      width={28}
+                      height={28}
+                      className="h-7 w-7 object-contain"
+                    />
+                  ) : (
+                    <span className="text-3xl">{category.icon || "📦"}</span>
+                  )}
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm sm:text-base text-card-foreground group-hover:text-primary transition-colors">
