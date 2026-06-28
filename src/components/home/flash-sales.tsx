@@ -2,113 +2,13 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { motion } from "framer-motion"
 import { Flame, Clock, ShoppingBag, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
-import type { Product } from "@/types"
-
-const sampleFlashDeals: (Product & { soldPercent: number })[] = [
-  {
-    id: "1",
-    name: "Premium Velvet Prayer Mat - Large",
-    slug: "premium-velvet-prayer-mat-large",
-    description: "",
-    price: 15000,
-    discountPrice: 8900,
-    currency: "KES",
-    images: [],
-    categoryId: "1",
-    sellerId: "1",
-    sku: "PML-001",
-    stock: 45,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: true,
-    tags: ["prayer-mat", "velvet"],
-    averageRating: 4.8,
-    reviewCount: 234,
-    salesCount: 567,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    soldPercent: 72,
-  },
-  {
-    id: "2",
-    name: "Luxury Oud Perfume Oil - 12ml",
-    slug: "luxury-oud-perfume-oil-12ml",
-    description: "",
-    price: 25000,
-    discountPrice: 12900,
-    currency: "KES",
-    images: [],
-    categoryId: "11",
-    sellerId: "1",
-    sku: "OPO-002",
-    stock: 28,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: true,
-    tags: ["perfume", "oud"],
-    averageRating: 4.9,
-    reviewCount: 189,
-    salesCount: 412,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    soldPercent: 85,
-  },
-  {
-    id: "3",
-    name: "Qur'an with English Translation - Leather Bound",
-    slug: "quran-english-translation-leather",
-    description: "",
-    price: 18000,
-    discountPrice: 9900,
-    currency: "KES",
-    images: [],
-    categoryId: "2",
-    sellerId: "1",
-    sku: "QET-003",
-    stock: 33,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: true,
-    tags: ["quran", "leather"],
-    averageRating: 5.0,
-    reviewCount: 312,
-    salesCount: 789,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    soldPercent: 60,
-  },
-  {
-    id: "4",
-    name: "Premium Silk Hijab - Shayla Style",
-    slug: "premium-silk-hijab-shayla",
-    description: "",
-    price: 8500,
-    discountPrice: 4900,
-    currency: "KES",
-    images: [],
-    categoryId: "6",
-    sellerId: "1",
-    sku: "PSH-004",
-    stock: 52,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: true,
-    tags: ["hijab", "silk"],
-    averageRating: 4.7,
-    reviewCount: 156,
-    salesCount: 345,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    soldPercent: 90,
-  },
-]
+import { sampleFlashDeals, flashDealEmojis } from "@/lib/data"
 
 interface TimeLeft {
   days: number
@@ -237,10 +137,7 @@ export function FlashSales() {
 
                     <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
                       <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                        {product.id === "1" && "🕌"}
-                        {product.id === "2" && "🧴"}
-                        {product.id === "3" && "📖"}
-                        {product.id === "4" && "🧕"}
+                        {flashDealEmojis[product.id] || "📦"}
                       </div>
                     </div>
 

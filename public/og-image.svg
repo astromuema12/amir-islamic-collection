@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#022c22"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <text x="600" y="260" font-family="Georgia" font-size="72" font-weight="bold" text-anchor="middle" fill="#fbbf24">Amir Islamic</text>
+  <text x="600" y="350" font-family="Georgia" font-size="48" text-anchor="middle" fill="white">Collections</text>
+  <text x="600" y="420" font-family="Arial" font-size="24" text-anchor="middle" fill="#94a3b8">Premium Islamic Products Marketplace</text>
+  <rect x="540" y="460" width="120" height="2" rx="1" fill="#fbbf24"/>
+</svg>

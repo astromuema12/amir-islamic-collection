@@ -70,11 +70,10 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/apple-icon.png" },
+      { url: "/apple-icon.svg", type: "image/svg+xml" },
     ],
   },
   manifest: "/manifest.json",

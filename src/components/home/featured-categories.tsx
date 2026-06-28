@@ -22,31 +22,6 @@ const cardVariants = {
   },
 } as const
 
-const categoryIcons: Record<string, string> = {
-  "Prayer Mats": "🕌",
-  "Holy Qur'an": "📖",
-  "Qur'an Stands": "🪵",
-  Tasbih: "📿",
-  Abayas: "👗",
-  Hijabs: "🧕",
-  Niqabs: "👘",
-  Thobes: "👔",
-  "Islamic Books": "📚",
-  "Islamic Clothing": "👕",
-  Perfumes: "🧴",
-  "Prayer Caps": "🧢",
-  "Kids Collection": "👶",
-  "Wall Art": "🖼️",
-  "Home Decor": "🏠",
-  "Ramadan Collection": "🌙",
-  "Eid Collection": "🎉",
-  "Gift Boxes": "🎁",
-  "Digital Islamic Products": "💻",
-  Accessories: "⌚",
-  "Charity Products": "🤲",
-  "Islamic Electronics": "📱",
-}
-
 export function FeaturedCategories() {
   const displayCategories = CATEGORIES.slice(0, 8)
 
@@ -91,7 +66,7 @@ export function FeaturedCategories() {
                 className="group flex flex-col items-center gap-3 rounded-2xl border border-border/50 bg-card p-6 text-center card-hover"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/5 text-3xl group-hover:bg-primary/10 transition-colors duration-300">
-                  {categoryIcons[category.name] || "📦"}
+                  {category.icon || "📦"}
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm sm:text-base text-card-foreground group-hover:text-primary transition-colors">

@@ -6,109 +6,7 @@ import { ShoppingBag, TrendingUp, Star, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/lib/utils"
-import type { Product } from "@/types"
-
-const trendingProducts: Product[] = [
-  {
-    id: "tr1",
-    name: "Raspberry Perfume - Premium Attar",
-    slug: "raspberry-perfume-premium-attar",
-    description: "",
-    price: 12000,
-    discountPrice: 8900,
-    currency: "KES",
-    images: [],
-    categoryId: "11",
-    sellerId: "1",
-    sku: "RPA-001",
-    stock: 38,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: false,
-    tags: ["perfume", "attar"],
-    averageRating: 4.9,
-    reviewCount: 423,
-    salesCount: 1234,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "tr2",
-    name: "Complete Prayer Set - Mat, Cap, Tasbih",
-    slug: "complete-prayer-set-mat-cap-tasbih",
-    description: "",
-    price: 22000,
-    discountPrice: 15900,
-    currency: "KES",
-    images: [],
-    categoryId: "1",
-    sellerId: "1",
-    sku: "CPS-002",
-    stock: 24,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: false,
-    tags: ["prayer-set"],
-    averageRating: 4.8,
-    reviewCount: 312,
-    salesCount: 987,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "tr3",
-    name: "Turkish Cotton Towel Set - 6 Pieces",
-    slug: "turkish-cotton-towel-set-6pc",
-    description: "",
-    price: 18500,
-    discountPrice: 12900,
-    currency: "KES",
-    images: [],
-    categoryId: "10",
-    sellerId: "1",
-    sku: "TTS-003",
-    stock: 45,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: false,
-    tags: ["towel", "turkish"],
-    averageRating: 4.7,
-    reviewCount: 189,
-    salesCount: 654,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "tr4",
-    name: "Brass Islamic Compass (Qibla Finder)",
-    slug: "brass-islamic-compass-qibla-finder",
-    description: "",
-    price: 6500,
-    discountPrice: 4500,
-    currency: "KES",
-    images: [],
-    categoryId: "21",
-    sellerId: "1",
-    sku: "BIC-004",
-    stock: 67,
-    isActive: true,
-    isFeatured: false,
-    isFlashSale: false,
-    tags: ["compass", "qibla"],
-    averageRating: 4.6,
-    reviewCount: 134,
-    salesCount: 456,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-]
-
-const emojiMap: Record<string, string> = {
-  tr1: "🧴",
-  tr2: "🕌",
-  tr3: "🧣",
-  tr4: "🧭",
-}
+import { trendingProducts, trendingEmojis } from "@/lib/data"
 
 export function TrendingProducts() {
   return (
@@ -162,7 +60,7 @@ export function TrendingProducts() {
 
                   <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
                     <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                      {emojiMap[product.id] || "📦"}
+                      {trendingEmojis[product.id] || "📦"}
                     </div>
                   </div>
 

@@ -5,69 +5,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
-interface Testimonial {
-  id: string
-  name: string
-  role: string
-  avatar: string
-  content: string
-  rating: number
-  location: string
-}
-
-const testimonials: Testimonial[] = [
-  {
-    id: "1",
-    name: "Aisha Muhammad",
-    role: "Verified Buyer",
-    avatar: "",
-    content:
-      "I purchased the Premium Velvet Prayer Mat and it exceeded my expectations. The quality is exceptional — soft, durable, and beautifully designed. Shipping was fast too. JazakAllah khair!",
-    rating: 5,
-    location: "Nairobi, Kenya",
-  },
-  {
-    id: "2",
-    name: "Fatima Usman",
-    role: "Verified Buyer",
-    avatar: "",
-    content:
-      "Amir Islamic Collections is my go-to for all Islamic products. The Luxury Oud Perfume is absolutely divine, long-lasting and authentic. Their customer service is outstanding. Highly recommended!",
-    rating: 5,
-    location: "Mombasa, Kenya",
-  },
-  {
-    id: "3",
-    name: "Zaynab Abdullah",
-    role: "Verified Buyer",
-    avatar: "",
-    content:
-      "The Deluxe Quran Set made the perfect Eid gift for my parents. The leather binding is exquisite, and the calligraphy is stunning. Thank you for spreading barakah through your products.",
-    rating: 5,
-    location: "Kisumu, Kenya",
-  },
-  {
-    id: "4",
-    name: "Khadija Hassan",
-    role: "Verified Buyer",
-    avatar: "",
-    content:
-      "I bought the complete hijab collection and I'm thoroughly impressed. The fabrics are breathable, colors are vibrant, and the pricing is very fair. Will definitely be ordering again!",
-    rating: 4,
-    location: "Nakuru, Kenya",
-  },
-  {
-    id: "5",
-    name: "Aminat Bello",
-    role: "Verified Buyer",
-    avatar: "",
-    content:
-      "Their Ramadan collection is absolutely wonderful! The dates were fresh, the decor items tasteful, and the whole experience felt truly special. May Allah bless this business abundantly.",
-    rating: 5,
-    location: "Eldoret, Kenya",
-  },
-]
+import type { Testimonial } from "@/lib/data"
+import { testimonials } from "@/lib/data"
 
 export function Testimonials() {
   const [current, setCurrent] = useState(0)

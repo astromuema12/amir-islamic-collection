@@ -14,65 +14,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/utils"
-
-interface BlogPost {
-  id: string
-  title: string
-  slug: string
-  excerpt: string
-  emoji: string
-  author: string
-  date: Date
-  readTime: string
-  category: string
-  comments: number
-  likes: number
-}
-
-const blogPosts: BlogPost[] = [
-  {
-    id: "1",
-    title: "The Beauty of Ramadan: A Guide to Spiritual Preparation",
-    slug: "beauty-of-ramadan-guide",
-    excerpt:
-      "Discover practical tips for spiritual and physical preparation ahead of the blessed month of Ramadan, including recommended products and daily routines.",
-    emoji: "🌙",
-    author: "Amir Islamic Team",
-    date: new Date("2025-02-15"),
-    readTime: "5 min read",
-    category: "Ramadan",
-    comments: 24,
-    likes: 156,
-  },
-  {
-    id: "2",
-    title: "Choosing the Perfect Prayer Mat: A Complete Guide",
-    slug: "choosing-perfect-prayer-mat",
-    excerpt:
-      "From material to size and design, learn everything you need to know about selecting the perfect prayer mat for your home, travel, or gift-giving.",
-    emoji: "🕌",
-    author: "Aisha Muhammad",
-    date: new Date("2025-01-28"),
-    readTime: "4 min read",
-    category: "Guides",
-    comments: 18,
-    likes: 98,
-  },
-  {
-    id: "3",
-    title: "Essential Islamic Books Every Muslim Home Should Have",
-    slug: "essential-islamic-books",
-    excerpt:
-      "A curated list of must-have Islamic books covering Quran, Hadith, Fiqh, and spirituality to enrich your knowledge and strengthen your iman.",
-    emoji: "📚",
-    author: "Fatima Usman",
-    date: new Date("2025-01-10"),
-    readTime: "6 min read",
-    category: "Books",
-    comments: 31,
-    likes: 212,
-  },
-]
+import type { BlogPost } from "@/lib/data"
+import { blogPosts } from "@/lib/data"
 
 export function BlogPreview() {
   return (

@@ -1,171 +1,18 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
   ShoppingBag,
   Star,
-  Eye,
   Heart,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
-import type { Product } from "@/types"
-
-const sampleProducts: Product[] = [
-  {
-    id: "fp1",
-    name: "Premium Velvet Prayer Mat - Extra Large",
-    slug: "premium-velvet-prayer-mat-xl",
-    description: "",
-    price: 18900,
-    discountPrice: 12900,
-    currency: "KES",
-    images: [],
-    categoryId: "1",
-    sellerId: "1",
-    sku: "PVM-XL",
-    stock: 32,
-    isActive: true,
-    isFeatured: true,
-    isFlashSale: false,
-    tags: ["prayer-mat", "velvet"],
-    averageRating: 4.9,
-    reviewCount: 312,
-    salesCount: 890,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "fp2",
-    name: "Deluxe Quran Set with Rehal & Tasbih",
-    slug: "deluxe-quran-set-rehal-tasbih",
-    description: "",
-    price: 35000,
-    discountPrice: 24900,
-    currency: "KES",
-    images: [],
-    categoryId: "2",
-    sellerId: "1",
-    sku: "DQS-002",
-    stock: 18,
-    isActive: true,
-    isFeatured: true,
-    isFlashSale: false,
-    tags: ["quran", "set"],
-    averageRating: 5.0,
-    reviewCount: 445,
-    salesCount: 1203,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "fp3",
-    name: "Organic Black Seed Oil - 500ml",
-    slug: "organic-black-seed-oil-500ml",
-    description: "",
-    price: 9500,
-    discountPrice: 6900,
-    currency: "KES",
-    images: [],
-    categoryId: "11",
-    sellerId: "1",
-    sku: "BSO-003",
-    stock: 64,
-    isActive: true,
-    isFeatured: true,
-    isFlashSale: false,
-    tags: ["oil", "black-seed"],
-    averageRating: 4.7,
-    reviewCount: 198,
-    salesCount: 567,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "fp4",
-    name: "Embroidered Kaftan Abaya - Gold Trim",
-    slug: "embroidered-kaftan-abaya-gold",
-    description: "",
-    price: 45000,
-    discountPrice: 32900,
-    currency: "KES",
-    images: [],
-    categoryId: "5",
-    sellerId: "1",
-    sku: "EKA-004",
-    stock: 12,
-    isActive: true,
-    isFeatured: true,
-    isFlashSale: false,
-    tags: ["abaya", "kaftan"],
-    averageRating: 4.8,
-    reviewCount: 167,
-    salesCount: 423,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "fp5",
-    name: "Premium Oud Bakhoor Gift Set",
-    slug: "premium-oud-bakhoor-gift-set",
-    description: "",
-    price: 22000,
-    discountPrice: 15900,
-    currency: "KES",
-    images: [],
-    categoryId: "11",
-    sellerId: "1",
-    sku: "OBG-005",
-    stock: 27,
-    isActive: true,
-    isFeatured: true,
-    isFlashSale: false,
-    tags: ["oud", "bakhoor"],
-    averageRating: 4.9,
-    reviewCount: 256,
-    salesCount: 678,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "fp6",
-    name: "Islamic Wall Art - Ayatul Kursi Calligraphy",
-    slug: "islamic-wall-art-ayatul-kursi",
-    description: "",
-    price: 28000,
-    discountPrice: 19900,
-    currency: "KES",
-    images: [],
-    categoryId: "15",
-    sellerId: "1",
-    sku: "IWA-006",
-    stock: 21,
-    isActive: true,
-    isFeatured: true,
-    isFlashSale: false,
-    tags: ["wall-art", "calligraphy"],
-    averageRating: 4.9,
-    reviewCount: 289,
-    salesCount: 745,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-]
-
-const productEmojis: Record<string, string> = {
-  fp1: "🕌",
-  fp2: "📖",
-  fp3: "🫒",
-  fp4: "👗",
-  fp5: "🎁",
-  fp6: "🖼️",
-}
+import { sampleProducts, productEmojis } from "@/lib/data"
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -186,9 +33,6 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export function FeaturedProducts() {
-  const [isLoading, setIsLoading] = useState(false)
-  const scrollRef = useState<HTMLDivElement | null>(null)
-
   const scroll = (direction: "left" | "right") => {
     const container = document.getElementById("featured-scroll")
     if (container) {
@@ -198,29 +42,6 @@ export function FeaturedProducts() {
         behavior: "smooth",
       })
     }
-  }
-
-  if (isLoading) {
-    return (
-      <section className="py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10">
-            <Skeleton className="h-10 w-64" />
-            <Skeleton className="h-5 w-96 mt-2" />
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="space-y-3">
-                <Skeleton className="aspect-square rounded-2xl" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-5 w-1/2" />
-                <Skeleton className="h-9 w-full rounded-xl" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    )
   }
 
   return (

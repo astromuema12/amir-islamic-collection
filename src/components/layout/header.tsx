@@ -6,9 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   ShoppingBag,
   Heart,
-  Search,
   Phone,
-  ChevronDown,
   Moon,
   Sun,
   Package,
@@ -19,9 +17,7 @@ import {
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { useTheme } from "next-themes"
-import { APP_NAME, FREE_SHIPPING_THRESHOLD } from "@/lib/constants"
 import { User as UserType } from "@/types"
 import { SearchBar } from "./search-bar"
 import { UserMenu } from "./user-menu"

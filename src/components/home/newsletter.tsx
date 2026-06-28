@@ -7,7 +7,6 @@ import {
   Heart,
   Send,
   CheckCircle2,
-  Star,
   Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"

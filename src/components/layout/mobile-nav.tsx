@@ -12,7 +12,6 @@ import {
   User,
   Package,
   ChevronRight,
-  ChevronDown,
   LogIn,
   UserPlus,
   Store,
@@ -44,7 +43,6 @@ export function MobileNav({
   onRegister,
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
   const pathname = usePathname()
 
   const isActive = (path: string) => pathname === path
