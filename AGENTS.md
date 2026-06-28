@@ -13,6 +13,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - SEO metadata is exported from each page (title, description, openGraph with canonical URL).
 - Add new legal pages by copying the pattern from `src/app/account-deletion/page.tsx`.
 
+## Category Icons
+- `CATEGORIES` in `src/lib/constants.ts` uses emoji strings by default, but any entry can have an image URL as `icon`.
+- Renderers in `featured-categories.tsx` and `mobile-nav.tsx` detect `startsWith("http")` to render `<Image>`/`<img>` instead of emoji text.
+- Remote image domains must be listed in `next.config.ts` `images.remotePatterns`.
+- Niqab icon switched from `🧣👁️` to an image URL from `imgproxy.attic.sh`.
+
 ## Account Deletion
 - Server action in `src/lib/actions/auth-actions.ts`: `deleteAccount()` — no arguments (uses session).
 - Anonymizes the user record (clears PII, randomizes email, removes password) instead of hard-deleting, so order FK references remain intact. Orders retain `userId` pointing to anonymized user.

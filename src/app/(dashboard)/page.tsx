@@ -133,11 +133,14 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat, i) => (
-          <Link key={i} href={stat.href} className="block">
-            <StatsCard {...stat} />
-          </Link>
-        ))}
+        {stats.map((stat, i) => {
+          const { href: statHref, ...statProps } = stat
+          return (
+            <Link key={i} href={statHref} className="block cursor-pointer">
+              <StatsCard {...statProps} />
+            </Link>
+          )
+        })}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
