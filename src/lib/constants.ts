@@ -9,7 +9,7 @@ export const CATEGORIES = [
   { name: "Tasbih", slug: "tasbih", icon: "📿" },
   { name: "Abayas", slug: "abayas", icon: "👗" },
   { name: "Hijabs", slug: "hijabs", icon: "🧕" },
-  { name: "Niqabs", slug: "niqabs", icon: "👘" },
+  { name: "Niqabs", slug: "niqabs", icon: "🧣👁️" },
   { name: "Thobes", slug: "thobes", icon: "👔" },
   { name: "Islamic Books", slug: "islamic-books", icon: "📚" },
   { name: "Islamic Clothing", slug: "islamic-clothing", icon: "👕" },
