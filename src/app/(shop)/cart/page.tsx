@@ -154,7 +154,7 @@ export default function CartPage() {
               {recentlyViewed.slice(0, 4).map((product) => (
                 <Link
                   key={product.id}
-                  href={`/product/${product.slug}`}
+                  href={`/products/${product.slug}`}
                   className="group rounded-xl border bg-card p-3 transition-all hover:shadow-md"
                 >
                   <div className="relative mb-3 aspect-square overflow-hidden rounded-lg bg-muted">
@@ -331,7 +331,7 @@ export default function CartPage() {
             {recentlyViewed.slice(0, 6).map((product) => (
               <Link
                 key={product.id}
-                href={`/product/${product.slug}`}
+                href={`/products/${product.slug}`}
                 className="group rounded-xl border bg-card p-3 transition-all hover:shadow-md"
               >
                 <div className="relative mb-3 aspect-square overflow-hidden rounded-lg bg-muted">

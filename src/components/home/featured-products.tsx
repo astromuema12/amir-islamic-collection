@@ -107,7 +107,7 @@ export function FeaturedProducts() {
                 className="min-w-[250px] sm:min-w-[280px] flex-shrink-0"
                 style={{ scrollSnapAlign: "start" }}
               >
-                <Link href={`/product/${product.slug}`} className="group block">
+                <Link href={`/products/${product.slug}`} className="group block">
                   <div className="relative rounded-2xl border border-border/50 bg-card overflow-hidden card-hover">
                     <div className="absolute top-3 left-3 z-10">
                       {discount > 0 && (

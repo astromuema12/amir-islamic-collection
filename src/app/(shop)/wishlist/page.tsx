@@ -155,7 +155,7 @@ export default function WishlistPage() {
               Save your favorite items here and come back to them later.
             </p>
           </div>
-          <Link href="/categories">
+          <Link href="/products">
             <Button size="lg" className="gap-2 mt-2">
               Explore Products
               <ArrowRight className="h-4 w-4" />
@@ -225,7 +225,7 @@ export default function WishlistPage() {
                   </button>
                 </div>
 
-                <Link href={`/product/${item.productId}`}>
+                <Link href={`/products/${item.productId}`}>
                   <div className="relative aspect-square bg-gradient-to-br from-muted to-muted/50">
                     <div className="flex h-full items-center justify-center">
                       <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
@@ -255,7 +255,7 @@ export default function WishlistPage() {
 
                 <div className="p-4 space-y-3">
                   <div>
-                    <Link href={`/product/${item.productId}`}>
+                    <Link href={`/products/${item.productId}`}>
                       <h3 className="text-sm font-medium leading-snug line-clamp-2 hover:text-primary transition-colors">
                         {item.name}
                       </h3>

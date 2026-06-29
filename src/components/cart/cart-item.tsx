@@ -70,7 +70,7 @@ export function CartItem({
         <div className="space-y-1">
           <div className="flex items-start justify-between gap-2">
             <Link
-              href={`/product/${item.productId}`}
+              href={`/products/${item.productId}`}
               className="text-sm font-medium leading-tight hover:text-primary transition-colors line-clamp-2"
             >
               {item.name}

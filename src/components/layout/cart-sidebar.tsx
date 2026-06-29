@@ -105,7 +105,7 @@ export function CartSidebar({
               </p>
             </div>
             <Link
-              href="/categories"
+              href="/products"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.97] h-10 px-4 py-2 gap-2"
             >
               Browse Products
@@ -153,7 +153,7 @@ export function CartSidebar({
                     <div className="flex flex-1 flex-col justify-between">
                       <div className="space-y-1">
                         <Link
-                          href={`/product/${item.product?.slug || item.productId}`}
+                          href={`/products/${item.product?.slug || item.productId}`}
                           className="text-sm font-medium line-clamp-2 hover:text-primary transition-colors"
                         >
                           {item.product?.name || "Product"}

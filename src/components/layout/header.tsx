@@ -17,24 +17,23 @@ import { SearchBar } from "./search-bar"
 import { UserMenu } from "./user-menu"
 import { CartSidebar } from "./cart-sidebar"
 import { MobileNav } from "./mobile-nav"
-import { CartItem } from "@/types"
+import { useCartStore } from "@/store/cart-store"
+import { useWishlistStore } from "@/store/wishlist-store"
 
 interface HeaderProps {
   user?: UserType | null
-  cartItems?: CartItem[]
-  wishlistCount?: number
   className?: string
 }
 
 export function Header({
   user,
-  cartItems = [],
-  wishlistCount = 0,
   className,
 }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const { theme, setTheme } = useTheme()
+  const cartItems = useCartStore((s) => s.items)
+  const wishlistCount = useWishlistStore((s) => s.items.length)
 
   useEffect(() => {
     const handleScroll = () => {

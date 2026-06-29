@@ -123,7 +123,7 @@ export function FlashSales() {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <Link href={`/product/${product.slug}`} className="group block">
+                <Link href={`/products/${product.slug}`} className="group block">
                   <div className="relative rounded-2xl border border-border/50 bg-card overflow-hidden card-hover">
                     <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
                       <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 shadow-lg px-3 py-1">

@@ -169,7 +169,7 @@ export default function ComparePage() {
                         </Badge>
                         <h3 className="font-semibold text-sm line-clamp-2 mb-2">
                           <Link
-                            href={`/product/${product.slug}`}
+                            href={`/products/${product.slug}`}
                             className="hover:text-primary transition-colors"
                           >
                             {product.name}

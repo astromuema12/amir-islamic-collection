@@ -5,6 +5,7 @@ import { Providers } from "@/components/layout/providers"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants"
+import { getCurrentUser } from "@/lib/auth"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -127,11 +128,18 @@ const jsonLd = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  let user = null
+  try {
+    user = await getCurrentUser()
+  } catch {
+    // ignore
+  }
+
   return (
     <html
       lang="en"
@@ -147,7 +155,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>
-          <Header />
+          <Header user={user} />
           <main className="flex-1">{children}</main>
           <Footer />
         </Providers>

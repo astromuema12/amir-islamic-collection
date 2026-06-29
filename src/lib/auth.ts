@@ -57,7 +57,20 @@ export async function getSession() {
 
 export async function getCurrentUser() {
   const session = await getSession();
-  return session?.user ?? null;
+  if (!session?.user) return null;
+  const u = session.user;
+  return {
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    emailVerified: u.emailVerified,
+    image: u.image ?? undefined,
+    role: u.role as "user" | "seller" | "admin" | "super_admin",
+    phone: u.phone ?? undefined,
+    bio: u.bio ?? undefined,
+    createdAt: u.createdAt,
+    updatedAt: u.updatedAt,
+  };
 }
 
 export async function hashPassword(password: string) {

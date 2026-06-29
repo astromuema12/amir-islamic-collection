@@ -63,7 +63,7 @@ export function FeaturedCategories() {
           {displayCategories.map((category) => (
             <motion.div key={category.slug} variants={cardVariants}>
               <Link
-                href={`/category/${category.slug}`}
+                href={`/categories/${category.slug}`}
                 className="group flex flex-col items-center gap-3 rounded-2xl border border-border/50 bg-card p-6 text-center card-hover"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/5 text-3xl group-hover:bg-primary/10 transition-colors duration-300">
