@@ -18,9 +18,16 @@ import { hashPassword, verifyPassword, createSession, logout as clearSession, ge
 import { loginSchema, registerSchema } from "@/lib/validations";
 import { sendEmail } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function register(formData: FormData) {
   try {
+    const hdrs = await headers();
+    const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "127.0.0.1";
+    const rl = rateLimit(`register:${ip}`, 3, 3_600_000);
+    if (!rl.success) return { error: { email: ["Too many registration attempts. Please try again later."] } };
+
     const raw = {
       name: formData.get("name") as string,
       email: formData.get("email") as string,
@@ -64,6 +71,11 @@ export async function register(formData: FormData) {
 
 export async function login(formData: FormData) {
   try {
+    const hdrs = await headers();
+    const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "127.0.0.1";
+    const rl = rateLimit(`login:${ip}`, 5, 60_000);
+    if (!rl.success) return { error: { email: ["Too many login attempts. Please try again later."] } };
+
     const raw = {
       email: formData.get("email") as string,
       password: formData.get("password") as string,
@@ -105,6 +117,11 @@ export async function logout() {
 
 export async function forgotPassword(formData: FormData) {
   try {
+    const hdrs = await headers();
+    const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "127.0.0.1";
+    const rl = rateLimit(`forgot-password:${ip}`, 3, 3_600_000);
+    if (!rl.success) return { error: "Too many password reset requests. Please try again later." };
+
     const email = formData.get("email") as string;
     if (!email) return { error: "Email is required" };
 
@@ -142,6 +159,11 @@ export async function forgotPassword(formData: FormData) {
 
 export async function resetPassword(formData: FormData) {
   try {
+    const hdrs = await headers();
+    const ip = hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "127.0.0.1";
+    const rl = rateLimit(`reset-password:${ip}`, 5, 3_600_000);
+    if (!rl.success) return { error: "Too many password reset attempts. Please try again later." };
+
     const token = formData.get("token") as string;
     const password = formData.get("password") as string;
 

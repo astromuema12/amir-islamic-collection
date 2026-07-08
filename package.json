@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "npx tsx src/lib/db/migrate.ts",
     "db:seed": "npx tsx src/lib/db/seed.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:enable-rls": "npx tsx src/lib/db/enable-rls.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
