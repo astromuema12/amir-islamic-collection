@@ -41,22 +41,7 @@ interface Order {
   paymentMethod: string
 }
 
-const mockOrders: Order[] = Array.from({ length: 45 }, (_, i) => ({
-  id: `ORD-${String(i + 1).padStart(4, "0")}`,
-  customer: ["Aisha Bello", "Fatima Usman", "Khadija Yusuf", "Muhammad Abubakar", "Zainab Abdullah"][i % 5],
-  email: ["aisha@example.com", "fatima@example.com", "khadija@example.com", "muhammad@example.com", "zainab@example.com"][i % 5],
-  total: Math.floor(Math.random() * 100000 + 5000),
-  subtotal: 0,
-  shipping: 2500,
-  tax: 0,
-  discount: 0,
-  status: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"][Math.floor(Math.random() * 6)],
-  paymentStatus: ["pending", "completed", "failed", "refunded"][Math.floor(Math.random() * 4)],
-  items: Math.floor(Math.random() * 5 + 1),
-  date: new Date(Date.now() - Math.random() * 10000000000),
-  trackingNumber: Math.random() > 0.5 ? `TRK${Date.now().toString(36).toUpperCase()}` : undefined,
-  paymentMethod: ["Paystack", "Flutterwave", "Bank Transfer", "Cash on Delivery"][Math.floor(Math.random() * 4)],
-}))
+const mockOrders: Order[] = []
 
 const statusBadge = (status: string) => {
   const map: Record<string, "default" | "success" | "warning" | "danger" | "secondary" | "outline"> = {

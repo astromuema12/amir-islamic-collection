@@ -27,16 +27,7 @@ interface AuditLog {
   createdAt: Date
 }
 
-const mockLogs: AuditLog[] = Array.from({ length: 100 }, (_, i) => ({
-  id: `log-${i + 1}`,
-  user: ["Admin User", "Aisha Bello", "System", "Fatima Usman"][Math.floor(Math.random() * 4)],
-  action: ["create", "update", "delete", "view", "login", "logout", "update_status", "approve", "reject"][Math.floor(Math.random() * 9)],
-  entity: ["product", "order", "user", "category", "coupon", "blog", "review", "seller"][Math.floor(Math.random() * 8)],
-  entityId: `ent-${Math.random().toString(36).slice(2, 8)}`,
-  metadata: {},
-  ipAddress: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
-  createdAt: new Date(Date.now() - Math.random() * 10000000000),
-}))
+const mockLogs: AuditLog[] = []
 
   const actionBadge = (action: string) => {
   const variants: Record<string, "default" | "success" | "warning" | "danger" | "secondary"> = {

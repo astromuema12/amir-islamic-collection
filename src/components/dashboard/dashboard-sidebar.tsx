@@ -118,10 +118,10 @@ export function DashboardSidebar({
             {!isCollapsed && (
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-sidebar-foreground">
-                  Ahmad User
+                  User
                 </p>
                 <p className="truncate text-xs text-muted-foreground">
-                  ahmad@example.com
+                  user@example.com
                 </p>
               </div>
             )}

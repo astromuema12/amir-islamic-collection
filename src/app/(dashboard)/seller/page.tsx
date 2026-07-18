@@ -45,29 +45,11 @@ import {
 import { cn, formatPrice, formatDate } from "@/lib/utils"
 import { APP_NAME } from "@/lib/constants"
 
-const revenueData = Array.from({ length: 30 }, (_, i) => {
-  const date = new Date()
-  date.setDate(date.getDate() - (29 - i))
-  return {
-    date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-    revenue: Math.floor(Math.random() * 500000) + 100000,
-    orders: Math.floor(Math.random() * 30) + 5,
-  }
-})
+const revenueData: { date: string; revenue: number; orders: number }[] = []
 
-const recentOrders = [
-  { id: "ORD-001", customer: "Aisha J.", product: "Premium Prayer Mat", total: 15000, status: "pending", date: new Date() },
-  { id: "ORD-002", customer: "Fatima S.", product: "Qur'an with Stand", total: 25000, status: "shipped", date: new Date(Date.now() - 86400000) },
-  { id: "ORD-003", customer: "Zainab M.", product: "Silk Hijab Set", total: 8500, status: "delivered", date: new Date(Date.now() - 172800000) },
-  { id: "ORD-004", customer: "Khadija R.", product: "Oud Perfume Oil", total: 12000, status: "processing", date: new Date(Date.now() - 259200000) },
-  { id: "ORD-005", customer: "Mariam I.", product: "Islamic Wall Art", total: 9500, status: "cancelled", date: new Date(Date.now() - 345600000) },
-]
+const recentOrders: { id: string; customer: string; product: string; total: number; status: string; date: Date }[] = []
 
-const lowStockProducts = [
-  { name: "Premium Prayer Mat", stock: 3, threshold: 10 },
-  { name: "Silk Hijab Set", stock: 5, threshold: 15 },
-  { name: "Oud Perfume Oil", stock: 2, threshold: 20 },
-]
+const lowStockProducts: { name: string; stock: number; threshold: number }[] = []
 
 const statusColor: Record<string, "warning" | "default" | "success" | "danger" | "secondary"> = {
   pending: "warning",
@@ -84,40 +66,40 @@ export default function SellerOverviewPage() {
     () => [
       {
         title: "Total Products",
-        value: "156",
-        change: "+12",
-        trend: "up",
+        value: "0",
+        change: undefined,
+        trend: undefined,
         icon: Package,
         color: "text-primary bg-primary/10",
       },
       {
         title: "Active Listings",
-        value: "142",
-        change: "+8",
-        trend: "up",
+        value: "0",
+        change: undefined,
+        trend: undefined,
         icon: Box,
         color: "text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10",
       },
       {
         title: "Total Orders",
-        value: "1,247",
+        value: "0",
         sub: {
-          pending: 23,
-          completed: 1189,
-          cancelled: 35,
+          pending: 0,
+          completed: 0,
+          cancelled: 0,
         },
         icon: ShoppingCart,
         color: "text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-500/10",
       },
       {
         title: "Revenue",
-        value: formatPrice(4580000),
+        value: "KES 0",
         sub: {
-          pending: formatPrice(345000),
-          withdrawn: formatPrice(3200000),
+          pending: "KES 0",
+          withdrawn: "KES 0",
         },
-        change: "+18.5%",
-        trend: "up",
+        change: undefined,
+        trend: undefined,
         icon: DollarSign,
         color: "text-emerald-600 bg-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10",
       },
@@ -321,7 +303,7 @@ export default function SellerOverviewPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {lowStockProducts.map((item) => (
+            {lowStockProducts.length > 0 && lowStockProducts.map((item) => (
               <div
                 key={item.name}
                 className="flex items-center justify-between rounded-lg border bg-card p-3"
@@ -351,40 +333,42 @@ export default function SellerOverviewPage() {
           </Link>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead className="text-right">Total</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>{order.customer}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">
-                    {order.product}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatPrice(order.total)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={statusColor[order.status]}>
-                      {order.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(order.date)}
-                  </TableCell>
+          {recentOrders.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {recentOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="font-medium">{order.id}</TableCell>
+                    <TableCell>{order.customer}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">
+                      {order.product}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatPrice(order.total)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={statusColor[order.status]}>
+                        {order.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatDate(order.date)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

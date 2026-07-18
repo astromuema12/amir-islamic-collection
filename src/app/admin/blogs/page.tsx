@@ -31,26 +31,7 @@ interface BlogPost {
   createdAt: Date
 }
 
-const mockPosts: BlogPost[] = Array.from({ length: 20 }, (_, i) => ({
-  id: `blog-${i + 1}`,
-  title: [
-    "The Beauty of Islamic Calligraphy in Home Decor",
-    "How to Choose the Perfect Prayer Mat",
-    "A Guide to Reading the Qur'an Daily",
-    "The History of Oud Perfume in Islamic Culture",
-    "Modest Fashion Trends for 2026",
-    "Preparing Your Home for Ramadan",
-    "The Art of Gift Giving in Islam",
-    "Benefits of Using a Miswak for Oral Health",
-  ][i % 8],
-  slug: `blog-post-${i + 1}`,
-  excerpt: "A brief excerpt about this blog post and what readers can expect to learn from reading it.",
-  content: "Full content of the blog post...",
-  author: ["Admin", "Aisha Bello", "Fatima Usman"][i % 3],
-  published: Math.random() > 0.3,
-  tags: ["Islam", "Lifestyle", "Fashion", "Spirituality", "Home Decor"].slice(0, Math.floor(Math.random() * 3 + 1)),
-  createdAt: new Date(Date.now() - Math.random() * 10000000000),
-}))
+const mockPosts: BlogPost[] = []
 
 export default function AdminBlogsPage() {
   const [posts, setPosts] = useState(mockPosts)

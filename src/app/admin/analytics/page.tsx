@@ -19,44 +19,17 @@ import {
 import { formatPrice } from "@/lib/utils"
 import toast from "react-hot-toast"
 
-const visitorsData = Array.from({ length: 30 }, (_, i) => ({
-  name: `Day ${i + 1}`,
-  visitors: Math.floor(Math.random() * 5000 + 1000),
-  pageViews: Math.floor(Math.random() * 20000 + 5000),
-}))
+const visitorsData: { name: string; visitors: number; pageViews: number }[] = []
 
-const salesData = Array.from({ length: 12 }, (_, i) => ({
-  name: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-  sales: Math.floor(Math.random() * 500 + 100),
-}))
+const salesData: { name: string; sales: number }[] = []
 
-const revenueData = Array.from({ length: 12 }, (_, i) => ({
-  name: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-  revenue: Math.floor(Math.random() * 5000000 + 500000),
-  expenses: Math.floor(Math.random() * 3000000 + 200000),
-}))
+const revenueData: { name: string; revenue: number; expenses: number }[] = []
 
-const userGrowthData = Array.from({ length: 12 }, (_, i) => ({
-  name: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-  users: Math.floor(Math.random() * 2000 + 500),
-  sellers: Math.floor(Math.random() * 100 + 20),
-}))
+const userGrowthData: { name: string; users: number; sellers: number }[] = []
 
-const topProducts = [
-  { name: "Premium Prayer Mat - Velvet", sales: 1567, revenue: 38900000, rating: 4.9 },
-  { name: "Holy Qur'an - Leather Bound", sales: 1234, revenue: 24680000, rating: 4.8 },
-  { name: "Oud Perfume Oil Set", sales: 987, revenue: 19740000, rating: 4.7 },
-  { name: "Embroidered Hijab - Silk", sales: 876, revenue: 8760000, rating: 4.6 },
-  { name: "Tasbih - 99 Beads", sales: 765, revenue: 2295000, rating: 4.5 },
-]
+const topProducts: { name: string; sales: number; revenue: number; rating: number }[] = []
 
-const topCategories = [
-  { name: "Prayer Mats", revenue: 45200000, percentage: 28 },
-  { name: "Holy Qur'an", revenue: 32100000, percentage: 20 },
-  { name: "Islamic Clothing", revenue: 28400000, percentage: 18 },
-  { name: "Perfumes", revenue: 21300000, percentage: 13 },
-  { name: "Home Decor", revenue: 12600000, percentage: 8 },
-]
+const topCategories: { name: string; revenue: number; percentage: number }[] = []
 
 export default function AdminAnalyticsPage() {
   const [period, setPeriod] = useState("30days")
@@ -93,10 +66,10 @@ export default function AdminAnalyticsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Total Revenue" value="KES 128,475,000" icon={<DollarSign className="h-5 w-5" />} trend={{ value: 15.3, positive: true }} />
-        <StatsCard title="Total Sales" value="12,847" icon={<ShoppingBag className="h-5 w-5" />} trend={{ value: 8.7, positive: true }} />
-        <StatsCard title="Total Visitors" value="284,156" icon={<TrendingUp className="h-5 w-5" />} trend={{ value: 22.4, positive: true }} />
-        <StatsCard title="Conversion Rate" value="4.52%" icon={<Users className="h-5 w-5" />} trend={{ value: 1.2, positive: true }} />
+        <StatsCard title="Total Revenue" value="KES 0" icon={<DollarSign className="h-5 w-5" />} />
+        <StatsCard title="Total Sales" value="0" icon={<ShoppingBag className="h-5 w-5" />} />
+        <StatsCard title="Total Visitors" value="0" icon={<TrendingUp className="h-5 w-5" />} />
+        <StatsCard title="Conversion Rate" value="0%" icon={<Users className="h-5 w-5" />} />
       </div>
 
       {/* Charts */}
@@ -191,15 +164,7 @@ export default function AdminAnalyticsPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[
-              { country: "Kenya", visitors: 154200, percentage: 52 },
-              { country: "Egypt", visitors: 32100, percentage: 11 },
-              { country: "Saudi Arabia", visitors: 28400, percentage: 10 },
-              { country: "Indonesia", visitors: 25600, percentage: 9 },
-              { country: "Malaysia", visitors: 18700, percentage: 6 },
-              { country: "United Kingdom", visitors: 12400, percentage: 4 },
-              { country: "Other", visitors: 22756, percentage: 8 },
-            ].map((item, i) => (
+            {[].map((item: { country: string; visitors: number; percentage: number }, i) => (
               <div key={i} className="flex items-center gap-4">
                 <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-sm w-32">{item.country}</span>

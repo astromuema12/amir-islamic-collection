@@ -18,6 +18,8 @@ import type { BlogPost } from "@/lib/data"
 import { blogPosts } from "@/lib/data"
 
 export function BlogPreview() {
+  if (blogPosts.length === 0) return null
+
   return (
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

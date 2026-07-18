@@ -32,14 +32,7 @@ interface Coupon {
   isActive: boolean
 }
 
-const mockCoupons: Coupon[] = [
-  { id: "1", code: "WELCOME10", type: "percentage", value: 10, minOrderAmount: 5000, maxDiscount: 5000, usageLimit: 100, usedCount: 45, expiresAt: new Date("2026-12-31"), isActive: true },
-  { id: "2", code: "RAMADAN20", type: "percentage", value: 20, minOrderAmount: 10000, maxDiscount: 10000, usageLimit: null, usedCount: 234, expiresAt: new Date("2026-04-30"), isActive: true },
-  { id: "3", code: "FLAT2000", type: "fixed", value: 2000, minOrderAmount: 15000, maxDiscount: null, usageLimit: 50, usedCount: 12, expiresAt: new Date("2026-06-30"), isActive: true },
-  { id: "4", code: "NEWUSER", type: "percentage", value: 15, minOrderAmount: null, maxDiscount: 3000, usageLimit: 500, usedCount: 378, expiresAt: null, isActive: true },
-  { id: "5", code: "EID50", type: "fixed", value: 5000, minOrderAmount: 25000, maxDiscount: null, usageLimit: 200, usedCount: 67, expiresAt: new Date("2026-07-15"), isActive: false },
-  { id: "6", code: "FREESHIP", type: "fixed", value: 2500, minOrderAmount: 30000, maxDiscount: null, usageLimit: null, usedCount: 89, expiresAt: null, isActive: true },
-]
+const mockCoupons: Coupon[] = []
 
 export default function AdminCouponsPage() {
   const [coupons, setCoupons] = useState(mockCoupons)

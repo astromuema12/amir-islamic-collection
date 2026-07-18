@@ -59,29 +59,7 @@ interface Product {
   createdAt: Date
 }
 
-const mockProducts: Product[] = Array.from({ length: 23 }, (_, i) => ({
-  id: `prod-${i + 1}`,
-  name: [
-    "Premium Prayer Mat Velvet",
-    "Holy Qur'an with Tafsir",
-    "Silk Hijab Set - Emerald",
-    "Oud Al Amir Perfume Oil",
-    "Islamic Wall Art - Ayatul Kursi",
-    "Tasbih - 33 Bead Amber",
-    "Qur'an Stand - Wooden Carved",
-    "Abaya - Black Crepe",
-    "Thobe - White Classic",
-    "Kids Prayer Set",
-  ][i % 10],
-  image: `/placeholder.svg`,
-  price: [15000, 25000, 8500, 12000, 9500, 3500, 8000, 18000, 14000, 6500][i % 10],
-  discountPrice: i % 3 === 0 ? [12000, 22000, 7000][i % 3] : undefined,
-  stock: [45, 12, 3, 28, 7, 60, 15, 20, 0, 35][i % 10],
-  status: (["active", "active", "active", "inactive", "draft"] as const)[i % 5],
-  sales: [120, 85, 200, 45, 150, 300, 75, 90, 110, 180][i % 10],
-  category: ["Prayer Mats", "Qur'an", "Hijabs", "Perfumes", "Wall Art", "Tasbih", "Accessories", "Clothing", "Clothing", "Kids"][i % 10],
-  createdAt: new Date(Date.now() - i * 86400000),
-}))
+const mockProducts: Product[] = []
 
 export default function SellerProductsPage() {
   const [search, setSearch] = useState("")

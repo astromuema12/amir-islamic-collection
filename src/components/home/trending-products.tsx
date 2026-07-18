@@ -9,6 +9,8 @@ import { formatPrice } from "@/lib/utils"
 import { trendingProducts, trendingEmojis } from "@/lib/data"
 
 export function TrendingProducts() {
+  if (trendingProducts.length === 0) return null
+
   return (
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

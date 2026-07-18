@@ -24,67 +24,7 @@ interface CompareProduct {
   specs: Record<string, string>
 }
 
-const sampleProducts: CompareProduct[] = [
-  {
-    id: "1",
-    name: "Premium Velvet Prayer Mat",
-    slug: "premium-velvet-prayer-mat",
-    price: 15000,
-    discountPrice: 12500,
-    rating: 4.8,
-    reviewCount: 124,
-    image: "",
-    brand: "Amir Collections",
-    sku: "PM-001",
-    specs: {
-      Material: "Premium Velvet",
-      Size: "115cm x 70cm",
-      Weight: "0.8 kg",
-      "Washable": "Yes (Hand Wash)",
-      Thickness: "8mm",
-      Design: "Mihrab Pattern",
-    },
-  },
-  {
-    id: "2",
-    name: "Plush Microfiber Prayer Mat",
-    slug: "plush-microfiber-prayer-mat",
-    price: 12000,
-    discountPrice: 9900,
-    rating: 4.6,
-    reviewCount: 89,
-    image: "",
-    brand: "Amir Collections",
-    sku: "PM-002",
-    specs: {
-      Material: "Microfiber Plush",
-      Size: "120cm x 75cm",
-      Weight: "0.6 kg",
-      "Washable": "Yes (Machine Wash)",
-      Thickness: "6mm",
-      Design: "Solid Color",
-    },
-  },
-  {
-    id: "3",
-    name: "Travel Prayer Mat Set",
-    slug: "travel-prayer-mat-set",
-    price: 8500,
-    rating: 4.4,
-    reviewCount: 56,
-    image: "",
-    brand: "Journey Faith",
-    sku: "PM-003",
-    specs: {
-      Material: "Polyester",
-      Size: "90cm x 50cm (Folded)",
-      Weight: "0.3 kg",
-      "Washable": "Yes",
-      "Includes": "Compass, Pouch",
-      "Design": "Compact Foldable",
-    },
-  },
-]
+const sampleProducts: CompareProduct[] = []
 
 const allSpecKeys = Array.from(
   new Set(sampleProducts.flatMap((p) => Object.keys(p.specs)))

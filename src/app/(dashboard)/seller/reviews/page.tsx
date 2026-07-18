@@ -42,64 +42,7 @@ interface Review {
   response?: string
 }
 
-const mockReviews: Review[] = [
-  {
-    id: "rev-1",
-    product: "Premium Velvet Prayer Mat",
-    user: "Aisha J.",
-    rating: 5,
-    title: "Absolutely beautiful!",
-    content:
-      "This prayer mat is absolutely stunning. The velvet material is so soft and the gold embroidery is exquisite. Highly recommended for anyone looking for a premium quality prayer mat.",
-    isApproved: true,
-    createdAt: new Date(Date.now() - 2 * 86400000),
-  },
-  {
-    id: "rev-2",
-    product: "Silk Hijab Set - Emerald",
-    user: "Fatima S.",
-    rating: 4,
-    title: "Great quality hijab",
-    content:
-      "The silk material is very comfortable and the emerald color is beautiful. Fits perfectly. Would have given 5 stars but the packaging could be better.",
-    isApproved: true,
-    createdAt: new Date(Date.now() - 5 * 86400000),
-    response: "Thank you for your feedback! We'll work on improving the packaging.",
-  },
-  {
-    id: "rev-3",
-    product: "Oud Al Amir Perfume Oil",
-    user: "Zainab M.",
-    rating: 5,
-    title: "Best oud perfume!",
-    content:
-      "The scent is long-lasting and truly authentic. I've received so many compliments. This is my go-to perfume for special occasions. Will definitely buy again!",
-    isApproved: true,
-    createdAt: new Date(Date.now() - 7 * 86400000),
-  },
-  {
-    id: "rev-4",
-    product: "Islamic Wall Art - Ayatul Kursi",
-    user: "Khadija R.",
-    rating: 3,
-    title: "Good but smaller than expected",
-    content:
-      "The artwork is beautiful and the calligraphy is well done. However, the size is smaller than what I expected based on the photos. Please include dimensions in the description.",
-    isApproved: true,
-    createdAt: new Date(Date.now() - 10 * 86400000),
-  },
-  {
-    id: "rev-5",
-    product: "Tasbih - 33 Bead Amber",
-    user: "Mariam I.",
-    rating: 5,
-    title: "Exquisite tasbih",
-    content:
-      "The amber beads are gorgeous and feel so smooth. Comes in a nice gift box too. My mother loved it as a gift.",
-    isApproved: false,
-    createdAt: new Date(Date.now() - 12 * 86400000),
-  },
-]
+const mockReviews: Review[] = []
 
 const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) => (
   <div className="flex items-center gap-0.5">
@@ -122,9 +65,11 @@ export default function SellerReviewsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [responseText, setResponseText] = useState("")
 
+  const approvedReviews = reviews.filter((r) => r.isApproved)
   const averageRating =
-    reviews.filter((r) => r.isApproved).reduce((s, r) => s + r.rating, 0) /
-    reviews.filter((r) => r.isApproved).length
+    approvedReviews.length > 0
+      ? approvedReviews.reduce((s, r) => s + r.rating, 0) / approvedReviews.length
+      : 0
 
   const handleRespond = (reviewId: string) => {
     if (!responseText.trim()) {

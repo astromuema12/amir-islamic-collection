@@ -97,10 +97,10 @@ export default function AdminSettingsPage() {
                     <h3 className="text-sm font-semibold">Paystack</h3>
                     <p className="text-xs text-muted-foreground">Primary payment gateway</p>
                   </div>
-                  <Switch defaultChecked className="ml-auto" />
+                   <Switch className="ml-auto" />
                 </div>
-                <Input label="Public Key" defaultValue="pk_test_..." type="password" />
-                <Input label="Secret Key" defaultValue="sk_test_..." type="password" />
+                <Input label="Public Key" placeholder="pk_test_..." type="password" />
+                <Input label="Secret Key" placeholder="sk_test_..." type="password" />
               </div>
               <div className="rounded-lg border p-4 space-y-4">
                 <div className="flex items-center gap-3">

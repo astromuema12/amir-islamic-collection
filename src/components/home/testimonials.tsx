@@ -25,9 +25,12 @@ export function Testimonials() {
   }, [])
 
   useEffect(() => {
+    if (testimonials.length === 0) return
     const interval = setInterval(next, 6000)
     return () => clearInterval(interval)
   }, [next])
+
+  if (testimonials.length === 0) return null
 
   const t = testimonials[current]
 

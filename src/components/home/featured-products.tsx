@@ -33,6 +33,8 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export function FeaturedProducts() {
+  if (sampleProducts.length === 0) return null
+
   const scroll = (direction: "left" | "right") => {
     const container = document.getElementById("featured-scroll")
     if (container) {

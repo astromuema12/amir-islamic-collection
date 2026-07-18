@@ -49,40 +49,9 @@ const values = [
   },
 ]
 
-const team = [
-  {
-    name: "Abdullahi Ibrahim",
-    role: "Founder & CEO",
-    bio: "A passionate entrepreneur with a vision to make quality Islamic products accessible to every Muslim home. 15+ years in e-commerce.",
-    initials: "AI",
-  },
-  {
-    name: "Aisha Mohammed",
-    role: "Head of Operations",
-    bio: "Ensuring every order reaches our customers with care and efficiency. Background in logistics and supply chain management.",
-    initials: "AM",
-  },
-  {
-    name: "Yusuf Ahmad",
-    role: "Islamic Advisor",
-    bio: "Providing guidance on Shariah compliance for all products and business practices. Graduate of Islamic University of Madinah.",
-    initials: "YA",
-  },
-  {
-    name: "Fatima Hassan",
-    role: "Customer Experience Lead",
-    bio: "Dedicated to ensuring every interaction with our platform is pleasant, helpful, and memorable.",
-    initials: "FH",
-  },
-]
+const team: { name: string; role: string; bio: string; initials: string }[] = []
 
-const milestones = [
-  { year: "2022", event: "Amir Islamic Collections founded with a vision to serve the Ummah" },
-  { year: "2023", event: "Launched marketplace platform with 50+ sellers and 1,000+ products" },
-  { year: "2024", event: "Expanded to international shipping, serving customers in 10+ countries" },
-  { year: "2025", event: "Reached 100,000+ customers served and 500+ sellers on our platform" },
-  { year: "2026", event: "Launched mobile app and introduced AI-powered product recommendations" },
-]
+const milestones: { year: string; event: string }[] = []
 
 export default function AboutPage() {
   return (
@@ -183,19 +152,23 @@ export default function AboutPage() {
 
           <section>
             <div className="space-y-4">
-              {milestones.map((milestone) => (
-                <div
-                  key={milestone.year}
-                  className="flex items-start gap-4 p-4 rounded-xl hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm shrink-0">
-                    {milestone.year}
+              {milestones.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">Milestones coming soon.</p>
+              ) : (
+                milestones.map((milestone) => (
+                  <div
+                    key={milestone.year}
+                    className="flex items-start gap-4 p-4 rounded-xl hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm shrink-0">
+                      {milestone.year}
+                    </div>
+                    <div className="pt-1.5">
+                      <p className="text-foreground">{milestone.event}</p>
+                    </div>
                   </div>
-                  <div className="pt-1.5">
-                    <p className="text-foreground">{milestone.event}</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </section>
 
@@ -239,18 +212,22 @@ export default function AboutPage() {
 
           <section>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {team.map((member) => (
-                <Card key={member.name} className="border-2 text-center hover:border-primary/50 transition-colors group">
-                  <CardContent className="p-6">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-premium/20 mx-auto mb-4">
-                      <span className="text-lg font-bold text-primary">{member.initials}</span>
-                    </div>
-                    <h3 className="font-semibold">{member.name}</h3>
-                    <p className="text-sm text-primary font-medium mb-2">{member.role}</p>
-                    <p className="text-xs text-muted-foreground">{member.bio}</p>
-                  </CardContent>
-                </Card>
-              ))}
+              {team.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8 col-span-full">Team information coming soon.</p>
+              ) : (
+                team.map((member) => (
+                  <Card key={member.name} className="border-2 text-center hover:border-primary/50 transition-colors group">
+                    <CardContent className="p-6">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-premium/20 mx-auto mb-4">
+                        <span className="text-lg font-bold text-primary">{member.initials}</span>
+                      </div>
+                      <h3 className="font-semibold">{member.name}</h3>
+                      <p className="text-sm text-primary font-medium mb-2">{member.role}</p>
+                      <p className="text-xs text-muted-foreground">{member.bio}</p>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </section>
 

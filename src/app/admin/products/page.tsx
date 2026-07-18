@@ -38,26 +38,7 @@ interface Product {
   createdAt: Date
 }
 
-const mockProducts: Product[] = Array.from({ length: 50 }, (_, i) => ({
-  id: `prod-${i + 1}`,
-  name: [
-    "Premium Prayer Mat - Velvet", "Holy Qur'an - Leather Bound", "Miswak Toothbrush Pack",
-    "Islamic Wall Art - Ayatul Kursi", "Oud Perfume Oil Set", "Turkish Abaya - Black",
-    "Embroidered Hijab - Silk", "Tasbih - 99 Beads", "Qur'an Stand - Wooden",
-    "Islamic Books Bundle", "Thobe - White Classic", "Prayer Cap - Knitted",
-  ][i % 12],
-  slug: `product-${i + 1}`,
-  images: [],
-  price: Math.floor(Math.random() * 50000 + 2000),
-  discountPrice: Math.random() > 0.7 ? Math.floor(Math.random() * 40000 + 1500) : undefined,
-  stock: Math.floor(Math.random() * 200),
-  category: { name: ["Prayer Mats", "Holy Qur'an", "Accessories", "Home Decor"][i % 4] },
-  isActive: Math.random() > 0.2,
-  isFeatured: Math.random() > 0.7,
-  salesCount: Math.floor(Math.random() * 500),
-  averageRating: Number((Math.random() * 2 + 3).toFixed(1)),
-  createdAt: new Date(Date.now() - Math.random() * 10000000000),
-}))
+const mockProducts: Product[] = []
 
 export default function AdminProductsPage() {
   const router = useRouter()

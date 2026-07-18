@@ -24,14 +24,7 @@ interface MediaItem {
   createdAt: Date
 }
 
-const initialMedia: MediaItem[] = Array.from({ length: 24 }, (_, i) => ({
-  id: `media-${i + 1}`,
-  url: `https://res.cloudinary.com/demo/image/upload/v1/products/img-${i + 1}.jpg`,
-  name: `product-image-${i + 1}.jpg`,
-  size: Math.floor(Math.random() * 500000 + 50000),
-  type: "image/jpeg",
-  createdAt: new Date(Date.now() - Math.random() * 10000000000),
-}))
+const initialMedia: MediaItem[] = []
 
 export default function AdminMediaPage() {
   const [media, setMedia] = useState(initialMedia)

@@ -49,49 +49,7 @@ interface Withdrawal {
   updatedAt: Date
 }
 
-const mockWithdrawals: Withdrawal[] = [
-  {
-    id: "WTH-001",
-    amount: 150000,
-    bankName: "GTBank",
-    accountNumber: "0123456789",
-    accountName: "Amir Store",
-    status: "completed",
-    createdAt: new Date(Date.now() - 5 * 86400000),
-    updatedAt: new Date(Date.now() - 3 * 86400000),
-  },
-  {
-    id: "WTH-002",
-    amount: 250000,
-    bankName: "Access Bank",
-    accountNumber: "0987654321",
-    accountName: "Amir Store",
-    status: "approved",
-    createdAt: new Date(Date.now() - 3 * 86400000),
-    updatedAt: new Date(Date.now() - 1 * 86400000),
-  },
-  {
-    id: "WTH-003",
-    amount: 50000,
-    bankName: "First Bank",
-    accountNumber: "1122334455",
-    accountName: "Amir Store",
-    status: "pending",
-    createdAt: new Date(Date.now() - 1 * 86400000),
-    updatedAt: new Date(Date.now() - 1 * 86400000),
-  },
-  {
-    id: "WTH-004",
-    amount: 100000,
-    bankName: "UBA",
-    accountNumber: "5544332211",
-    accountName: "Amir Store",
-    status: "rejected",
-    notes: "Insufficient balance at time of processing",
-    createdAt: new Date(Date.now() - 7 * 86400000),
-    updatedAt: new Date(Date.now() - 5 * 86400000),
-  },
-]
+const mockWithdrawals: Withdrawal[] = []
 
 const statusConfig = {
   pending: { icon: Clock, color: "text-warning", badge: "warning" as const, label: "Pending" },

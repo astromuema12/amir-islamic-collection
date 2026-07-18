@@ -38,25 +38,7 @@ interface Seller {
   createdAt: Date
 }
 
-const mockSellers: Seller[] = Array.from({ length: 25 }, (_, i) => ({
-  id: `seller-${i + 1}`,
-  storeName: ["Al-Noor Treasures", "Makkah Essentials", "Madinah Crafts", "Quranic Gifts", "Hijab Haven",
-    "Islamic Art Studio", "Oud Paradise", "Tasbih World", "Abaya Collection", "Thobe House"][i % 10],
-  storeSlug: ["al-noor-treasures", "makkah-essentials", "madinah-crafts", "quranic-gifts", "hijab-haven"][i % 5],
-  owner: ["Aisha Bello", "Fatima Usman", "Khadija Yusuf", "Muhammad Abubakar", "Zainab Abdullah"][i % 5],
-  email: `seller${i + 1}@example.com`,
-  phone: `+25480123456${i}`,
-  logo: "",
-  description: "Premium Islamic products store with quality guaranteed.",
-  city: "Nairobi",
-  state: "Nairobi County",
-  isVerified: Math.random() > 0.3,
-  rating: Number((Math.random() * 1.5 + 3.5).toFixed(1)),
-  productCount: Math.floor(Math.random() * 100 + 5),
-  totalSales: Math.floor(Math.random() * 2000000 + 100000),
-  balance: Math.floor(Math.random() * 500000 + 10000),
-  createdAt: new Date(Date.now() - Math.random() * 10000000000),
-}))
+const mockSellers: Seller[] = []
 
 export default function AdminSellersPage() {
   const [sellers, setSellers] = useState(mockSellers)

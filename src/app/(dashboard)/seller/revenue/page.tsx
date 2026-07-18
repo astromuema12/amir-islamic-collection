@@ -50,50 +50,13 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { cn, formatPrice, formatDate } from "@/lib/utils"
 
-const weeklyData = Array.from({ length: 12 }, (_, i) => ({
-  week: `W${i + 1}`,
-  revenue: Math.floor(Math.random() * 800000) + 200000,
-  orders: Math.floor(Math.random() * 40) + 10,
-  profit: Math.floor(Math.random() * 400000) + 100000,
-}))
+const weeklyData: { week: string; revenue: number; orders: number; profit: number }[] = []
 
-const monthlyData = Array.from({ length: 12 }, (_, i) => ({
-  month: [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ][i],
-  revenue: Math.floor(Math.random() * 3000000) + 500000,
-  orders: Math.floor(Math.random() * 150) + 30,
-  profit: Math.floor(Math.random() * 1500000) + 250000,
-}))
+const monthlyData: { month: string; revenue: number; orders: number; profit: number }[] = []
 
-const yearlyData = Array.from({ length: 5 }, (_, i) => ({
-  year: `${2022 + i}`,
-  revenue: Math.floor(Math.random() * 20000000) + 5000000,
-  orders: Math.floor(Math.random() * 1000) + 200,
-  profit: Math.floor(Math.random() * 10000000) + 2500000,
-}))
+const yearlyData: { year: string; revenue: number; orders: number; profit: number }[] = []
 
-const transactions = Array.from({ length: 20 }, (_, i) => ({
-  id: `TXN-${String(3000 + i).padStart(4, "0")}`,
-  description: [
-    "Order payment - Premium Prayer Mat",
-    "Order payment - Silk Hijab Set",
-    "Order payment - Oud Perfume Oil",
-    "Withdrawal to bank account",
-    "Order payment - Qur'an with Stand",
-    "Order payment - Islamic Wall Art",
-    "Flash sale payout",
-    "Order payment - Tasbih Set",
-  ][i % 8],
-  amount:
-    i % 4 === 3
-      ? -(Math.floor(Math.random() * 500000) + 50000)
-      : Math.floor(Math.random() * 200000) + 5000,
-  type: i % 4 === 3 ? "withdrawal" : "sale",
-  status: "completed",
-  date: new Date(Date.now() - i * 86400000),
-}))
+const transactions: { id: string; description: string; amount: number; type: string; status: string; date: Date }[] = []
 
 export default function SellerRevenuePage() {
   const [chartView, setChartView] = useState<"weekly" | "monthly" | "yearly">("monthly")
@@ -205,7 +168,7 @@ export default function SellerRevenuePage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">
-              {formatPrice(245000)}
+              {formatPrice(0)}
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
               Will be available in 3 days

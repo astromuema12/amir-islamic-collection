@@ -60,29 +60,7 @@ interface Order {
   notes?: string
 }
 
-const mockOrders: Order[] = Array.from({ length: 15 }, (_, i) => ({
-  id: `ORD-${String(1000 + i).padStart(4, "0")}`,
-  customer: ["Aisha J.", "Fatima S.", "Zainab M.", "Khadija R.", "Mariam I.", "Aminah B.", "Safiya K.", "Halima D."][i % 8],
-  email: `customer${i + 1}@email.com`,
-  phone: "+254 800 000 000" + i,
-  address: "123 Moi Avenue, Nairobi, Kenya",
-  items: [
-    {
-      id: `item-${i}-1`,
-      name: ["Premium Prayer Mat", "Silk Hijab Set", "Oud Perfume", "Qur'an with Stand", "Islamic Wall Art", "Tasbih", "Abaya", "Thobe"][i % 8],
-      quantity: Math.floor(Math.random() * 3) + 1,
-      price: [15000, 8500, 12000, 25000, 9500, 3500, 18000, 14000][i % 8],
-    },
-  ],
-  total: [15000, 8500, 12000, 25000, 9500, 3500, 18000, 14000][i % 8] * (Math.floor(Math.random() * 3) + 1),
-  subtotal: [15000, 8500, 12000, 25000, 9500, 3500, 18000, 14000][i % 8] * (Math.floor(Math.random() * 3) + 1),
-  shipping: 1500,
-  status: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"][i % 6],
-  paymentStatus: ["completed", "pending", "completed", "completed", "completed", "failed"][i % 6],
-  date: new Date(Date.now() - i * 86400000 + i * 3600000),
-  trackingNumber: i % 3 === 0 ? `TRK-${String(80000 + i).padStart(6, "0")}` : undefined,
-  notes: i % 4 === 0 ? "Customer requested gift wrapping" : undefined,
-}))
+const mockOrders: Order[] = []
 
 const statusColor: Record<string, "warning" | "default" | "secondary" | "success" | "danger"> = {
   pending: "warning",

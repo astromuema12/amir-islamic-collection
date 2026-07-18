@@ -37,17 +37,7 @@ interface Customer {
   joinedAt: Date
 }
 
-const mockCustomers: Customer[] = Array.from({ length: 50 }, (_, i) => ({
-  id: `user-${i + 1}`,
-  name: ["Aisha Bello", "Fatima Usman", "Khadija Yusuf", "Muhammad Abubakar", "Zainab Abdullah",
-    "Umar Farouk", "Hauwa Ibrahim", "Abdullahi Saleh", "Maryam Musa", "Ibrahim Danjuma"][i % 10],
-  email: [`aisha${i}@example.com`, `fatima${i}@example.com`, `khadija${i}@example.com`, `muhammad${i}@example.com`, `zainab${i}@example.com`][i % 5],
-  role: ["user", "seller", "admin", "user", "seller", "user", "user", "seller", "user", "user"][i % 10],
-  status: Math.random() > 0.9 ? "banned" : "active",
-  ordersCount: Math.floor(Math.random() * 20),
-  totalSpent: Math.floor(Math.random() * 500000),
-  joinedAt: new Date(Date.now() - Math.random() * 10000000000),
-}))
+const mockCustomers: Customer[] = []
 
 const roleBadge = (role: string) => {
   const variants: Record<string, "default" | "secondary" | "premium" | "danger"> = {

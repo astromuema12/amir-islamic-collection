@@ -120,11 +120,11 @@ export default function AdminSEOPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input label="Google Analytics ID (G-ID)" defaultValue="G-XXXXXXXXXX" placeholder="G-XXXXXXXXXX" />
+          <Input label="Google Analytics ID (G-ID)" placeholder="G-XXXXXXXXXX" />
           <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
             <Badge variant="outline">Tracking</Badge>
             <span className="text-sm text-muted-foreground">Analytics tracking is currently active</span>
-            <Switch defaultChecked className="ml-auto" />
+            <Switch className="ml-auto" />
           </div>
           <Button onClick={() => handleSave("Analytics")} isLoading={saving}>
             <Save className="mr-2 h-4 w-4" /> Save Analytics Settings

@@ -31,17 +31,7 @@ interface Review {
   createdAt: Date
 }
 
-const mockReviews: Review[] = Array.from({ length: 30 }, (_, i) => ({
-  id: `review-${i + 1}`,
-  product: ["Premium Prayer Mat", "Holy Qur'an Leather Bound", "Oud Perfume Oil", "Embroidered Hijab", "Tasbih 99 Beads"][i % 5],
-  user: ["Aisha Bello", "Fatima Usman", "Khadija Yusuf", "Muhammad Abubakar", "Zainab Abdullah"][i % 5],
-  userImage: "",
-  rating: Math.floor(Math.random() * 3) + 3,
-  title: ["Great quality!", "Highly recommended", "Beautiful product", "Fast delivery", "Excellent value"][i % 5],
-  content: "I am very satisfied with this purchase. The quality exceeded my expectations and the delivery was prompt. Would definitely buy again from this store. The product is exactly as described and the packaging was beautiful.",
-  isApproved: Math.random() > 0.4,
-  createdAt: new Date(Date.now() - Math.random() * 10000000000),
-}))
+const mockReviews: Review[] = []
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState(mockReviews)

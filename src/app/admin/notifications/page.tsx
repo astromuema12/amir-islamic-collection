@@ -29,14 +29,9 @@ interface NotificationHistory {
   deliveredCount: number
 }
 
-const mockHistory: NotificationHistory[] = [
-  { id: "n1", title: "Welcome to Amir Islamic Collections", message: "Thank you for joining our marketplace!", target: "All Users", sentBy: "Admin", sentAt: new Date(), deliveredCount: 1245 },
-  { id: "n2", title: "Ramadan Sale is Live!", message: "Get up to 40% off on selected items during Ramadan.", target: "All Users", sentBy: "Admin", sentAt: new Date(Date.now() - 86400000), deliveredCount: 1230 },
-  { id: "n3", title: "Seller Verification Approved", message: "Your store has been verified. Start selling now!", target: "Sellers", sentBy: "Admin", sentAt: new Date(Date.now() - 172800000), deliveredCount: 23 },
-  { id: "n4", title: "New Product Uploaded", message: "Your product has been approved and is now live.", target: "Sellers", sentBy: "System", sentAt: new Date(Date.now() - 259200000), deliveredCount: 45 },
-]
+const mockHistory: NotificationHistory[] = []
 
-const users = ["Aisha Bello (aisha@example.com)", "Fatima Usman (fatima@example.com)", "Muhammad Abubakar (muhammad@example.com)"]
+const users: string[] = []
 
 export default function AdminNotificationsPage() {
   const [target, setTarget] = useState("all")
