@@ -78,7 +78,7 @@ export function Testimonials() {
               <Quote className="h-16 w-16" />
             </div>
 
-            <div className="min-h-[280px] flex items-center justify-center">
+            <div className="min-h-[280px] sm:min-h-[400px] flex items-center justify-center">
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={current}

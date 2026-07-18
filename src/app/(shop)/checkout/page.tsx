@@ -624,7 +624,7 @@ export default function CheckoutPage() {
                 size="lg"
                 onClick={handlePlaceOrder}
                 isLoading={isPlacingOrder}
-                className="gap-2 min-w-[180px]"
+                className="gap-2 w-full sm:w-auto sm:min-w-[180px]"
               >
                 {isPlacingOrder ? (
                   "Placing Order..."

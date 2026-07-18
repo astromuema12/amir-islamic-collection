@@ -20,7 +20,7 @@ export function MobileFilterSheet({ categories, brands }: MobileFilterSheetProps
           Filters
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[300px] overflow-y-auto">
+      <SheetContent side="left" className="w-[min(300px,85vw)] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Filters</SheetTitle>
         </SheetHeader>

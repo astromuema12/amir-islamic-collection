@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Fragment } from "react"
 import Link from "next/link"
 import { X, Plus, ShoppingCart, Heart, ArrowLeft, BarChart3, Star, Check, Minus } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
@@ -79,9 +79,114 @@ export default function ComparePage() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto -mx-4 sm:mx-0">
+            {/* Mobile: stacked cards */}
+            <div className="grid gap-4 sm:hidden">
+              {products.map((product) => (
+                <div key={product.id} className="relative">
+                  <button
+                    onClick={() => removeProduct(product.id)}
+                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors z-10"
+                    aria-label={`Remove ${product.name}`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                  <Card className="border-2 h-full">
+                    <CardContent className="p-4 text-center">
+                      <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-premium/10 flex items-center justify-center mb-4">
+                        <BarChart3 className="h-12 w-12 text-primary/30" />
+                      </div>
+                      <Badge variant="secondary" className="mb-2">
+                        {product.brand}
+                      </Badge>
+                      <h3 className="font-semibold text-sm line-clamp-2 mb-2">
+                        <Link
+                          href={`/products/${product.slug}`}
+                          className="hover:text-primary transition-colors"
+                        >
+                          {product.name}
+                        </Link>
+                      </h3>
+                      <div className="flex items-center justify-center gap-1 text-sm mb-3">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-medium">{product.rating}</span>
+                        <span className="text-muted-foreground">
+                          ({product.reviewCount})
+                        </span>
+                      </div>
+                      <div className="mb-3">
+                        {product.discountPrice ? (
+                          <div className="space-y-0.5">
+                            <span className="text-2xl font-bold text-primary">
+                              KES {product.discountPrice.toLocaleString()}
+                            </span>
+                            <div>
+                              <span className="text-sm text-muted-foreground line-through">
+                                KES {product.price.toLocaleString()}
+                              </span>
+                              <Badge variant="success" className="ml-2 text-xs">
+                                Save {Math.round((1 - product.discountPrice / product.price) * 100)}%
+                              </Badge>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-2xl font-bold">
+                            KES {product.price.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Button size="sm" className="gap-2 w-full">
+                          <ShoppingCart className="h-4 w-4" />
+                          Add to Cart
+                        </Button>
+                        <Button variant="outline" size="sm" className="gap-2 w-full">
+                          <Heart className="h-4 w-4" />
+                          Wishlist
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  {allSpecKeys.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {allSpecKeys.map((key) => (
+                        <div key={key} className="flex items-center justify-between text-sm rounded-lg bg-muted/30 px-3 py-2">
+                          <span className="font-medium text-muted-foreground">{key}</span>
+                          {product.specs[key] ? (
+                            <span className="flex items-center gap-1.5">
+                              <Check className="h-4 w-4 text-success shrink-0" />
+                              {product.specs[key]}
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1.5 text-muted-foreground">
+                              <Minus className="h-4 w-4" />
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {products.length < 4 && (
+                <Card className="border-2 border-dashed">
+                  <CardContent className="p-4 flex items-center justify-center min-h-[200px]">
+                    <div className="text-center">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mx-auto mb-3">
+                        <Plus className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Add another product to compare
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Desktop: table-style grid */}
+            <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0">
               <div
-                className="grid gap-4 min-w-[600px]"
+                className="grid gap-4"
                 style={{
                   gridTemplateColumns: `200px repeat(${products.length}, minmax(240px, 1fr))`,
                 }}
@@ -176,11 +281,8 @@ export default function ComparePage() {
                 )}
 
                 {allSpecKeys.map((key) => (
-                  <>
-                    <div
-                      key={`label-${key}`}
-                      className="flex items-center text-sm font-medium text-muted-foreground bg-muted/30 rounded-lg px-3 py-2"
-                    >
+                  <Fragment key={key}>
+                    <div className="flex items-center text-sm font-medium text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
                       {key}
                     </div>
                     {products.map((product) => (
@@ -202,12 +304,9 @@ export default function ComparePage() {
                       </div>
                     ))}
                     {products.length < 4 && (
-                      <div
-                        key={`empty-${key}`}
-                        className="rounded-lg bg-muted/5"
-                      />
+                      <div className="rounded-lg bg-muted/5" />
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </div>
             </div>

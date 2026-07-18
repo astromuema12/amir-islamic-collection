@@ -32,7 +32,7 @@ export function RelatedProducts({ title = "Related Products", products }: Relate
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">{title}</h2>
-        <div className="flex gap-2">
+        <div className="hidden sm:flex gap-2">
           <Button
             variant="outline"
             size="icon"

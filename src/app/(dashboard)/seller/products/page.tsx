@@ -165,7 +165,7 @@ export default function SellerProductsPage() {
                 className="pl-9"
               />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
                 <SelectTrigger className="w-[130px]">
                   <Filter className="h-3.5 w-3.5 mr-1" />
@@ -232,7 +232,7 @@ export default function SellerProductsPage() {
             </>
           )}
 
-          <div className="rounded-lg border">
+          <div className="rounded-lg border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>

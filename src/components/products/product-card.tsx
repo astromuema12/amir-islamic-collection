@@ -62,7 +62,7 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
         animate={{ opacity: 1, y: 0 }}
         className="group flex gap-4 rounded-xl border bg-card p-4 shadow-sm transition-all hover:shadow-md"
       >
-        <Link href={`/products/${product.slug}`} className="relative h-40 w-40 shrink-0 overflow-hidden rounded-lg">
+        <Link href={`/products/${product.slug}`} className="relative h-24 w-24 sm:h-40 sm:w-40 shrink-0 overflow-hidden rounded-lg">
           <Image
             src={imageUrl}
             alt={product.name}

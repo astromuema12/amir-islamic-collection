@@ -266,7 +266,7 @@ export function Footer() {
             <p className="text-xs text-muted-foreground">
               We accept
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {PAYMENT_METHODS.map((method) => (
                 <div
                   key={method.name}

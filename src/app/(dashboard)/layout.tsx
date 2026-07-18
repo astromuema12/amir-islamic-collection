@@ -52,7 +52,6 @@ export default function DashboardLayout({
 
       <div className="flex flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 lg:px-6">
-          <div className="lg:hidden w-10" />
           <div className="flex flex-1 items-center gap-2">
             <h1 className="text-lg font-semibold text-foreground">
               My Account

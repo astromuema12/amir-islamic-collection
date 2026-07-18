@@ -100,7 +100,7 @@ export function BlogPreview() {
                     <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <User className="h-3 w-3" />
-                        <span className="truncate max-w-[100px]">{post.author}</span>
+                        <span className="truncate max-w-[100px] sm:max-w-[180px]">{post.author}</span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
