@@ -18,7 +18,7 @@ import { hashPassword, verifyPassword, createSession, logout as clearSession, ge
 import { loginSchema, registerSchema } from "@/lib/validations";
 import { sendEmail } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function register(formData: FormData) {
@@ -198,15 +198,33 @@ export async function resetPassword(formData: FormData) {
 }
 
 export async function oauthLogin(provider: string) {
-  const providers: Record<string, string> = {
-    google: `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.GOOGLE_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/google&response_type=code&scope=email%20profile`,
-    github: `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENT_ID}&redirect_uri=${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/github&scope=user:email`,
-  };
+  try {
+    const { v4: uuidv4 } = await import("uuid");
+    const { getAuthorizationUrl, OAUTH_STATE_COOKIE, OAUTH_STATE_MAX_AGE } = await import("@/lib/oauth");
 
-  const url = providers[provider];
-  if (!url) return { error: "Unsupported provider" };
+    const config = (await import("@/lib/oauth")).providers[provider];
+    if (!config || !config.clientId) {
+      return { error: "OAuth is not configured for this provider" };
+    }
 
-  return { url };
+    // Generate CSRF state token
+    const state = uuidv4();
+
+    // Set state cookie (httpOnly, secure in production, sameSite lax, short-lived)
+    const cookieStore = await cookies();
+    cookieStore.set(OAUTH_STATE_COOKIE, state, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: OAUTH_STATE_MAX_AGE,
+      path: "/",
+    });
+
+    const url = getAuthorizationUrl(provider, state);
+    return { url };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to initiate OAuth" };
+  }
 }
 
 export async function deleteAccount() {

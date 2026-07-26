@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState, useEffect } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { loginSchema, type LoginInput } from "@/lib/validations"
 import { login } from "@/lib/actions/auth-actions"
 import { Button } from "@/components/ui/button"
@@ -16,10 +16,26 @@ import { AuthLayout } from "@/components/auth/auth-layout"
 import { SocialLogin } from "@/components/auth/social-login"
 import toast from "react-hot-toast"
 
-export default function LoginPage() {
+const OAUTH_ERRORS: Record<string, string> = {
+  oauth_denied: "Access was denied by the provider. Please try again.",
+  oauth_missing_params: "Invalid OAuth response. Please try again.",
+  oauth_invalid_state: "Security validation failed. Please try again.",
+  oauth_failed: "Authentication failed. Please try again later.",
+}
+
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+
+  useEffect(() => {
+    const error = searchParams.get("error")
+    if (error) {
+      toast.error(OAUTH_ERRORS[error] || "Authentication failed. Please try again.")
+      router.replace("/login")
+    }
+  }, [searchParams, router])
 
   const {
     register,
@@ -123,7 +139,7 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-6">
-        <SocialLogin mode="login" />
+        <SocialLogin />
       </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
@@ -136,5 +152,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </AuthLayout>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

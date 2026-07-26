@@ -1,17 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { oauthLogin } from "@/lib/actions/auth-actions"
 import toast from "react-hot-toast"
 
-interface SocialLoginProps {
-  mode?: "login" | "register"
-}
-
-export function SocialLogin({ mode = "login" }: SocialLoginProps) {
-  const router = useRouter()
+export function SocialLogin() {
   const [loading, setLoading] = useState<string | null>(null)
 
   async function handleOAuth(provider: string) {
@@ -23,7 +17,7 @@ export function SocialLogin({ mode = "login" }: SocialLoginProps) {
         return
       }
       if (result.url) {
-        router.push(result.url)
+        window.location.href = result.url
       }
     } catch {
       toast.error("Failed to initiate OAuth login")

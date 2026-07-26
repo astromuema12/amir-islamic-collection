@@ -171,7 +171,7 @@ export default function RegisterPage() {
       </form>
 
       <div className="mt-6">
-        <SocialLogin mode="register" />
+        <SocialLogin />
       </div>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
