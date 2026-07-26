@@ -1,11 +1,12 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { reviews, products } from "@/lib/db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { reviews } from "@/lib/db/schema";
+import { eq, and, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { reviewSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
+import { productRepository } from "@/lib/repositories/product-repository";
 
 export async function createReview(formData: FormData) {
   try {
@@ -26,12 +27,7 @@ export async function createReview(formData: FormData) {
     const productId = formData.get("productId") as string;
     if (!productId) return { error: "Product ID is required" };
 
-    const [product] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
-
+    const product = await productRepository.getProductById(productId);
     if (!product) return { error: "Product not found" };
 
     const [existingReview] = await db
@@ -60,26 +56,7 @@ export async function createReview(formData: FormData) {
       isApproved: false,
     });
 
-    const [ratingResult] = await db
-      .select({
-        avg: sql<number>`AVG(rating)`.as("avg_rating"),
-        count: sql<number>`COUNT(*)`.as("review_count"),
-      })
-      .from(reviews)
-      .where(
-        and(
-          eq(reviews.productId, productId),
-          eq(reviews.isApproved, true)
-        )
-      );
-
-    await db
-      .update(products)
-      .set({
-        averageRating: ratingResult.avg?.toString() || "0",
-        reviewCount: Number(ratingResult.count) || 0,
-      })
-      .where(eq(products.id, productId));
+    await productRepository.recalculateRating(productId);
 
     revalidatePath(`/products/${product.slug}`);
     revalidatePath(`/products/${productId}`);
@@ -116,26 +93,7 @@ export async function approveReview(reviewId: string) {
       .set({ isApproved: !review.isApproved })
       .where(eq(reviews.id, reviewId));
 
-    const [ratingResult] = await db
-      .select({
-        avg: sql<number>`AVG(rating)`,
-        count: sql<number>`COUNT(*)`,
-      })
-      .from(reviews)
-      .where(
-        and(
-          eq(reviews.productId, review.productId),
-          eq(reviews.isApproved, true)
-        )
-      );
-
-    await db
-      .update(products)
-      .set({
-        averageRating: ratingResult.avg?.toString() || "0",
-        reviewCount: Number(ratingResult.count) || 0,
-      })
-      .where(eq(products.id, review.productId));
+    await productRepository.recalculateRating(review.productId);
 
     revalidatePath("/admin/reviews");
     revalidatePath(`/products/${review.productId}`);
@@ -164,26 +122,7 @@ export async function deleteReview(reviewId: string) {
 
     await db.delete(reviews).where(eq(reviews.id, reviewId));
 
-    const [ratingResult] = await db
-      .select({
-        avg: sql<number>`AVG(rating)`,
-        count: sql<number>`COUNT(*)`,
-      })
-      .from(reviews)
-      .where(
-        and(
-          eq(reviews.productId, review.productId),
-          eq(reviews.isApproved, true)
-        )
-      );
-
-    await db
-      .update(products)
-      .set({
-        averageRating: ratingResult.avg?.toString() || "0",
-        reviewCount: Number(ratingResult.count) || 0,
-      })
-      .where(eq(products.id, review.productId));
+    await productRepository.recalculateRating(review.productId);
 
     revalidatePath("/admin/reviews");
     revalidatePath(`/products/${review.productId}`);

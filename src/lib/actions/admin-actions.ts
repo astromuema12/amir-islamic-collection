@@ -6,7 +6,8 @@ import {
   sellerProfiles, coupons, blogs, reviews, analytics, settings,
   withdrawals, notifications,
 } from "@/lib/db/schema";
-import { eq, and, desc, asc, sql, gte, lte } from "drizzle-orm";
+import { eq, and, desc, sql, gte } from "drizzle-orm";
+import { productRepository } from "@/lib/repositories/product-repository";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
 import { revalidatePath } from "next/cache";
@@ -79,18 +80,7 @@ export async function getAdminDashboard() {
         .orderBy(desc(users.createdAt))
         .limit(5),
 
-      db
-        .select({
-          id: products.id,
-          name: products.name,
-          stock: products.stock,
-          price: products.price,
-          images: products.images,
-        })
-        .from(products)
-        .where(lte(products.stock, 10))
-        .orderBy(asc(products.stock))
-        .limit(6),
+      productRepository.getLowInventoryProducts(6),
 
       db
         .select({

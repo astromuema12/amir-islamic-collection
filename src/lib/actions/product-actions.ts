@@ -1,8 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
-import { products } from "@/lib/db/schema";
-import { eq, and, like, desc, asc, sql, gte, lte } from "drizzle-orm";
+import { productRepository } from "@/lib/repositories/product-repository";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
 import { productSchema } from "@/lib/validations";
@@ -38,7 +36,7 @@ export async function createProduct(formData: FormData) {
     const slug = slugify(parsed.data.name, { lower: true, strict: true }) + "-" + Date.now().toString(36);
     const id = uuidv4();
 
-    await db.insert(products).values({
+    await productRepository.create({
       id,
       name: parsed.data.name,
       slug,
@@ -73,12 +71,7 @@ export async function updateProduct(productId: string, formData: FormData) {
     const { requireRole } = await import("@/lib/auth");
     const user = await requireRole("admin", "seller");
 
-    const [existing] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
-
+    const existing = await productRepository.getProductById(productId);
     if (!existing) return { error: "Product not found" };
     if (user.role !== "admin" && existing.sellerId !== user.id) {
       return { error: "Forbidden" };
@@ -114,9 +107,7 @@ export async function updateProduct(productId: string, formData: FormData) {
       updates.slug = slugify(formData.get("name") as string, { lower: true, strict: true }) + "-" + Date.now().toString(36);
     }
 
-    updates.updatedAt = new Date();
-
-    await db.update(products).set(updates as Partial<typeof products.$inferInsert>).where(eq(products.id, productId));
+    await productRepository.update(productId, updates);
 
     revalidatePath("/products");
     revalidatePath(`/products/${existing.slug}`);
@@ -133,18 +124,13 @@ export async function deleteProduct(productId: string) {
     const { requireRole } = await import("@/lib/auth");
     const user = await requireRole("admin", "seller");
 
-    const [existing] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
-
+    const existing = await productRepository.getProductById(productId);
     if (!existing) return { error: "Product not found" };
     if (user.role !== "admin" && existing.sellerId !== user.id) {
       return { error: "Forbidden" };
     }
 
-    await db.delete(products).where(eq(products.id, productId));
+    await productRepository.delete(productId);
 
     revalidatePath("/products");
     revalidatePath("/seller/products");
@@ -167,83 +153,15 @@ export async function getProducts(options?: {
   featured?: boolean;
   flashSale?: boolean;
 }) {
-  const conditions = [eq(products.isActive, true)];
-  const page = options?.page || 1;
-  const limit = options?.limit || 24;
-  const offset = (page - 1) * limit;
-
-  if (options?.category) {
-    conditions.push(eq(products.categoryId, options.category));
-  }
-
-  if (options?.sellerId) {
-    conditions.push(eq(products.sellerId, options.sellerId));
-  }
-
-  if (options?.search) {
-    conditions.push(like(products.name, `%${options.search}%`));
-  }
-
-  if (options?.minPrice !== undefined) {
-    conditions.push(gte(sql`CAST(${products.price} AS numeric)`, options.minPrice));
-  }
-
-  if (options?.maxPrice !== undefined) {
-    conditions.push(lte(sql`CAST(${products.price} AS numeric)`, options.maxPrice));
-  }
-
-  if (options?.featured) {
-    conditions.push(eq(products.isFeatured, true));
-  }
-
-  if (options?.flashSale) {
-    conditions.push(eq(products.isFlashSale, true));
-  }
-
-  let orderBy = desc(products.createdAt);
-  if (options?.sort === "price-asc") orderBy = asc(products.price);
-  else if (options?.sort === "price-desc") orderBy = desc(products.price);
-  else if (options?.sort === "popular") orderBy = desc(products.salesCount);
-
-  const result = await db
-    .select()
-    .from(products)
-    .where(and(...conditions))
-    .orderBy(orderBy)
-    .limit(limit)
-    .offset(offset);
-
-  const [countResult] = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(products)
-    .where(and(...conditions));
-
-  return {
-    products: result,
-    total: Number(countResult.count),
-    page,
-    totalPages: Math.ceil(Number(countResult.count) / limit),
-  };
+  return productRepository.getProductsRaw(options);
 }
 
 export async function getProduct(slug: string) {
-  const [product] = await db
-    .select()
-    .from(products)
-    .where(eq(products.slug, slug))
-    .limit(1);
-
-  return product || null;
+  return productRepository.getProductBySlugRaw(slug);
 }
 
 export async function getProductById(id: string) {
-  const [product] = await db
-    .select()
-    .from(products)
-    .where(eq(products.id, id))
-    .limit(1);
-
-  return product || null;
+  return productRepository.getProductById(id);
 }
 
 export async function toggleFeatured(productId: string) {
@@ -251,18 +169,8 @@ export async function toggleFeatured(productId: string) {
     const { requireRole } = await import("@/lib/auth");
     await requireRole("admin");
 
-    const [product] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
-
-    if (!product) return { error: "Product not found" };
-
-    await db
-      .update(products)
-      .set({ isFeatured: !product.isFeatured, updatedAt: new Date() })
-      .where(eq(products.id, productId));
+    const result = await productRepository.toggleFeatured(productId);
+    if (result === null) return { error: "Product not found" };
 
     revalidatePath("/products");
     return { success: true };
@@ -276,24 +184,14 @@ export async function uploadProductImages(productId: string, images: string[]) {
     const { requireRole } = await import("@/lib/auth");
     const user = await requireRole("admin", "seller");
 
-    const [product] = await db
-      .select()
-      .from(products)
-      .where(eq(products.id, productId))
-      .limit(1);
-
+    const product = await productRepository.getProductById(productId);
     if (!product) return { error: "Product not found" };
     if (user.role !== "admin" && product.sellerId !== user.id) {
       return { error: "Forbidden" };
     }
 
-    const currentImages = product.images || [];
-    const updatedImages = [...currentImages, ...images];
-
-    await db
-      .update(products)
-      .set({ images: updatedImages, updatedAt: new Date() })
-      .where(eq(products.id, productId));
+    const updatedImages = await productRepository.updateImages(productId, images);
+    if (!updatedImages) return { error: "Failed to upload images" };
 
     revalidatePath(`/products/${product.slug}`);
     return { success: true, images: updatedImages };

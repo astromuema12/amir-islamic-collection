@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
 import { sellerProfileSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
+import { productRepository } from "@/lib/repositories/product-repository";
 
 export async function createSellerProfile(formData: FormData) {
   try {
@@ -148,10 +149,7 @@ export async function getSellerDashboard() {
 
     if (!profile) return null;
 
-    const [productCount] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(products)
-      .where(eq(products.sellerId, user.id));
+    const productCount = await productRepository.countBySeller(user.id);
 
     const [totalSales] = await db
       .select({
@@ -191,7 +189,7 @@ export async function getSellerDashboard() {
     return {
       profile,
       stats: {
-        products: Number(productCount.count),
+        products: productCount,
         totalSales: Number(totalSales.total),
         pendingOrders: Number(pendingOrders.count),
         balance: Number(profile.balance),
@@ -208,11 +206,7 @@ export async function getSellerProducts() {
     const { requireRole } = await import("@/lib/auth");
     const user = await requireRole("seller");
 
-    return await db
-      .select()
-      .from(products)
-      .where(eq(products.sellerId, user.id))
-      .orderBy(desc(products.createdAt));
+    return productRepository.getSellerProducts(user.id);
   } catch {
     return [];
   }
