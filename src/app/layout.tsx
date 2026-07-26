@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
+import { headers } from "next/headers"
 import "./globals.css"
 import { Providers } from "@/components/layout/providers"
 import { Header } from "@/components/layout/header"
@@ -140,16 +141,20 @@ export default async function RootLayout({
     // ignore
   }
 
+  const nonce = (await headers()).get("x-nonce") || undefined
+
   return (
     <html
       lang="en"
       dir="ltr"
       className={`${inter.variable} ${playfairDisplay.variable} h-full antialiased`}
       suppressHydrationWarning
+      nonce={nonce}
     >
       <head>
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>

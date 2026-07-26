@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { headers } from "next/headers"
 import { Check, Truck, RotateCcw, Shield } from "lucide-react"
 import { getProduct, getRelatedProducts, getProductReviews } from "@/lib/queries"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
@@ -36,9 +37,10 @@ export default async function ProductPage(props: ProductPageProps) {
   const product = await getProduct(slug)
   if (!product) notFound()
 
-  const [reviews, relatedProducts] = await Promise.all([
+  const [reviews, relatedProducts, nonce] = await Promise.all([
     getProductReviews(product.id),
     getRelatedProducts(product.categoryId, product.id),
+    headers().then((h) => h.get("x-nonce") || undefined),
   ])
 
   const jsonLd = {
@@ -67,6 +69,7 @@ export default async function ProductPage(props: ProductPageProps) {
     <>
       <script
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="container mx-auto px-4 py-6">

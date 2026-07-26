@@ -12,6 +12,12 @@ import {
   csrfCookieOptions,
 } from "@/lib/csrf";
 
+function generateNonce(): string {
+  const array = new Uint8Array(16);
+  globalThis.crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
+}
+
 const protectedRoutes = [
   "/dashboard",
   "/admin",
@@ -136,7 +142,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // --- Security Headers + CSRF Cookie ---
+  // --- Security Headers + CSRF Cookie + Nonce ---
+  const nonce = generateNonce();
   const response = NextResponse.next();
 
   if (!request.cookies.get(CSRF_COOKIE)?.value) {
@@ -155,13 +162,14 @@ export async function proxy(request: NextRequest) {
     );
   }
 
+  const devScriptSrc = process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "";
   response.headers.set(
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      `script-src 'self' 'nonce-${nonce}'${devScriptSrc}`,
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://imgproxy.attic.sh https://attic.sh https://res.cloudinary.com",
+      "img-src 'self' data: blob: https://imgproxy.attic.sh https://attic.sh https://res.cloudinary.com https://placehold.co",
       "font-src 'self' https://fonts.gstatic.com",
       `connect-src 'self' https://api.paystack.co${process.env.NODE_ENV === "development" ? " ws://localhost:*" : ""}`,
       "frame-src 'none'",
@@ -171,7 +179,12 @@ export async function proxy(request: NextRequest) {
     ].join("; ")
   );
 
-  return response;
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 }
 
 export const config = {
