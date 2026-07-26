@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import {
   LayoutDashboard,
   User,
@@ -52,7 +53,12 @@ export function DashboardSidebar({
   onToggle,
 }: DashboardSidebarProps) {
   const pathname = usePathname()
+  const { user, loading } = useCurrentUser()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const userName = user?.name ?? ""
+  const userEmail = user?.email ?? ""
+  const userInitials = userName ? userName.split(" ").map(n => n[0]).join("") : ""
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
@@ -110,19 +116,28 @@ export function DashboardSidebar({
         <div className={cn("p-4", isCollapsed && "p-3")}>
           <div className={cn("flex items-center gap-3", isCollapsed && "justify-center")}>
             <Avatar className="h-9 w-9 ring-2 ring-primary/20">
-              <AvatarImage src="/avatars/default.png" alt="User" />
+              <AvatarImage src={user?.image} alt={userName} />
               <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
-                AU
+                {loading ? "" : userInitials}
               </AvatarFallback>
             </Avatar>
             {!isCollapsed && (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-sidebar-foreground">
-                  User
-                </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  user@example.com
-                </p>
+                {loading ? (
+                  <>
+                    <div className="h-4 w-20 rounded bg-muted animate-pulse" />
+                    <div className="mt-1 h-3 w-28 rounded bg-muted animate-pulse" />
+                  </>
+                ) : (
+                  <>
+                    <p className="truncate text-sm font-medium text-sidebar-foreground">
+                      {userName || "Guest"}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {userEmail || "Not signed in"}
+                    </p>
+                  </>
+                )}
               </div>
             )}
           </div>

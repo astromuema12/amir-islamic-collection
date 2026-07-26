@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { useCurrentUser } from "@/hooks/use-current-user"
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
@@ -39,16 +40,10 @@ const navItems = [
   { icon: BarChart3, label: "Analytics", href: "/admin/analytics" },
 ]
 
-const adminUser = {
-  name: "Admin User",
-  email: "admin@amirislamic.com",
-  image: "",
-  role: "Super Admin",
-}
-
 export function AdminSidebar() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
+  const { user, loading } = useCurrentUser()
   const [mounted, setMounted] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -65,21 +60,41 @@ export function AdminSidebar() {
     return pathname.startsWith(href)
   }
 
+  const roleLabels: Record<string, string> = {
+    super_admin: "Super Admin",
+    admin: "Admin",
+    seller: "Seller",
+    user: "User",
+  }
+
+  const userName = user?.name ?? ""
+  const userInitials = userName ? userName.split(" ").map(n => n[0]).join("") : ""
+  const userRole = user?.role ? roleLabels[user.role] ?? user.role : ""
+
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
         <Avatar className="h-10 w-10 ring-2 ring-premium/30">
-          <AvatarImage src={adminUser.image} />
+          <AvatarImage src={user?.image} />
           <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white font-semibold">
-            {adminUser.name.split(" ").map(n => n[0]).join("")}
+            {loading ? "" : userInitials}
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-sidebar-foreground truncate">
-            {adminUser.name}
-          </p>
-          <p className="text-xs text-muted-foreground truncate">{adminUser.role}</p>
+          {loading ? (
+            <>
+              <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+              <div className="mt-1 h-3 w-16 rounded bg-muted animate-pulse" />
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-sidebar-foreground truncate">
+                {userName || "Guest"}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">{userRole}</p>
+            </>
+          )}
         </div>
       </div>
 

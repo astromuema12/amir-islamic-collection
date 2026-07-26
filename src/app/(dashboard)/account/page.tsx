@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, type ChangeEvent } from "react"
+import { useState, useRef, type ChangeEvent, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -18,6 +18,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Camera, Save, Loader2 } from "lucide-react"
+import { useCurrentUser } from "@/hooks/use-current-user"
+import { updateProfile } from "@/lib/actions/auth-actions"
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -27,7 +29,46 @@ const profileSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileSchema>
 
+function ProfileSkeleton() {
+  return (
+    <div className="max-w-3xl space-y-6">
+      <div>
+        <div className="h-8 w-40 rounded bg-muted animate-pulse" />
+        <div className="mt-2 h-4 w-56 rounded bg-muted animate-pulse" />
+      </div>
+      <Card>
+        <CardHeader>
+          <div className="h-5 w-32 rounded bg-muted animate-pulse" />
+          <div className="h-4 w-64 rounded bg-muted animate-pulse" />
+        </CardHeader>
+        <CardContent className="flex items-center gap-6">
+          <div className="h-24 w-24 rounded-full bg-muted animate-pulse" />
+          <div className="space-y-2">
+            <div className="h-4 w-28 rounded bg-muted animate-pulse" />
+            <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <div className="h-5 w-44 rounded bg-muted animate-pulse" />
+          <div className="h-4 w-52 rounded bg-muted animate-pulse" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="space-y-2">
+              <div className="h-4 w-20 rounded bg-muted animate-pulse" />
+              <div className="h-10 w-full rounded bg-muted animate-pulse" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 export default function AccountPage() {
+  const { user, loading } = useCurrentUser()
   const [isLoading, setIsLoading] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -35,15 +76,26 @@ export default function AccountPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: "Ahmad Abdullah",
-      phone: "+2548012345678",
-      bio: "Islamic art enthusiast and collector. Love exploring beautiful prayer mats and Quranic calligraphy.",
+      name: "",
+      phone: "",
+      bio: "",
     },
   })
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        name: user.name ?? "",
+        phone: user.phone ?? "",
+        bio: user.bio ?? "",
+      })
+    }
+  }, [user, reset])
 
   const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -59,14 +111,27 @@ export default function AccountPage() {
   const onSubmit = async (data: ProfileFormData) => {
     setIsLoading(true)
     try {
-      await new Promise((r) => setTimeout(r, 1000))
-      toast.success("Profile updated successfully!")
+      const formData = new FormData()
+      formData.set("name", data.name)
+      formData.set("phone", data.phone)
+      formData.set("bio", data.bio ?? "")
+      const result = await updateProfile(formData)
+      if (result.error) {
+        toast.error(typeof result.error === "string" ? result.error : "Update failed")
+      } else {
+        toast.success("Profile updated successfully!")
+      }
     } catch {
       toast.error("Failed to update profile")
     } finally {
       setIsLoading(false)
     }
   }
+
+  if (loading) return <ProfileSkeleton />
+
+  const userName = user?.name ?? ""
+  const userInitials = userName ? userName.split(" ").map(n => n[0]).join("") : ""
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -95,11 +160,11 @@ export default function AccountPage() {
             <div className="relative">
               <Avatar className="h-24 w-24 ring-4 ring-primary/10">
                 <AvatarImage
-                  src={avatarPreview || "/avatars/default.png"}
+                  src={avatarPreview || user?.image || undefined}
                   alt="Profile"
                 />
                 <AvatarFallback className="bg-primary/10 text-primary text-2xl font-semibold">
-                  AA
+                  {userInitials}
                 </AvatarFallback>
               </Avatar>
               <button
@@ -149,7 +214,7 @@ export default function AccountPage() {
               <Input
                 label="Email Address"
                 type="email"
-                value="ahmad.abdullah@example.com"
+                value={user?.email ?? ""}
                 disabled
                 wrapperClassName="opacity-60"
               />

@@ -21,6 +21,30 @@ import { revalidatePath } from "next/cache";
 import { headers, cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
 
+export type CurrentUser = {
+  id: string;
+  name: string;
+  email: string;
+  image: string | undefined;
+  role: "user" | "seller" | "admin" | "super_admin";
+  phone: string | undefined;
+  bio: string | undefined;
+} | null;
+
+export async function getCurrentUserAction(): Promise<CurrentUser> {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    role: user.role,
+    phone: user.phone,
+    bio: user.bio,
+  };
+}
+
 function getIp(hdrs: Headers): string {
   return hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "127.0.0.1";
 }

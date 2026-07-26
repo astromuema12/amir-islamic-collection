@@ -8,3 +8,4 @@ export {
 } from "./use-media-query";
 export { useIntersectionObserver } from "./use-intersection-observer";
 export { useLocalStorage } from "./use-local-storage";
+export { useCurrentUser } from "./use-current-user";
