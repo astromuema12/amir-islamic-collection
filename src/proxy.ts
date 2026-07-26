@@ -6,14 +6,15 @@ import { eq } from "drizzle-orm";
 import { rateLimit } from "@/lib/rate-limit";
 
 const protectedRoutes = [
+  "/dashboard",
+  "/admin",
+  "/account",
+  "/checkout",
+  "/wishlist",
+  "/orders",
   "/profile",
   "/settings",
-  "/orders",
-  "/checkout",
   "/seller",
-  "/admin",
-  "/dashboard",
-  "/wishlist",
 ];
 
 const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
@@ -22,11 +23,12 @@ const RATE_LIMIT_WINDOW = 60_000;
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || request.headers.get("x-real-ip")
-    || "127.0.0.1";
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "127.0.0.1";
 
-  // --- Rate Limiting ---
+  // --- Rate Limiting: Payment initialization ---
   if (pathname === "/api/paystack/initialize" && request.method === "POST") {
     const result = rateLimit(`api:${ip}`, 30, RATE_LIMIT_WINDOW);
     if (!result.success) {
@@ -37,6 +39,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+  // --- Rate Limiting: Auth endpoints ---
   if (authRoutes.includes(pathname) && request.method === "POST") {
     const result = rateLimit(`auth:${ip}`, 5, RATE_LIMIT_WINDOW);
     if (!result.success) {
@@ -49,7 +52,6 @@ export async function proxy(request: NextRequest) {
   // --- Session Validation ---
   const sessionToken = request.cookies.get("session_token")?.value;
   let isAuthenticated = false;
-  let sessionId: string | null = null;
 
   if (sessionToken) {
     try {
@@ -60,27 +62,29 @@ export async function proxy(request: NextRequest) {
 
       if (session && session.expiresAt > new Date()) {
         isAuthenticated = true;
-        sessionId = session.id;
 
-        // Refresh session if less than 2 days remain
         const twoDays = 2 * 24 * 60 * 60 * 1000;
         if (session.expiresAt.getTime() - Date.now() < twoDays) {
           const newExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-          await db.update(sessions).set({ expiresAt: newExpiry }).where(eq(sessions.id, session.id));
+          await db
+            .update(sessions)
+            .set({ expiresAt: newExpiry })
+            .where(eq(sessions.id, session.id));
         }
       }
     } catch {
-      // Silently fail — treat as unauthenticated
+      // DB connection failure — treat as unauthenticated
     }
   }
 
-  // --- Route Protection ---
-  if (!isAuthenticated && protectedRoutes.some(route => pathname.startsWith(route))) {
+  // --- Route Protection: Redirect unauthenticated users ---
+  if (!isAuthenticated && protectedRoutes.some((route) => pathname.startsWith(route))) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
+  // --- Route Protection: Redirect authenticated users away from auth pages ---
   if (isAuthenticated && authRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
@@ -104,15 +108,15 @@ export async function proxy(request: NextRequest) {
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-eval' 'unsafe-inline'`,
-      `style-src 'self' 'unsafe-inline'`,
-      `img-src 'self' data: blob: https://imgproxy.attic.sh https://attic.sh https://res.cloudinary.com`,
-      `font-src 'self'`,
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https://imgproxy.attic.sh https://attic.sh https://res.cloudinary.com",
+      "font-src 'self' https://fonts.gstatic.com",
       `connect-src 'self' https://api.paystack.co${process.env.NODE_ENV === "development" ? " ws://localhost:*" : ""}`,
-      `frame-src 'none'`,
-      `object-src 'none'`,
-      `base-uri 'self'`,
-      `form-action 'self'`,
+      "frame-src 'none'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
     ].join("; ")
   );
 
@@ -121,6 +125,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/paystack/webhook|_next/static|_next/image|favicon.ico|images).*)",
+    "/((?!_next/static|_next/image|favicon\\.ico|images/).*)",
   ],
 };
