@@ -2,11 +2,11 @@
 
 import { db } from "@/lib/db";
 import {
-  users, products, orders, orderItems, categories, brands,
+  users, products, orders, categories,
   sellerProfiles, coupons, blogs, reviews, analytics, settings,
   withdrawals, notifications,
 } from "@/lib/db/schema";
-import { eq, and, like, desc, asc, sql, gte, lte, count, inArray } from "drizzle-orm";
+import { eq, and, desc, asc, sql, gte, lte } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
 import { revalidatePath } from "next/cache";
@@ -16,42 +16,93 @@ export async function getAdminDashboard() {
     const { requireRole } = await import("@/lib/auth");
     await requireRole("admin", "super_admin");
 
-    const [userCount] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const [sellerCount] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(
-        sql`${users.role} IN ('seller', 'admin', 'super_admin')`
-      );
+    const [
+      [userCount],
+      [sellerCount],
+      [productCount],
+      [orderCount],
+      [revenue],
+      [pendingSellers],
+      recentOrders,
+      recentUsers,
+      lowInventoryProducts,
+      revenueChart,
+    ] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(users),
 
-    const [productCount] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(products);
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(sql`${users.role} IN ('seller', 'admin', 'super_admin')`),
 
-    const [orderCount] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(orders);
+      db.select({ count: sql<number>`count(*)` }).from(products),
 
-    const [revenue] = await db
-      .select({
-        total: sql<string>`COALESCE(SUM(CAST(${orders.total} AS numeric)), '0')`,
-      })
-      .from(orders)
-      .where(eq(orders.status, "delivered"));
+      db.select({ count: sql<number>`count(*)` }).from(orders),
 
-    const [pendingSellers] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(sellerProfiles)
-      .where(eq(sellerProfiles.isVerified, false));
+      db
+        .select({
+          total: sql<string>`COALESCE(SUM(CAST(${orders.total} AS numeric)), '0')`,
+        })
+        .from(orders)
+        .where(eq(orders.status, "delivered")),
 
-    const recentOrders = await db
-      .select()
-      .from(orders)
-      .orderBy(desc(orders.createdAt))
-      .limit(10);
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(sellerProfiles)
+        .where(eq(sellerProfiles.isVerified, false)),
+
+      db
+        .select({
+          id: orders.id,
+          total: orders.total,
+          status: orders.status,
+          createdAt: orders.createdAt,
+          userId: orders.userId,
+          userName: users.name,
+        })
+        .from(orders)
+        .innerJoin(users, eq(orders.userId, users.id))
+        .orderBy(desc(orders.createdAt))
+        .limit(8),
+
+      db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          role: users.role,
+          createdAt: users.createdAt,
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt))
+        .limit(5),
+
+      db
+        .select({
+          id: products.id,
+          name: products.name,
+          stock: products.stock,
+          price: products.price,
+          images: products.images,
+        })
+        .from(products)
+        .where(lte(products.stock, 10))
+        .orderBy(asc(products.stock))
+        .limit(6),
+
+      db
+        .select({
+          date: analytics.date,
+          revenue: analytics.revenue,
+          orders: analytics.orders,
+          sales: analytics.sales,
+        })
+        .from(analytics)
+        .where(gte(analytics.date, thirtyDaysAgo.toISOString().split("T")[0]))
+        .orderBy(desc(analytics.date)),
+    ]);
 
     return {
       stats: {
@@ -63,6 +114,9 @@ export async function getAdminDashboard() {
         pendingSellers: Number(pendingSellers.count),
       },
       recentOrders,
+      recentUsers,
+      lowInventoryProducts,
+      revenueChart: revenueChart.reverse(),
     };
   } catch {
     return null;
