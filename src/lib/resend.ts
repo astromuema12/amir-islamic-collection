@@ -1,6 +1,13 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resend: Resend;
+
+function getResend() {
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 export async function sendEmail(params: {
   to: string | string[];
@@ -8,7 +15,7 @@ export async function sendEmail(params: {
   html: string;
   from?: string;
 }) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: params.from || "Amir Islamic Collections <noreply@yourdomain.com>",
     to: Array.isArray(params.to) ? params.to : [params.to],
     subject: params.subject,
