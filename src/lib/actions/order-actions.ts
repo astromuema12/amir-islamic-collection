@@ -4,10 +4,11 @@ import { db } from "@/lib/db";
 import { orders, orderItems, products, cart } from "@/lib/db/schema";
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { checkoutSchema } from "@/lib/validations";
 import { sendOrderConfirmation } from "@/lib/resend";
 import { ORDER_STATUS, PAYMENT_STATUS } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export async function createOrder(formData: FormData) {
   try {
@@ -109,8 +110,8 @@ export async function createOrder(formData: FormData) {
     });
 
     await sendOrderConfirmation(user.email, orderId);
-    revalidatePath("/orders");
-    revalidatePath("/");
+    updateTag(CACHE_TAGS.products);
+    updateTag(CACHE_TAGS.dashboard);
 
     return { success: true, orderId };
   } catch (error) {
@@ -229,6 +230,7 @@ export async function cancelOrder(orderId: string) {
         .where(eq(products.id, item.productId));
     }
 
+    updateTag(CACHE_TAGS.products);
     revalidatePath(`/orders/${orderId}`);
     revalidatePath("/orders");
 

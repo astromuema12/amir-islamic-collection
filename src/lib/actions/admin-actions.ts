@@ -10,13 +10,11 @@ import { eq, and, desc, sql, gte } from "drizzle-orm";
 import { productRepository } from "@/lib/repositories/product-repository";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
-import { revalidatePath } from "next/cache";
+import { unstable_cache, revalidatePath, updateTag } from "next/cache";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-tags";
 
-export async function getAdminDashboard() {
-  try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
-
+const fetchDashboardData = unstable_cache(
+  async () => {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const [
@@ -108,6 +106,17 @@ export async function getAdminDashboard() {
       lowInventoryProducts,
       revenueChart: revenueChart.reverse(),
     };
+  },
+  ["admin-dashboard"],
+  { tags: [CACHE_TAGS.dashboard], revalidate: CACHE_TTL.dashboard },
+);
+
+export async function getAdminDashboard() {
+  try {
+    const { requireRole } = await import("@/lib/auth");
+    await requireRole("admin", "super_admin");
+
+    return await fetchDashboardData();
   } catch {
     return null;
   }
@@ -246,6 +255,7 @@ export async function manageCategory(formData: FormData) {
       });
     }
 
+    updateTag(CACHE_TAGS.categories);
     revalidatePath("/admin/categories");
     return { success: true };
   } catch (error) {
@@ -259,6 +269,7 @@ export async function deleteCategory(categoryId: string) {
     await requireRole("admin", "super_admin");
 
     await db.delete(categories).where(eq(categories.id, categoryId));
+    updateTag(CACHE_TAGS.categories);
     revalidatePath("/admin/categories");
 
     return { success: true };

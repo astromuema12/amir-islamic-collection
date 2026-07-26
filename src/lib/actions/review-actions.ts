@@ -5,8 +5,9 @@ import { reviews } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { reviewSchema } from "@/lib/validations";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { productRepository } from "@/lib/repositories/product-repository";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export async function createReview(formData: FormData) {
   try {
@@ -58,8 +59,7 @@ export async function createReview(formData: FormData) {
 
     await productRepository.recalculateRating(productId);
 
-    revalidatePath(`/products/${product.slug}`);
-    revalidatePath(`/products/${productId}`);
+    updateTag(CACHE_TAGS.products);
 
     return { success: true, reviewId };
   } catch (error) {
@@ -95,8 +95,8 @@ export async function approveReview(reviewId: string) {
 
     await productRepository.recalculateRating(review.productId);
 
+    updateTag(CACHE_TAGS.products);
     revalidatePath("/admin/reviews");
-    revalidatePath(`/products/${review.productId}`);
 
     return { success: true };
   } catch (error) {
@@ -124,8 +124,8 @@ export async function deleteReview(reviewId: string) {
 
     await productRepository.recalculateRating(review.productId);
 
+    updateTag(CACHE_TAGS.products);
     revalidatePath("/admin/reviews");
-    revalidatePath(`/products/${review.productId}`);
 
     return { success: true };
   } catch (error) {

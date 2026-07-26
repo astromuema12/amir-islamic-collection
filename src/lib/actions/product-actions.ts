@@ -4,7 +4,8 @@ import { productRepository } from "@/lib/repositories/product-repository";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
 import { productSchema } from "@/lib/validations";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export async function createProduct(formData: FormData) {
   try {
@@ -57,7 +58,7 @@ export async function createProduct(formData: FormData) {
       flashSaleEnds: parsed.data.flashSaleEnds ? new Date(parsed.data.flashSaleEnds) : null,
     });
 
-    revalidatePath("/products");
+    updateTag(CACHE_TAGS.products);
     revalidatePath("/seller/products");
 
     return { success: true, productId: id };
@@ -109,8 +110,7 @@ export async function updateProduct(productId: string, formData: FormData) {
 
     await productRepository.update(productId, updates);
 
-    revalidatePath("/products");
-    revalidatePath(`/products/${existing.slug}`);
+    updateTag(CACHE_TAGS.products);
     revalidatePath("/seller/products");
 
     return { success: true };
@@ -132,7 +132,7 @@ export async function deleteProduct(productId: string) {
 
     await productRepository.delete(productId);
 
-    revalidatePath("/products");
+    updateTag(CACHE_TAGS.products);
     revalidatePath("/seller/products");
 
     return { success: true };
@@ -172,7 +172,7 @@ export async function toggleFeatured(productId: string) {
     const result = await productRepository.toggleFeatured(productId);
     if (result === null) return { error: "Product not found" };
 
-    revalidatePath("/products");
+    updateTag(CACHE_TAGS.products);
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Failed to toggle feature" };
@@ -193,7 +193,7 @@ export async function uploadProductImages(productId: string, images: string[]) {
     const updatedImages = await productRepository.updateImages(productId, images);
     if (!updatedImages) return { error: "Failed to upload images" };
 
-    revalidatePath(`/products/${product.slug}`);
+    updateTag(CACHE_TAGS.products);
     return { success: true, images: updatedImages };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Failed to upload images" };
