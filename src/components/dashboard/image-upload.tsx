@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone"
 import { motion, AnimatePresence } from "framer-motion"
 import { Upload, X, GripVertical, ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { csrfFetch } from "@/lib/csrf-client"
 import { Button } from "@/components/ui/button"
 
 interface ImageFile {
@@ -77,7 +78,7 @@ export const ImageUpload: FC<ImageUploadProps> = ({
       for (const img of images) {
         const formData = new FormData()
         formData.append("file", img.file)
-        const res = await fetch("/api/upload", { method: "POST", body: formData })
+        const res = await csrfFetch("/api/upload", { method: "POST", body: formData })
         const data = await res.json()
         if (data.url) uploaded.push(data.url)
       }

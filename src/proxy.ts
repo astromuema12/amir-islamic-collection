@@ -4,6 +4,13 @@ import { db } from "@/lib/db";
 import { sessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { apiLimiter, authLimiter, checkoutLimiter } from "@/lib/rate-limit";
+import {
+  CSRF_COOKIE,
+  CSRF_HEADER,
+  generateCsrfToken,
+  validateCsrfToken,
+  csrfCookieOptions,
+} from "@/lib/csrf";
 
 const protectedRoutes = [
   "/dashboard",
@@ -19,12 +26,43 @@ const protectedRoutes = [
 
 const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
+const CSRF_EXCLUDED_ROUTES = ["/api/paystack/webhook"];
+const CSRF_MUTATING_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
+
+function needsCsrfValidation(request: NextRequest): boolean {
+  const { pathname } = request.nextUrl;
+
+  if (!CSRF_MUTATING_METHODS.includes(request.method)) return false;
+  if (!pathname.startsWith("/api/")) return false;
+  if (CSRF_EXCLUDED_ROUTES.includes(pathname)) return false;
+  if (request.headers.has("next-action")) return false;
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  if (!origin && !referer) return false;
+
+  return true;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
     "127.0.0.1";
+
+  // --- CSRF Validation ---
+  if (needsCsrfValidation(request)) {
+    const cookieToken = request.cookies.get(CSRF_COOKIE)?.value;
+    const headerToken = request.headers.get(CSRF_HEADER);
+
+    if (!validateCsrfToken(cookieToken, headerToken)) {
+      return NextResponse.json(
+        { status: "error", message: "Invalid or missing CSRF token." },
+        { status: 403 },
+      );
+    }
+  }
 
   // --- Rate Limiting: Payment initialization ---
   if (pathname === "/api/paystack/initialize" && request.method === "POST") {
@@ -98,8 +136,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // --- Security Headers ---
+  // --- Security Headers + CSRF Cookie ---
   const response = NextResponse.next();
+
+  if (!request.cookies.get(CSRF_COOKIE)?.value) {
+    response.cookies.set(CSRF_COOKIE, generateCsrfToken(), csrfCookieOptions());
+  }
 
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");

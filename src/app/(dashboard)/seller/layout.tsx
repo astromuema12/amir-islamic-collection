@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Toaster } from "react-hot-toast"
 import { SellerSidebar } from "@/components/dashboard/seller-sidebar"
+import { csrfFetch } from "@/lib/csrf-client"
 import { APP_NAME } from "@/lib/constants"
 
 export default function SellerDashboardLayout({
@@ -18,7 +19,7 @@ export default function SellerDashboardLayout({
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("/api/auth/logout", { method: "POST" })
+      const res = await csrfFetch("/api/auth/logout", { method: "POST" })
       if (res.ok) router.push("/login")
     } catch {
       router.push("/login")
