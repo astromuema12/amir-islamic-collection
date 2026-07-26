@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { sessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { rateLimit } from "@/lib/rate-limit";
+import { apiLimiter, authLimiter, checkoutLimiter } from "@/lib/rate-limit";
 
 const protectedRoutes = [
   "/dashboard",
@@ -19,8 +19,6 @@ const protectedRoutes = [
 
 const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
-const RATE_LIMIT_WINDOW = 60_000;
-
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const ip =
@@ -30,7 +28,7 @@ export async function proxy(request: NextRequest) {
 
   // --- Rate Limiting: Payment initialization ---
   if (pathname === "/api/paystack/initialize" && request.method === "POST") {
-    const result = rateLimit(`api:${ip}`, 30, RATE_LIMIT_WINDOW);
+    const result = await apiLimiter.limit(`api:${ip}`);
     if (!result.success) {
       return NextResponse.json(
         { status: "error", message: "Too many requests. Please try again later." },
@@ -41,11 +39,22 @@ export async function proxy(request: NextRequest) {
 
   // --- Rate Limiting: Auth endpoints ---
   if (authRoutes.includes(pathname) && request.method === "POST") {
-    const result = rateLimit(`auth:${ip}`, 5, RATE_LIMIT_WINDOW);
+    const result = await authLimiter.limit(`auth:${ip}`);
     if (!result.success) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("error", "rate_limited");
       return NextResponse.redirect(loginUrl);
+    }
+  }
+
+  // --- Rate Limiting: Checkout ---
+  if (pathname === "/checkout" && request.method === "POST") {
+    const result = await checkoutLimiter.limit(`checkout:${ip}`);
+    if (!result.success) {
+      return NextResponse.json(
+        { status: "error", message: "Too many checkout attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((result.resetAt - Date.now()) / 1000)) } }
+      );
     }
   }
 
