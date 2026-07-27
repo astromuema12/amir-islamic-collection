@@ -33,6 +33,8 @@ export function Header({
   const [isCartOpen, setIsCartOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const cartItems = useCartStore((s) => s.items)
+  const removeCartItem = useCartStore((s) => s.removeItem)
+  const updateCartQuantity = useCartStore((s) => s.updateQuantity)
   const wishlistCount = useWishlistStore((s) => s.items.length)
 
   useEffect(() => {
@@ -118,6 +120,8 @@ export function Header({
               items={cartItems}
               isOpen={isCartOpen}
               onOpenChange={setIsCartOpen}
+              onRemoveItem={removeCartItem}
+              onUpdateQuantity={updateCartQuantity}
             >
               <button
                 className="relative inline-flex items-center justify-center h-10 w-10 rounded-lg hover:bg-accent transition-colors"

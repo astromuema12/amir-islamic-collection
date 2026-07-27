@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -11,7 +11,6 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -21,20 +20,18 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { CartItem } from "@/types"
+import type { CartItem as CartItemType } from "@/store/cart-store"
 import { formatPrice } from "@/lib/utils"
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants"
 
 interface CartSidebarProps {
-  items?: CartItem[]
+  items?: CartItemType[]
   isOpen?: boolean
   onOpenChange?: (open: boolean) => void
-  onUpdateQuantity?: (itemId: string, quantity: number) => void
-  onRemoveItem?: (itemId: string) => void
+  onUpdateQuantity?: (productId: string, quantity: number) => void
+  onRemoveItem?: (productId: string) => void
   onCheckout?: () => void
-  className?: string
   children?: React.ReactNode
 }
 
@@ -45,7 +42,6 @@ export function CartSidebar({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
-  className,
   children,
 }: CartSidebarProps) {
   const subtotal = items.reduce(
@@ -59,20 +55,15 @@ export function CartSidebar({
     (subtotal / FREE_SHIPPING_THRESHOLD) * 100
   )
 
-  const totalSavings = items.reduce((sum, item) => {
-    if (item.product?.discountPrice && item.product?.price) {
-      return sum + (item.product.price - item.product.discountPrice) * item.quantity
-    }
-    return sum
-  }, 0)
+  const totalSavings = 0
 
   const handleQuantityChange = useCallback(
-    (itemId: string, delta: number) => {
-      const item = items.find((i) => i.id === itemId)
+    (productId: string, delta: number) => {
+      const item = items.find((i) => i.productId === productId)
       if (!item || !onUpdateQuantity) return
       const newQuantity = item.quantity + delta
       if (newQuantity < 1) return
-      onUpdateQuantity(itemId, newQuantity)
+      onUpdateQuantity(productId, newQuantity)
     },
     [items, onUpdateQuantity]
   )
@@ -135,12 +126,12 @@ export function CartSidebar({
             <ScrollArea className="flex-1 px-6">
               <div className="space-y-4 pb-4">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-4">
+                  <div key={item.productId} className="flex gap-4">
                     <div className="relative h-20 w-20 shrink-0 rounded-lg border bg-muted overflow-hidden">
-                      {item.product?.images?.[0] ? (
+                      {item.image ? (
                         <Image
-                          src={item.product.images[0]}
-                          alt={item.product.name}
+                          src={item.image}
+                          alt={item.name}
                           fill
                           className="object-cover"
                         />
@@ -153,10 +144,10 @@ export function CartSidebar({
                     <div className="flex flex-1 flex-col justify-between">
                       <div className="space-y-1">
                         <Link
-                          href={`/products/${item.product?.slug || item.productId}`}
+                          href={`/products/${item.productId}`}
                           className="text-sm font-medium line-clamp-2 hover:text-primary transition-colors"
                         >
-                          {item.product?.name || "Product"}
+                          {item.name}
                         </Link>
                         <p className="text-sm font-semibold text-primary">
                           {formatPrice(item.price)}
@@ -168,7 +159,7 @@ export function CartSidebar({
                             variant="outline"
                             size="icon"
                             className="h-7 w-7"
-                            onClick={() => handleQuantityChange(item.id, -1)}
+                            onClick={() => handleQuantityChange(item.productId, -1)}
                             disabled={item.quantity <= 1}
                           >
                             <Minus className="h-3 w-3" />
@@ -180,7 +171,7 @@ export function CartSidebar({
                             variant="outline"
                             size="icon"
                             className="h-7 w-7"
-                            onClick={() => handleQuantityChange(item.id, 1)}
+                            onClick={() => handleQuantityChange(item.productId, 1)}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -189,7 +180,7 @@ export function CartSidebar({
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                          onClick={() => onRemoveItem?.(item.id)}
+                          onClick={() => onRemoveItem?.(item.productId)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
