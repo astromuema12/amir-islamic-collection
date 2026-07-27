@@ -1,4 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="4" fill="#059669"/>
-  <text x="16" y="22" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="white">AI</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F766E"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <clipPath id="r"><rect width="32" height="32" rx="6"/></clipPath>
+  </defs>
+  <g clip-path="url(#r)">
+    <rect width="32" height="32" fill="url(#bg)"/>
+    <g opacity="0.08" stroke="white" stroke-width="0.4" fill="none">
+      <circle cx="16" cy="17" r="12"/>
+      <circle cx="16" cy="17" r="9"/>
+      <line x1="4" y1="17" x2="28" y2="17"/>
+      <line x1="16" y1="5" x2="16" y2="29"/>
+    </g>
+    <rect x="10" y="13" width="12" height="13" rx="1.5" fill="white"/>
+    <rect x="10" y="13" width="12" height="1.5" rx="0.5" fill="#E5E7EB"/>
+    <path d="M13,13 L13,10 Q13,8 15,8 L17,8 Q19,8 19,10 L19,13" fill="none" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+    <circle cx="19" cy="10" r="2" fill="url(#gold)"/>
+    <circle cx="19.6" cy="9.6" r="1.5" fill="url(#bg)"/>
+    <polygon points="18.5,8.5 18.8,9.2 19.5,9.2 18.9,9.6 19.2,10.3 18.5,9.9 17.8,10.3 18.1,9.6 17.5,9.2 18.2,9.2" fill="url(#gold)" transform="scale(0.6) translate(12.5,5)"/>
+    <g opacity="0.1" stroke="#0F766E" stroke-width="0.5" fill="none">
+      <line x1="12" y1="17" x2="20" y2="17"/>
+      <line x1="12" y1="19.5" x2="20" y2="19.5"/>
+      <line x1="12" y1="22" x2="20" y2="22"/>
+      <line x1="12" y1="24.5" x2="20" y2="24.5"/>
+    </g>
+  </g>
 </svg>
