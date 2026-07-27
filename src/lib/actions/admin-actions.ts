@@ -13,6 +13,16 @@ import slugify from "slugify";
 import { unstable_cache, revalidatePath, updateTag } from "next/cache";
 import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-tags";
 
+async function requireAdmin() {
+  const { requireRole } = await import("@/lib/auth");
+  return requireRole("admin", "super_admin");
+}
+
+async function requireSuperAdmin() {
+  const { requireRole } = await import("@/lib/auth");
+  return requireRole("super_admin");
+}
+
 const fetchDashboardData = unstable_cache(
   async () => {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -115,17 +125,31 @@ export async function getAdminDashboard() {
   try {
     const { requireRole } = await import("@/lib/auth");
     await requireRole("admin", "super_admin");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message === "Unauthorized" || message === "Forbidden") {
+      console.warn(`[admin-dashboard] Auth rejected: ${message}`);
+      return { error: "auth", message } as const;
+    }
+    console.error("[admin-dashboard] Unexpected auth error:", error);
+    return { error: "server", message: "Authentication check failed." } as const;
+  }
 
+  try {
     return await fetchDashboardData();
-  } catch {
-    return null;
+  } catch (error) {
+    console.error("[admin-dashboard] Failed to load dashboard data:", error);
+    return {
+      error: "server",
+      message:
+        error instanceof Error ? error.message : "Failed to load dashboard data.",
+    } as const;
   }
 }
 
 export async function getUsers(options?: { search?: string; role?: string; page?: number; limit?: number }) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     const conditions: ReturnType<typeof eq>[] = [];
     const page = options?.page || 1;
@@ -161,15 +185,15 @@ export async function getUsers(options?: { search?: string; role?: string; page?
       page,
       totalPages: Math.ceil(Number(countResult.count) / limit),
     };
-  } catch {
+  } catch (error) {
+    console.error("[admin-actions] getUsers failed:", error);
     return { users: [], total: 0, page: 1, totalPages: 0 };
   }
 }
 
 export async function updateUserRole(userId: string, role: string) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("super_admin");
+    await requireSuperAdmin();
 
     const validRoles = ["user", "seller", "admin", "super_admin"];
     if (!validRoles.includes(role)) return { error: "Invalid role" };
@@ -188,8 +212,7 @@ export async function updateUserRole(userId: string, role: string) {
 
 export async function verifySeller(sellerId: string, verified: boolean) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     await db
       .update(sellerProfiles)
@@ -205,22 +228,21 @@ export async function verifySeller(sellerId: string, verified: boolean) {
 
 export async function getSellers() {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     return await db
       .select()
       .from(sellerProfiles)
       .orderBy(desc(sellerProfiles.createdAt));
-  } catch {
+  } catch (error) {
+    console.error("[admin-actions] getSellers failed:", error);
     return [];
   }
 }
 
 export async function manageCategory(formData: FormData) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     const id = formData.get("id") as string;
     const name = formData.get("name") as string;
@@ -265,8 +287,7 @@ export async function manageCategory(formData: FormData) {
 
 export async function deleteCategory(categoryId: string) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     await db.delete(categories).where(eq(categories.id, categoryId));
     updateTag(CACHE_TAGS.categories);
@@ -280,8 +301,7 @@ export async function deleteCategory(categoryId: string) {
 
 export async function manageCoupon(formData: FormData) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     const id = formData.get("id") as string;
     const code = formData.get("code") as string;
@@ -320,8 +340,7 @@ export async function manageCoupon(formData: FormData) {
 
 export async function deleteCoupon(couponId: string) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     await db.delete(coupons).where(eq(coupons.id, couponId));
     revalidatePath("/admin/coupons");
@@ -334,8 +353,7 @@ export async function deleteCoupon(couponId: string) {
 
 export async function manageBlog(formData: FormData) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    const user = await requireRole("admin", "super_admin");
+    const user = await requireAdmin();
 
     const id = formData.get("id") as string;
     const title = formData.get("title") as string;
@@ -385,8 +403,7 @@ export async function manageBlog(formData: FormData) {
 
 export async function deleteBlog(blogId: string) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     await db.delete(blogs).where(eq(blogs.id, blogId));
     revalidatePath("/admin/blogs");
@@ -400,8 +417,7 @@ export async function deleteBlog(blogId: string) {
 
 export async function getAllOrders(options?: { status?: string; page?: number; limit?: number }) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     const page = options?.page || 1;
     const limit = options?.limit || 20;
@@ -433,45 +449,45 @@ export async function getAllOrders(options?: { status?: string; page?: number; l
       page,
       totalPages: Math.ceil(Number(countResult.count) / limit),
     };
-  } catch {
+  } catch (error) {
+    console.error("[admin-actions] getAllOrders failed:", error);
     return { orders: [], total: 0, page: 1, totalPages: 0 };
   }
 }
 
 export async function getPendingReviews() {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     return await db
       .select()
       .from(reviews)
       .where(eq(reviews.isApproved, false))
       .orderBy(desc(reviews.createdAt));
-  } catch {
+  } catch (error) {
+    console.error("[admin-actions] getPendingReviews failed:", error);
     return [];
   }
 }
 
 export async function getWithdrawalRequests() {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     return await db
       .select()
       .from(withdrawals)
       .where(eq(withdrawals.status, "pending"))
       .orderBy(desc(withdrawals.createdAt));
-  } catch {
+  } catch (error) {
+    console.error("[admin-actions] getWithdrawalRequests failed:", error);
     return [];
   }
 }
 
 export async function updateWithdrawalStatus(withdrawalId: string, status: string) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     const validStatuses = ["approved", "rejected", "completed"];
     if (!validStatuses.includes(status)) return { error: "Invalid status" };
@@ -490,8 +506,7 @@ export async function updateWithdrawalStatus(withdrawalId: string, status: strin
 
 export async function updateSettings(formData: FormData) {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("super_admin");
+    await requireSuperAdmin();
 
     const siteName = formData.get("siteName") as string;
     const siteDescription = formData.get("siteDescription") as string;
@@ -527,8 +542,7 @@ export async function updateSettings(formData: FormData) {
 
 export async function getAnalyticsData(period: "daily" | "weekly" | "monthly" = "monthly") {
   try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "super_admin");
+    await requireAdmin();
 
     const now = new Date();
     let startDate: Date;
