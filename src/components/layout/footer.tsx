@@ -298,6 +298,20 @@ export function Footer() {
             <span className="not-italic text-[10px]">— Prophet Muhammad (PBUH)</span>
           </p>
         </div>
+
+        <div className="py-4 text-center">
+          <p className="text-[11px] text-muted-foreground">
+            Built by{" "}
+            <a
+              href="https://muemabuilds.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground/70 hover:text-primary transition-colors duration-300 underline-offset-4 hover:underline"
+            >
+              MuemaBuilds
+            </a>
+          </p>
+        </div>
       </div>
 
       <Button
