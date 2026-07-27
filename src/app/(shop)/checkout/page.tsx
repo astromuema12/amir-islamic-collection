@@ -41,6 +41,8 @@ import { formatPrice } from "@/lib/utils"
 import { addressSchema, type AddressInput } from "@/lib/validations"
 import { useCartStore } from "@/store/cart-store"
 import { FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants"
+import { createOrder, createCheckoutAddress } from "@/lib/actions/order-actions"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import toast from "react-hot-toast"
 
 type CheckoutStep = "shipping" | "payment" | "review"
@@ -81,9 +83,12 @@ export default function CheckoutPage() {
   const tax = subtotal * TAX_RATE
   const total = Math.max(0, subtotal + shipping + tax - discount)
 
+  const { user } = useCurrentUser()
+
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(addressSchema) as Resolver<z.input<typeof addressSchema>>,
@@ -108,14 +113,67 @@ export default function CheckoutPage() {
       return
     }
 
+    if (!user) {
+      toast.error("Please sign in to place an order")
+      return
+    }
+
+    const addressData = getValues()
+    const requiredFields = ["fullName", "phone", "street", "city", "state", "country"] as const
+    for (const field of requiredFields) {
+      if (!addressData[field]?.trim()) {
+        toast.error(`Please fill in the ${field === "fullName" ? "full name" : field} field`)
+        return
+      }
+    }
+
     setIsPlacingOrder(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const shippingResult = await createCheckoutAddress(user.id, {
+        fullName: addressData.fullName,
+        phone: addressData.phone,
+        street: addressData.street,
+        city: addressData.city,
+        state: addressData.state,
+        country: addressData.country,
+        zipCode: addressData.zipCode || undefined,
+        type: "both",
+      })
+
+      if ("error" in shippingResult) {
+        toast.error(shippingResult.error)
+        return
+      }
+
+      const formData = new FormData()
+      formData.set("shippingAddressId", shippingResult.id)
+      formData.set("billingAddressId", shippingResult.id)
+      if (coupon?.code) formData.set("couponCode", coupon.code)
+
+      const result = await createOrder(formData)
+
+      if ("error" in result) {
+        switch (result.code) {
+          case "OUT_OF_STOCK":
+            toast.error(result.error, { duration: 6000 })
+            break
+          case "INSUFFICIENT_STOCK":
+            toast.error(result.error, { duration: 6000 })
+            break
+          case "CART_EMPTY":
+            toast.error("Your cart is empty. Please add items before checking out.")
+            break
+          default:
+            toast.error(result.error || "Failed to place order")
+        }
+        return
+      }
+
       setOrderPlaced(true)
       clearCart()
       toast.success("Order placed successfully!")
     } catch {
-      toast.error("Failed to place order")
+      toast.error("An unexpected error occurred. Please try again.")
     } finally {
       setIsPlacingOrder(false)
     }
