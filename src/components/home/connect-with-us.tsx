@@ -8,8 +8,8 @@ const INSTAGRAM_URL =
   "https://www.instagram.com/invites/contact/?utm_source=ig_contact_invite&utm_medium=copy_link&utm_content=4rx6sc5"
 const TIKTOK_URL =
   "https://www.tiktok.com/@amir.islamic.coll?_r=1&_t=ZS-98Lwhy4rQqw"
-const PHONE_NUMBER = "0759935550"
-const PHONE_HREF = "tel:0759935550"
+const PHONE_NUMBER = "+254769269694"
+const PHONE_HREF = "tel:+254769269694"
 
 function InstagramIcon({ className }: { className?: string }) {
   return (

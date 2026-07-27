@@ -145,7 +145,7 @@ We recommend contacting seller support before initiating deletion to ensure a sm
     content: `If you have questions about this policy or need assistance with account deletion, please contact us:
 
 Email: support@amirislamic.com
-Phone: +254 800 AMIR ISLAM
+Phone: +254769269694
 Address: Kimathi Street, Nairobi, Kenya
 
 Our support team is available to assist you with any concerns about your data and privacy.

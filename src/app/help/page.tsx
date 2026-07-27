@@ -27,7 +27,7 @@ const helpTopics = [
 
 const contactMethods = [
   { icon: Mail, title: "Email Us", description: "support@amirislamic.com", action: "Send an email" },
-  { icon: Phone, title: "Call Us", description: "+254 800 AMIR ISLAM", action: "Call now" },
+  { icon: Phone, title: "Call Us", description: "+254769269694", action: "Call now" },
   { icon: MessageCircle, title: "Live Chat", description: "Available 24/7", action: "Start chat" },
 ]
 

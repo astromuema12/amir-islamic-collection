@@ -19,7 +19,7 @@ const contactInfo = [
   {
     icon: Phone,
     label: "Phone",
-    value: "+254 800 AMIR ISLAM\n+254 801 234 5678",
+    value: "+254769269694"
     href: "tel:+2548002647526",
   },
   {
