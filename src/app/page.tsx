@@ -7,6 +7,7 @@ import {
   TrendingProducts,
   Testimonials,
   Newsletter,
+  ConnectWithUs,
   BlogPreview,
   FAQPreview,
 } from "@/components/home"
@@ -26,6 +27,7 @@ export default function Home() {
       <Separator className="max-w-7xl mx-auto" />
       <Testimonials />
       <Newsletter />
+      <ConnectWithUs />
       <Separator className="max-w-7xl mx-auto" />
       <BlogPreview />
       <Separator className="max-w-7xl mx-auto" />
