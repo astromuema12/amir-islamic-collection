@@ -25,8 +25,14 @@ const contactInfo = [
   {
     icon: Mail,
     label: "Email",
-    value: "support@amirislamic.com\ninfo@amirislamic.com",
-    href: "mailto:support@amirislamic.com",
+    value: "amirislamiccollections@gmail.com",
+    href: "mailto:amirislamiccollections@gmail.com",
+  },
+  {
+    icon: MessageCircle,
+    label: "WhatsApp",
+    value: "+254 759 632162",
+    href: "https://wa.me/254759632162",
   },
   {
     icon: Clock,

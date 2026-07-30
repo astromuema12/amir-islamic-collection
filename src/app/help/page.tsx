@@ -26,9 +26,9 @@ const helpTopics = [
 ]
 
 const contactMethods = [
-  { icon: Mail, title: "Email Us", description: "support@amirislamic.com", action: "Send an email" },
-  { icon: Phone, title: "Call Us", description: "+254769269694", action: "Call now" },
-  { icon: MessageCircle, title: "Live Chat", description: "Available 24/7", action: "Start chat" },
+  { icon: Mail, title: "Email Us", description: "amirislamiccollections@gmail.com", action: "Send an email", href: "mailto:amirislamiccollections@gmail.com" },
+  { icon: MessageCircle, title: "WhatsApp", description: "+254 759 632162", action: "Chat on WhatsApp", href: "https://wa.me/254759632162" },
+  { icon: Phone, title: "Call Us", description: "+254769269694", action: "Call now", href: "tel:+254769269694" },
 ]
 
 export default function HelpPage() {
@@ -80,17 +80,19 @@ export default function HelpPage() {
             <h2 className="text-2xl font-semibold mb-6">Contact Us</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               {contactMethods.map((method) => (
-                <Card key={method.title} className="border-2">
-                  <CardContent className="p-6 text-center">
-                    <div className="flex justify-center mb-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                        <method.icon className="h-6 w-6 text-primary" />
+                <Card key={method.title} className="border-2 hover:border-primary/50 transition-colors">
+                  <a href={method.href} target={method.href?.startsWith("http") ? "_blank" : undefined} rel={method.href?.startsWith("http") ? "noopener noreferrer" : undefined}>
+                    <CardContent className="p-6 text-center">
+                      <div className="flex justify-center mb-3">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                          <method.icon className="h-6 w-6 text-primary" />
+                        </div>
                       </div>
-                    </div>
-                    <h3 className="font-semibold mb-1">{method.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-3">{method.description}</p>
-                    <p className="text-sm font-medium text-primary">{method.action}</p>
-                  </CardContent>
+                      <h3 className="font-semibold mb-1">{method.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-3">{method.description}</p>
+                      <p className="text-sm font-medium text-primary">{method.action}</p>
+                    </CardContent>
+                  </a>
                 </Card>
               ))}
             </div>

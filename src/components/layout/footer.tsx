@@ -106,20 +106,24 @@ export function Footer() {
               and Qur&rsquo;an to modest fashion and home decor, we bring you
               quality with barakah.
             </p>
-            <div className="mt-6 space-y-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 shrink-0 text-primary" />
-                <span>Nairobi, Kenya</span>
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4 shrink-0 text-primary" />
+                  <span>Nairobi, Kenya</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="h-4 w-4 shrink-0 text-primary" />
+                  <span>+254769269694</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4 shrink-0 text-primary" />
+                  <a href="mailto:amirislamiccollections@gmail.com" className="hover:text-primary transition-colors">amirislamiccollections@gmail.com</a>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MessageCircle className="h-4 w-4 shrink-0 text-primary" />
+                  <a href="https://wa.me/254759632162" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">+254 759 632162</a>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 shrink-0 text-primary" />
-                <span>+254769269694</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4 shrink-0 text-primary" />
-                <span>support@amirislamic.com</span>
-              </div>
-            </div>
           </div>
 
           <div>

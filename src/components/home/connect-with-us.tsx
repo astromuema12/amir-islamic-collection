@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Phone, ExternalLink } from "lucide-react"
+import { Phone, ExternalLink, Mail, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const INSTAGRAM_URL =
@@ -10,6 +10,10 @@ const TIKTOK_URL =
   "https://www.tiktok.com/@amir.islamic.coll?_r=1&_t=ZS-98Lwhy4rQqw"
 const PHONE_NUMBER = "+254769269694"
 const PHONE_HREF = "tel:+254769269694"
+const WHATSAPP_NUMBER = "+254 759 632162"
+const WHATSAPP_HREF = "https://wa.me/254759632162"
+const EMAIL_ADDRESS = "amirislamiccollections@gmail.com"
+const EMAIL_HREF = "mailto:amirislamiccollections@gmail.com"
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -160,6 +164,68 @@ export function ConnectWithUs() {
                     </div>
                     <span className="inline-flex items-center gap-1.5 text-xs text-white/50 group-hover:text-[#D4AF37] transition-colors">
                       Tap to call
+                      <ExternalLink className="h-3 w-3" />
+                    </span>
+                  </div>
+                </a>
+              </motion.div>
+
+              {/* WhatsApp Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.35 }}
+                className="group"
+              >
+                <a
+                  href={WHATSAPP_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-[#25D366]/30 hover:bg-white/[0.08] hover:shadow-lg hover:shadow-[#25D366]/5 hover:-translate-y-1"
+                >
+                  <div className="flex flex-col items-center text-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#25D366] to-[#128C7E] border border-white/10 shadow-lg shadow-[#25D366]/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[#25D366]/30">
+                      <MessageCircle className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-lg">WhatsApp</p>
+                      <p className="text-[#D4AF37] font-medium mt-1 text-sm tracking-wide">
+                        {WHATSAPP_NUMBER}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-white/50 group-hover:text-[#25D366] transition-colors">
+                      Chat on WhatsApp
+                      <ExternalLink className="h-3 w-3" />
+                    </span>
+                  </div>
+                </a>
+              </motion.div>
+
+              {/* Email Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+                className="group"
+              >
+                <a
+                  href={EMAIL_HREF}
+                  className="block h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-[#EA4335]/30 hover:bg-white/[0.08] hover:shadow-lg hover:shadow-[#EA4335]/5 hover:-translate-y-1"
+                >
+                  <div className="flex flex-col items-center text-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#EA4335] to-[#C5221F] border border-white/10 shadow-lg shadow-[#EA4335]/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[#EA4335]/30">
+                      <Mail className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-lg">Email Us</p>
+                      <p className="text-[#D4AF37] font-medium mt-1 text-sm tracking-wide truncate max-w-[200px]">
+                        {EMAIL_ADDRESS}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-white/50 group-hover:text-[#EA4335] transition-colors">
+                      Send an email
                       <ExternalLink className="h-3 w-3" />
                     </span>
                   </div>

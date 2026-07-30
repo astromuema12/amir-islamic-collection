@@ -1,10 +1,20 @@
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+function createRedis(): Redis | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token || url.includes("placeholder") || token.includes("placeholder")) {
+    return null;
+  }
+  try {
+    return new Redis({ url, token });
+  } catch {
+    return null;
+  }
+}
+
+const redis = createRedis();
 
 function msToDuration(ms: number): `${number} s` | `${number} m` | `${number} h` | `${number} d` {
   if (ms < 60_000) return `${Math.ceil(ms / 1000)} s`;
@@ -16,6 +26,9 @@ function msToDuration(ms: number): `${number} s` | `${number} m` | `${number} h`
 const limiterCache = new Map<string, Ratelimit>();
 
 function getLimiter(prefix: string, limit: number, windowMs: number): Ratelimit {
+  if (!redis) {
+    return noopLimiter;
+  }
   const cacheKey = `${prefix}:${limit}:${windowMs}`;
   let instance = limiterCache.get(cacheKey);
   if (!instance) {
@@ -29,6 +42,10 @@ function getLimiter(prefix: string, limit: number, windowMs: number): Ratelimit 
   }
   return instance;
 }
+
+const noopLimiter = {
+  limit: async () => ({ success: true, limit: Infinity, remaining: Infinity, reset: Date.now() }),
+} as unknown as Ratelimit;
 
 export type RateLimitResult = {
   success: boolean;

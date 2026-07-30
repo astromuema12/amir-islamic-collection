@@ -97,7 +97,7 @@ Retained data is securely stored with restricted access and is only used for the
 5. Read the information provided in the confirmation dialog
 6. Confirm your decision by clicking "Yes, Delete My Account"
 
-Alternatively, you can contact our support team at support@amirislamic.com to request deletion. For security purposes, we may need to verify your identity before processing manual deletion requests.`,
+Alternatively, you can contact our support team at amirislamiccollections@gmail.com to request deletion. For security purposes, we may need to verify your identity before processing manual deletion requests.`,
   },
   {
     id: "processing",
@@ -144,8 +144,9 @@ We recommend contacting seller support before initiating deletion to ensure a sm
     icon: Mail,
     content: `If you have questions about this policy or need assistance with account deletion, please contact us:
 
-Email: support@amirislamic.com
+Email: amirislamiccollections@gmail.com
 Phone: +254769269694
+WhatsApp: +254 759 632162
 Address: Kimathi Street, Nairobi, Kenya
 
 Our support team is available to assist you with any concerns about your data and privacy.

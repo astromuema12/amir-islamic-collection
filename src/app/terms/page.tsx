@@ -267,8 +267,9 @@ You agree that any cause of action arising from our services must be commenced w
     icon: FileText,
     content: `For questions, concerns, or inquiries regarding these Terms and Conditions, please contact us:
 
-Email: legal@amirislamic.com
+Email: amirislamiccollections@gmail.com
 Phone: +254769269694
+WhatsApp: +254 759 632162
 Address: Kimathi Street, Nairobi, Kenya
 
 We strive to respond to all inquiries within 48 business hours.

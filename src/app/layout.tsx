@@ -128,8 +128,8 @@ const jsonLd = {
   name: APP_NAME,
   description: APP_DESCRIPTION,
   url: siteUrl,
-  telephone: "+2548002647526",
-  email: "support@amirislamic.com",
+  telephone: "+254759632162",
+  email: "amirislamiccollections@gmail.com",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Nairobi",
