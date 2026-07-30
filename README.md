@@ -214,7 +214,7 @@ The frontend communicates with the database directly through server components a
 
 ### Authentication
 
-Managed by Better Auth. Routes are protected via middleware at `src/middleware.ts`.
+Managed by Better Auth. Routes are protected via proxy at `src/proxy.ts`.
 
 ### Payment
 
