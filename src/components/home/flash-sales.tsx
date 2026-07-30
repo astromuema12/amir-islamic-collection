@@ -1,5 +1,6 @@
 "use client"
 
+import type { Product } from "@/types"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
-import { sampleFlashDeals, flashDealEmojis } from "@/lib/data"
 
 interface TimeLeft {
   days: number
@@ -73,8 +73,14 @@ function CountdownTimer() {
   )
 }
 
-export function FlashSales() {
-  if (sampleFlashDeals.length === 0) return null
+export function FlashSales({ products }: { products: Product[] }) {
+  if (products.length === 0) return null
+
+  const flashDeals = products.map((p) => {
+    const total = p.salesCount + p.stock
+    const soldPercent = total > 0 ? Math.round((p.salesCount / total) * 100) : 0
+    return { ...p, soldPercent }
+  })
 
   return (
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
@@ -112,7 +118,7 @@ export function FlashSales() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {sampleFlashDeals.map((product, index) => {
+          {flashDeals.map((product, index) => {
             const discount = product.discountPrice
               ? calculateDiscount(product.price, product.discountPrice)
               : 0
@@ -139,7 +145,7 @@ export function FlashSales() {
 
                     <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
                       <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                        {flashDealEmojis[product.id] || "📦"}
+                        📦
                       </div>
                     </div>
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { motion } from "framer-motion"
+import type { Product } from "@/types"
 import {
   ShoppingBag,
   Star,
@@ -12,7 +13,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
-import { sampleProducts, productEmojis } from "@/lib/data"
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -32,8 +32,8 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-export function FeaturedProducts() {
-  if (sampleProducts.length === 0) return null
+export function FeaturedProducts({ products }: { products: Product[] }) {
+  if (products.length === 0) return null
 
   const scroll = (direction: "left" | "right") => {
     const container = document.getElementById("featured-scroll")
@@ -94,7 +94,7 @@ export function FeaturedProducts() {
           className="flex gap-4 sm:gap-6 overflow-x-auto px-4 sm:px-8 pb-4 scrollbar-hide"
           style={{ scrollSnapType: "x mandatory" }}
         >
-          {sampleProducts.map((product, index) => {
+          {products.map((product, index) => {
             const discount = product.discountPrice
               ? calculateDiscount(product.price, product.discountPrice)
               : 0
@@ -131,7 +131,7 @@ export function FeaturedProducts() {
 
                     <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
                       <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                        {productEmojis[product.id] || "📦"}
+                        📦
                       </div>
                     </div>
 

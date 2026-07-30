@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog"
 import toast from "react-hot-toast"
 import { formatPrice, formatDate } from "@/lib/utils"
+import { getProducts } from "@/lib/actions/product-actions"
 
 interface Product {
   id: string
@@ -38,11 +39,39 @@ interface Product {
   createdAt: Date
 }
 
-const mockProducts: Product[] = []
-
 export default function AdminProductsPage() {
   const router = useRouter()
-  const [products, setProducts] = useState(mockProducts)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const result = await getProducts()
+        setProducts(result.products.map((p: Record<string, unknown>) => ({
+          id: p.id as string,
+          name: p.name as string,
+          slug: p.slug as string,
+          images: p.images as string[],
+          price: Number(p.price),
+          discountPrice: p.discountPrice ? Number(p.discountPrice) : undefined,
+          stock: p.stock as number,
+          category: p.category as { name: string } | undefined,
+          isActive: p.isActive as boolean,
+          isFeatured: p.isFeatured as boolean,
+          salesCount: p.salesCount as number,
+          averageRating: Number(p.averageRating),
+          createdAt: p.createdAt as Date,
+        })))
+      } catch {
+        toast.error("Failed to load products")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProducts()
+  }, [])
+
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")

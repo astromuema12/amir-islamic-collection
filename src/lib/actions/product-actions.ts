@@ -60,6 +60,10 @@ export async function createProduct(formData: FormData) {
 
     updateTag(CACHE_TAGS.products);
     revalidatePath("/seller/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
+    revalidatePath("/categories");
+    revalidatePath("/");
 
     return { success: true, productId: id };
   } catch (error) {

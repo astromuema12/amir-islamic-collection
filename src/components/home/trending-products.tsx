@@ -1,15 +1,15 @@
 "use client"
 
+import type { Product } from "@/types"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { ShoppingBag, TrendingUp, Star, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/lib/utils"
-import { trendingProducts, trendingEmojis } from "@/lib/data"
 
-export function TrendingProducts() {
-  if (trendingProducts.length === 0) return null
+export function TrendingProducts({ products }: { products: Product[] }) {
+  if (products.length === 0) return null
 
   return (
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
@@ -37,7 +37,7 @@ export function TrendingProducts() {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {trendingProducts.map((product, index) => (
+          {products.map((product, index) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 30 }}
@@ -62,7 +62,7 @@ export function TrendingProducts() {
 
                   <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
                     <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                      {trendingEmojis[product.id] || "📦"}
+                      📦
                     </div>
                   </div>
 
