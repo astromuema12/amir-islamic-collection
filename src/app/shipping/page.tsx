@@ -150,7 +150,7 @@ export default function ShippingPage() {
                   <h3 className="font-medium text-foreground">Import Duties & Customs</h3>
                   <p>
                     International orders may be subject to import duties, customs fees, and taxes
-                    imposed by the destination country. These charges are the buyer's responsibility
+                    imposed by the destination country. These charges are the buyer&apos;s responsibility
                     and are not included in the product price or shipping cost. Customs policies vary
                     widely, so please check with your local customs office before ordering.
                   </p>
@@ -169,7 +169,7 @@ export default function ShippingPage() {
               (if provided). You can track your order through:
 
               • The tracking link in your shipping confirmation email
-              • Your account dashboard under "My Orders"
+              • Your account dashboard under &quot;My Orders&quot;
               • Our Track Order page (enter your order number and email)
 
               Tracking availability depends on the shipping method and carrier. Standard
@@ -184,7 +184,7 @@ export default function ShippingPage() {
             <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
               Certain items may have shipping restrictions due to size, weight, or regulatory
               requirements:
-              • Large items (Qur'an stands, furniture) may require special shipping arrangements
+              • Large items (Qur&apos;an stands, furniture) may require special shipping arrangements
               • Perfumes and liquids have restrictions for international air shipping
               • Fragile items are packed with extra care but may require additional shipping charges
               • Some remote areas may not be serviceable by our carriers

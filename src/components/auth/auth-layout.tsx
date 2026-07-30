@@ -101,7 +101,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
               </span>
             </h2>
             <p className="mt-4 max-w-md text-lg text-emerald-100/80 leading-relaxed">
-              Discover premium Islamic products — prayer mats, Qur'an, hijabs, perfumes, and more.
+              Discover premium Islamic products — prayer mats, Qur&apos;an, hijabs, perfumes, and more.
             </p>
 
             <div className="mt-12 grid grid-cols-3 gap-6">
@@ -129,7 +129,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
             <div className="mt-12 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
               <p className="text-sm italic text-emerald-100/60">
-                "The best among you are those who are best to others."
+                &quot;The best among you are those who are best to others.&quot;
               </p>
               <p className="mt-2 text-xs text-emerald-100/40">— Prophet Muhammad (PBUH)</p>
             </div>

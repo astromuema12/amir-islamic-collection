@@ -57,11 +57,11 @@ export default function AdminSEOPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Input label="Meta Title" defaultValue="Amir Islamic Collections - Premium Islamic Products Marketplace" placeholder="Site title" />
-          <Textarea label="Meta Description" defaultValue="Discover premium Islamic products including prayer mats, Holy Qur'an, hijabs, perfumes, and more at Amir Islamic Collections. Your trusted marketplace for authentic Islamic goods." rows={3} />
+          <Textarea label="Meta Description" defaultValue="Discover premium Islamic products including prayer mats, Holy Qur&apos;an, hijabs, perfumes, and more at Amir Islamic Collections. Your trusted marketplace for authentic Islamic goods." rows={3} />
           <div className="rounded-lg border p-4 bg-muted/30">
             <p className="text-xs font-medium text-muted-foreground mb-2">Preview</p>
             <p className="text-sm text-blue-600 dark:text-blue-400">Amir Islamic Collections - Premium Islamic Products Marketplace</p>
-            <p className="text-xs text-muted-foreground line-clamp-2">Discover premium Islamic products including prayer mats, Holy Qur'an, hijabs, perfumes, and more...</p>
+            <p className="text-xs text-muted-foreground line-clamp-2">Discover premium Islamic products including prayer mats, Holy Qur&apos;an, hijabs, perfumes, and more...</p>
             <p className="text-xs text-emerald-600 dark:text-emerald-400">https://amirislamic.com/</p>
           </div>
           <Button onClick={() => handleSave("Meta Tags")} isLoading={saving}>

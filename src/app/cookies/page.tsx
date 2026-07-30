@@ -178,7 +178,7 @@ export default function CookiesPage() {
               We may update this Cookie Policy from time to time to reflect
               changes in our practices, legal requirements, or the technologies
               we use. We will notify you of material changes by posting the
-              updated policy on this page with a revised "Last Updated" date.
+              updated policy on this page with a revised &quot;Last Updated&quot; date.
 
               We encourage you to review this policy periodically to stay
               informed about how we use cookies.

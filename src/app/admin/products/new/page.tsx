@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import toast from "react-hot-toast"
-import slugify from "slugify"
 
 const productFormSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
@@ -60,14 +59,16 @@ export default function NewProductPage() {
   const [tagInput, setTagInput] = useState("")
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch } = useForm<ProductFormData>({
-    resolver: zodResolver(productFormSchema) as any,
+    resolver: zodResolver(productFormSchema) as unknown as Resolver<ProductFormData>,
     defaultValues: {
       name: "", description: "", price: 0, stock: 0,
       isActive: true, isFeatured: false, isFlashSale: false, tags: [],
     },
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const tags = watch("tags") || []
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isFlashSale = watch("isFlashSale")
 
   const addTag = () => {

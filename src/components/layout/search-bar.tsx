@@ -44,6 +44,7 @@ export function SearchBar({
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as string[]
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setRecentSearches(
           parsed.map((text) => ({ text, type: "recent" as const }))
         )
@@ -169,13 +170,14 @@ export function SearchBar({
               <button
                 type="button"
                 role="option"
-                onClick={() => handleSearch(query)}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-accent transition-colors"
-              >
-                <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span>
-                  Search for "<strong>{query}</strong>"
-                </span>
+                  aria-selected={false}
+                  onClick={() => handleSearch(query)}
+                  className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-accent transition-colors"
+                >
+                  <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span>
+                    Search for &quot;<strong>{query}</strong>&quot;
+                  </span>
               </button>
             </div>
           ) : (
@@ -195,16 +197,17 @@ export function SearchBar({
                     </button>
                   </div>
                   {recentSearches.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      role="option"
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-accent transition-colors"
-                    >
-                      <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span>{suggestion.text}</span>
-                    </button>
+                      <button
+                        key={index}
+                        type="button"
+                        role="option"
+                        aria-selected={false}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-accent transition-colors"
+                      >
+                        <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span>{suggestion.text}</span>
+                      </button>
                   ))}
                 </div>
               )}
@@ -215,15 +218,16 @@ export function SearchBar({
                   </div>
                   {TRENDING_SEARCHES.map((suggestion, index) => (
                     <button
-                      key={index}
-                      type="button"
-                      role="option"
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-accent transition-colors"
-                    >
-                      <TrendingUp className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span>{suggestion.text}</span>
-                    </button>
+                        key={index}
+                        type="button"
+                        role="option"
+                        aria-selected={false}
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm hover:bg-accent transition-colors"
+                      >
+                        <TrendingUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span>{suggestion.text}</span>
+                      </button>
                   ))}
                 </div>
               )}

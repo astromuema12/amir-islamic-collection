@@ -203,7 +203,7 @@ export default function RefundPage() {
               • Custom/personalized items (barring manufacturing defects)
               • Perishable goods
               • Intimate apparel and undergarments
-              • Items marked as "Final Sale"
+              • Items marked as &quot;Final Sale&quot;
 
               Items that have been used, washed, altered, or damaged by the customer
               will not be accepted for return and may be returned to the customer at
@@ -225,8 +225,8 @@ export default function RefundPage() {
 
               This policy is designed to go beyond legal requirements in
               accommodating our customers, reflecting the Islamic principle that
-              "the buyer and seller have the option of cancelling or confirming the
-              transaction as long as they have not parted." (Hadith)
+              &quot;the buyer and seller have the option of cancelling or confirming the
+               transaction as long as they have not parted.&quot; (Hadith)
             </p>
           </section>
 

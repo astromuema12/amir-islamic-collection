@@ -279,7 +279,7 @@ export default function AdminProductsPage() {
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             <SelectItem value="Prayer Mats">Prayer Mats</SelectItem>
-            <SelectItem value="Holy Qur'an">Holy Qur'an</SelectItem>
+            <SelectItem value="Holy Qur'an">Holy Qur&apos;an</SelectItem>
             <SelectItem value="Accessories">Accessories</SelectItem>
             <SelectItem value="Home Decor">Home Decor</SelectItem>
           </SelectContent>

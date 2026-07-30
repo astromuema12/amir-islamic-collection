@@ -15,6 +15,7 @@ export function InstallAppPrompt() {
     if (typeof window === "undefined") return
     const wasDismissed = sessionStorage.getItem("pwa-install-dismissed")
     if (wasDismissed) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDismissed(true)
       return
     }

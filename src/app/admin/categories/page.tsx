@@ -169,7 +169,7 @@ export default function AdminCategoriesPage() {
       toast.success("Category updated")
     } else {
       const newCat: Category = {
-        id: `cat-${Date.now()}`, name: formData.name, slug: formData.name.toLowerCase().replace(/\s+/g, "-"),
+        id: `cat-${crypto.randomUUID()}`, name: formData.name, slug: formData.name.toLowerCase().replace(/\s+/g, "-"),
         description: formData.description, image: "", parentId: formData.parentId,
         isActive: formData.isActive, productCount: 0, children: [],
       }

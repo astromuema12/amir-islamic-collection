@@ -17,9 +17,10 @@ export function usePWAInstall() {
 
     const isStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
 
     if (isStandalone) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsInstalled(true)
       return
     }

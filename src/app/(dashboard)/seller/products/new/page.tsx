@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
@@ -86,7 +86,7 @@ export default function NewProductPage() {
     formState: { errors },
     reset,
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(productFormSchema) as any,
+    resolver: zodResolver(productFormSchema) as unknown as Resolver<ProductFormValues>,
     defaultValues: {
       name: "",
       description: "",
@@ -103,6 +103,7 @@ export default function NewProductPage() {
     },
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isFlashSale = watch("isFlashSale")
 
   const addTag = () => {

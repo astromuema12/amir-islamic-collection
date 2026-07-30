@@ -64,6 +64,7 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState(SHIPPING_METHODS[0].name)
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
+  const [orderId] = useState(() => `AIC-${Date.now().toString(36).toUpperCase()}`)
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -213,7 +214,7 @@ export default function CheckoutPage() {
           <div className="mt-8 rounded-xl border bg-card p-6 text-left">
             <div className="flex items-center gap-3 mb-4">
               <Package className="h-5 w-5 text-primary" />
-              <span className="font-semibold">Order #AIC-{Date.now().toString(36).toUpperCase()}</span>
+              <span className="font-semibold">Order #AIC-{orderId}</span>
             </div>
             <Separator className="mb-4" />
             <div className="space-y-2 text-sm">

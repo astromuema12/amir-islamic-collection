@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import {
@@ -57,7 +57,7 @@ export default function EditProductPage() {
   const [tagInput, setTagInput] = useState("")
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, setValue, watch } = useForm<EditFormData>({
-    resolver: zodResolver(editProductSchema) as any,
+    resolver: zodResolver(editProductSchema) as unknown as Resolver<EditFormData>,
     defaultValues: {
       name: "Premium Prayer Mat - Velvet",
       description: "A beautiful premium quality prayer mat made from soft velvet material with intricate Islamic geometric patterns. Perfect for daily prayers and travel.",
@@ -73,7 +73,9 @@ export default function EditProductPage() {
     },
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const tags = watch("tags") || []
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isFlashSale = watch("isFlashSale")
 
   const addTag = () => {

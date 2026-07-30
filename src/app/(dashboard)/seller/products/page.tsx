@@ -185,7 +185,7 @@ export default function SellerProductsPage() {
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
                   <SelectItem value="Prayer Mats">Prayer Mats</SelectItem>
-                  <SelectItem value="Qur'an">Qur'an</SelectItem>
+                  <SelectItem value="Qur'an">Qur&apos;an</SelectItem>
                   <SelectItem value="Hijabs">Hijabs</SelectItem>
                   <SelectItem value="Perfumes">Perfumes</SelectItem>
                   <SelectItem value="Wall Art">Wall Art</SelectItem>

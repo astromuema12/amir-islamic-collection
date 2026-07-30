@@ -103,6 +103,7 @@ export default function EditProductPage() {
     },
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isFlashSale = watch("isFlashSale")
 
   useEffect(() => {
