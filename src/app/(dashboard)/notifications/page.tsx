@@ -4,18 +4,11 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import toast from "react-hot-toast"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import {
   Bell,
   ShoppingBag,
-  Package,
   Truck,
   Heart,
   Percent,
@@ -23,8 +16,6 @@ import {
   Star,
   Trash2,
   CheckCheck,
-  RefreshCw,
-  AlertTriangle,
   Info,
 } from "lucide-react"
 
@@ -185,7 +176,7 @@ export default function NotificationsPage() {
         <CardContent className="p-0">
           {notifications.length > 0 ? (
             <AnimatePresence mode="popLayout">
-              {notifications.map((notification, index) => {
+              {notifications.map((notification) => {
                 const config = typeConfig[notification.type] || typeConfig.system
                 const Icon = config.icon
 

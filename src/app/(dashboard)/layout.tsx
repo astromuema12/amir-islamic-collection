@@ -6,20 +6,12 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
 import {
   LayoutDashboard,
   User,
-  MapPin,
   ShoppingBag,
   Heart,
   Bell,
-  Settings,
-  HelpCircle,
-  LogOut,
-  ChevronLeft,
-  Package,
 } from "lucide-react"
 
 const mobileLinks = [

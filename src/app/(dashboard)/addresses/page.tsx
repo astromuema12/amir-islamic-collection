@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardContent,
-  CardDescription,
+
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -136,7 +136,7 @@ export default function AddressesPage() {
       toast.success("Address updated")
     } else {
       const newAddr: Address = {
-        id: String(Date.now()),
+        id: crypto.randomUUID(),
         ...data,
         isDefault: addresses.length === 0,
         type: "other",

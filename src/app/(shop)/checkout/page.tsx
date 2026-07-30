@@ -42,6 +42,7 @@ import { addressSchema, type AddressInput } from "@/lib/validations"
 import { useCartStore } from "@/store/cart-store"
 import { FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants"
 import { createOrder, createCheckoutAddress } from "@/lib/actions/order-actions"
+import { syncCartToDb } from "@/lib/actions/cart-actions"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import toast from "react-hot-toast"
 
@@ -142,6 +143,21 @@ export default function CheckoutPage() {
 
       if ("error" in shippingResult) {
         toast.error(shippingResult.error)
+        return
+      }
+
+      const syncResult = await syncCartToDb(
+        items.map((i) => ({
+          productId: i.productId,
+          name: i.name,
+          image: i.image,
+          price: i.price,
+          quantity: i.quantity,
+        }))
+      )
+
+      if ("error" in syncResult) {
+        toast.error(syncResult.error ?? "Failed to sync cart")
         return
       }
 

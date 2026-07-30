@@ -1,5 +1,6 @@
 import { pgTable, uuid, text, varchar, timestamp, uniqueIndex, index } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import { users } from "./users";
 
 export const roles = pgTable("roles", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -47,7 +48,7 @@ export const rolePermissionsRelations = relations(rolePermissions, ({ one }) => 
 
 export const userRoles = pgTable("user_roles", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id").notNull(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
   roleId: uuid("role_id").references(() => roles.id, { onDelete: "cascade" }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [

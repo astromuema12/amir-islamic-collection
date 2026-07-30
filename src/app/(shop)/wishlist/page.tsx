@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Heart,
@@ -20,77 +19,7 @@ import { useWishlistStore } from "@/store/wishlist-store"
 import { useCartStore } from "@/store/cart-store"
 import toast from "react-hot-toast"
 
-const SAMPLE_WISHLIST = [
-  {
-    id: "1",
-    productId: "p1",
-    name: "Premium Velvet Prayer Mat",
-    image: "",
-    price: 15000,
-    discountPrice: 12000,
-    rating: 4.8,
-    reviewCount: 124,
-    inStock: true,
-  },
-  {
-    id: "2",
-    productId: "p2",
-    name: "Golden Arabic Tasbih – 99 Beads",
-    image: "",
-    price: 8500,
-    discountPrice: undefined,
-    rating: 4.9,
-    reviewCount: 89,
-    inStock: true,
-  },
-  {
-    id: "3",
-    productId: "p3",
-    name: "Luxury Silk Hijab – Emerald Green",
-    image: "",
-    price: 12000,
-    discountPrice: 9500,
-    rating: 4.7,
-    reviewCount: 56,
-    inStock: false,
-  },
-  {
-    id: "4",
-    productId: "p4",
-    name: "Leather Quran Case with Gold Embossing",
-    image: "",
-    price: 25000,
-    discountPrice: undefined,
-    rating: 5.0,
-    reviewCount: 32,
-    inStock: true,
-  },
-  {
-    id: "5",
-    productId: "p5",
-    name: "Oud Al Amir Premium Perfume Oil",
-    image: "",
-    price: 18000,
-    discountPrice: 15000,
-    rating: 4.6,
-    reviewCount: 203,
-    inStock: true,
-  },
-  {
-    id: "6",
-    productId: "p6",
-    name: "Islamic Wall Art – Ayat-ul-Kursi Calligraphy",
-    image: "",
-    price: 22000,
-    discountPrice: undefined,
-    rating: 4.9,
-    reviewCount: 78,
-    inStock: true,
-  },
-]
-
 interface WishlistItem {
-  id: string
   productId: string
   name: string
   image: string
@@ -106,8 +35,45 @@ export default function WishlistPage() {
   const { addItem } = useCartStore()
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [addingToCart, setAddingToCart] = useState<string | null>(null)
+  const [wishlistProducts, setWishlistProducts] = useState<Record<string, WishlistItem>>({})
+  const [loading, setLoading] = useState(true)
 
-  const wishlistItems = SAMPLE_WISHLIST
+  useEffect(() => {
+    async function fetchWishlistProducts() {
+      if (items.length === 0) {
+        setLoading(false)
+        return
+      }
+      try {
+        const response = await fetch(`/api/products/by-ids?ids=${items.join(",")}`)
+        if (response.ok) {
+          const data = await response.json()
+          const productMap: Record<string, WishlistItem> = {}
+          for (const p of data.products || []) {
+            productMap[p.id] = {
+              productId: p.id,
+              name: p.name,
+              image: p.images?.[0] || "",
+              price: Number(p.price),
+              discountPrice: p.discountPrice ? Number(p.discountPrice) : undefined,
+              rating: Number(p.averageRating) || 0,
+              reviewCount: p.reviewCount || 0,
+              inStock: p.stock > 0,
+            }
+          }
+          setWishlistProducts(productMap)
+        }
+      } catch {
+        // silently fail, user sees empty state
+      }
+      setLoading(false)
+    }
+    fetchWishlistProducts()
+  }, [items])
+
+  const wishlistItems = items
+    .map((id) => wishlistProducts[id])
+    .filter((p): p is WishlistItem => p !== undefined)
 
   function handleRemove(productId: string) {
     setRemovingId(productId)
@@ -138,7 +104,15 @@ export default function WishlistPage() {
     }, 500)
   }
 
-  if (wishlistItems.length === 0) {
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (items.length === 0 || wishlistItems.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-4 py-20">
         <motion.div
@@ -227,12 +201,20 @@ export default function WishlistPage() {
 
                 <Link href={`/products/${item.productId}`}>
                   <div className="relative aspect-square bg-gradient-to-br from-muted to-muted/50">
-                    <div className="flex h-full items-center justify-center">
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
-                        <ShoppingBag className="h-12 w-12" />
-                        <span className="text-xs">{item.name}</span>
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground/30">
+                          <ShoppingBag className="h-12 w-12" />
+                          <span className="text-xs">{item.name}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {discount > 0 && (
                       <Badge

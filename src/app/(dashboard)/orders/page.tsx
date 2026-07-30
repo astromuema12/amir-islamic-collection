@@ -6,13 +6,7 @@ import { motion } from "framer-motion"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   Table,
   TableBody,
@@ -26,7 +20,6 @@ import {
   Search,
   Eye,
   Package,
-  ArrowRight,
 } from "lucide-react"
 import { formatPrice, formatDate } from "@/lib/utils"
 import { cn } from "@/lib/utils"

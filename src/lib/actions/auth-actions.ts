@@ -16,7 +16,7 @@ import { eq, and } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { hashPassword, verifyPassword, createSession, logout as clearSession, getCurrentUser } from "@/lib/auth";
 import { loginSchema, registerSchema } from "@/lib/validations";
-import { sendEmail } from "@/lib/resend";
+import { sendEmail, sendWelcomeEmail } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
 import { headers, cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
@@ -86,9 +86,15 @@ export async function register(formData: FormData) {
       name: parsed.data.name,
       email: parsed.data.email,
       password: hashed,
+      emailVerified: true,
     });
 
     await createSession(userId);
+
+    sendWelcomeEmail(parsed.data.email, parsed.data.name).catch(() => {
+      console.error("Failed to send welcome email");
+    });
+
     revalidatePath("/");
 
     return { success: true };

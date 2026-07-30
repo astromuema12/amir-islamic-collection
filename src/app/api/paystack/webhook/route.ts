@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { sendOrderConfirmation } from "@/lib/resend";
+import crypto from "crypto";
 
 const PAYSTACK_SECRET = process.env.PAYSTACK_SECRET_KEY;
 
@@ -11,7 +12,6 @@ function verifyWebhookSignature(
   signature: string | null
 ): boolean {
   if (!signature || !PAYSTACK_SECRET) return false;
-  const crypto = require("crypto");
   const hash = crypto
     .createHmac("sha512", PAYSTACK_SECRET)
     .update(body)

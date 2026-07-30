@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Camera, Save, Loader2 } from "lucide-react"
+import { Camera, Save } from "lucide-react"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { updateProfile } from "@/lib/actions/auth-actions"
 
