@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { sessions } from "@/lib/db/schema";
+import { sessions, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { apiLimiter, authLimiter, checkoutLimiter } from "@/lib/rate-limit";
 import {
@@ -127,6 +127,34 @@ export async function proxy(request: NextRequest) {
       }
     } catch {
       // DB connection failure — treat as unauthenticated
+    }
+  }
+
+  // --- Admin Route Guard ---
+  if (pathname.startsWith("/admin") && isAuthenticated) {
+    try {
+      const [session] = await db
+        .select()
+        .from(sessions)
+        .where(eq(sessions.token, sessionToken!));
+      if (session) {
+        const [user] = await db
+          .select({ role: users.role })
+          .from(users)
+          .where(eq(users.id, session.userId))
+          .limit(1);
+        if (!user || (user.role !== "admin" && user.role !== "super_admin")) {
+          return NextResponse.json(
+            { status: "error", message: "Forbidden — admin access required" },
+            { status: 403 },
+          );
+        }
+      }
+    } catch {
+      return NextResponse.json(
+        { status: "error", message: "Forbidden — admin access required" },
+        { status: 403 },
+      );
     }
   }
 

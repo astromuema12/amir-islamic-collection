@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import {
   users, products, orders, categories,
   sellerProfiles, coupons, blogs, reviews, analytics, settings,
-  withdrawals, notifications,
+  withdrawals, notifications, sessions, wishlists,
 } from "@/lib/db/schema";
 import { eq, and, desc, sql, gte } from "drizzle-orm";
 import { productRepository } from "@/lib/repositories/product-repository";
@@ -203,10 +203,51 @@ export async function updateUserRole(userId: string, role: string) {
       .set({ role: role as typeof users.$inferSelect.role, updatedAt: new Date() })
       .where(eq(users.id, userId));
 
-    revalidatePath("/admin/users");
+    revalidatePath("/admin/customers");
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Failed to update user role" };
+  }
+}
+
+export async function deleteUser(userId: string) {
+  try {
+    await requireAdmin();
+
+    const [existing] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+    if (!existing) return { error: "User not found" };
+
+    const anonymizedEmail = `deleted-${userId}@anonymized.invalid`;
+    const result = await db
+      .update(users)
+      .set({
+        name: "Deleted Account",
+        email: anonymizedEmail,
+        phone: null,
+        bio: null,
+        image: null,
+        password: null,
+        emailVerified: false,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+
+    if (result.rowCount === 0) {
+      return { error: "No rows affected — deletion failed" };
+    }
+
+    await db.delete(sessions).where(eq(sessions.userId, userId));
+    await db.delete(notifications).where(eq(notifications.userId, userId));
+    await db.delete(wishlists).where(eq(wishlists.userId, userId));
+
+    revalidatePath("/admin/customers");
+    return { success: true, deleted: true };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Failed to delete user";
+    if (msg.includes("foreign key constraint")) {
+      return { error: "Cannot delete user — they have existing orders or products. Anonymize instead." };
+    }
+    return { error: msg };
   }
 }
 

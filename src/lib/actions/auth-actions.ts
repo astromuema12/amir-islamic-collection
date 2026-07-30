@@ -268,7 +268,7 @@ export async function deleteAccount() {
 
     // Anonymize the user record so orders remain intact for legal/accounting
     const anonymizedEmail = `deleted-${user.id}@anonymized.invalid`;
-    await db
+    const result = await db
       .update(users)
       .set({
         name: "Deleted Account",
@@ -280,6 +280,10 @@ export async function deleteAccount() {
         updatedAt: new Date(),
       })
       .where(eq(users.id, user.id));
+
+    if (result.rowCount === 0) {
+      return { error: "No rows affected - deletion failed" };
+    }
 
     // Delete all cascade-able user data
     await db.delete(sessions).where(eq(sessions.userId, user.id));
@@ -295,6 +299,7 @@ export async function deleteAccount() {
     await clearSession();
 
     revalidatePath("/");
+    revalidatePath("/admin/customers");
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Account deletion failed" };
