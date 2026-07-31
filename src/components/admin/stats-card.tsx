@@ -1,7 +1,7 @@
 "use client"
 
-import { type ReactNode } from "react"
-import { motion } from "framer-motion"
+import type { ReactNode } from "react"
+import { TrendingUp, TrendingDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface StatsCardProps {
@@ -16,41 +16,39 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon, description, trend, className, onClick }: StatsCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={onClick ? { scale: 1.02 } : undefined}
+    <div
       onClick={onClick}
       className={cn(
-        "rounded-xl border bg-card p-6 shadow-sm transition-all duration-200 hover:shadow-md",
-        onClick && "cursor-pointer",
+        "rounded-xl border bg-card p-5 shadow-sm",
+        onClick && "cursor-pointer transition-shadow hover:shadow-md",
         className
       )}
     >
       <div className="flex items-center justify-between">
-        <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-primary">
           {icon}
-        </div>
+        </span>
         {trend && (
           <span
             className={cn(
               "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
               trend.positive
-                ? "bg-success/10 text-success-foreground"
+                ? "bg-success/10 text-success"
                 : "bg-destructive/10 text-destructive"
             )}
           >
-            {trend.positive ? "↑" : "↓"} {Math.abs(trend.value)}%
+            {trend.positive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            {Math.abs(trend.value)}%
           </span>
         )}
       </div>
       <div className="mt-4">
         <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="mt-1 text-2xl font-bold tracking-tight">{value}</p>
+        <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
         {description && (
           <p className="mt-1 text-xs text-muted-foreground">{description}</p>
         )}
       </div>
-    </motion.div>
+    </div>
   )
 }

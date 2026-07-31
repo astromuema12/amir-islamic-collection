@@ -1,126 +1,254 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import {
-  Eye, Download, X, Check, Truck, Clock, AlertTriangle,
-  Search, Filter, FileText, Printer
-} from "lucide-react"
+import { useCallback, useEffect, useState } from "react"
+import { Eye, X, Search } from "lucide-react"
 import { DataTable, type Column } from "@/components/admin/data-table"
+import { PageHeader } from "@/components/admin/page-layout"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle
-} from "@/components/ui/dialog"
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Skeleton } from "@/components/ui/skeleton"
 import { formatPrice, formatDateTime } from "@/lib/utils"
 import toast from "react-hot-toast"
+import {
+  getAdminOrders, getAdminOrderById, updateOrderStatus, updatePaymentStatus,
+} from "@/lib/actions/admin-actions"
 
-interface Order {
+interface AdminOrder {
   id: string
-  customer: string
-  email: string
-  total: number
-  subtotal: number
-  shipping: number
-  tax: number
-  discount: number
+  total: string
+  subtotal: string
+  shipping: string
+  tax: string
+  discount: string
   status: string
   paymentStatus: string
-  items: number
-  date: Date
-  trackingNumber?: string
-  paymentMethod: string
+  paymentMethod: string | null
+  couponCode: string | null
+  trackingNumber: string | null
+  createdAt: Date
+  userId: string
+  customerName: string | null
+  customerEmail: string | null
+  itemCount: number
 }
 
-const mockOrders: Order[] = []
+interface OrderDetail {
+  order: {
+    id: string
+    status: string
+    total: string
+    subtotal: string
+    shipping: string
+    tax: string
+    discount: string
+    paymentMethod: string | null
+    paymentStatus: string
+    couponCode: string | null
+    notes: string | null
+    trackingNumber: string | null
+    createdAt: Date
+  }
+  user: { id: string; name: string | null; email: string; phone: string | null } | null
+  items: { id: string; productName: string; productImage: string | null; quantity: number; price: string }[]
+  shippingAddress: {
+    id: string
+    fullName: string
+    phone: string
+    street: string
+    city: string
+    state: string | null
+    country: string
+    zipCode: string | null
+  } | null
+  billingAddress: {
+    id: string
+    fullName: string
+    phone: string
+    street: string
+    city: string
+    state: string | null
+    country: string
+    zipCode: string | null
+  } | null
+}
+
+const ORDER_STATUSES = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"]
+const PAYMENT_STATUSES = ["pending", "completed", "failed", "refunded"]
 
 const statusBadge = (status: string) => {
   const map: Record<string, "default" | "success" | "warning" | "danger" | "secondary" | "outline"> = {
-    delivered: "success", shipped: "default", processing: "warning", confirmed: "secondary",
-    pending: "danger", cancelled: "outline", refunded: "outline", completed: "success", failed: "danger",
+    delivered: "success",
+    shipped: "default",
+    processing: "warning",
+    confirmed: "secondary",
+    pending: "warning",
+    cancelled: "outline",
+    returned: "danger",
+    completed: "success",
+    failed: "danger",
+    refunded: "outline",
   }
-  return <Badge variant={map[status] || "default"}>{status}</Badge>
+  return <Badge variant={map[status] || "secondary"}>{status}</Badge>
 }
 
 export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState(mockOrders)
+  const [orders, setOrders] = useState<AdminOrder[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [paymentFilter, setPaymentFilter] = useState("all")
   const [page, setPage] = useState(1)
-  const [selectedIds, setSelectedIds] = useState<string[]>([])
-  const [viewOrder, setViewOrder] = useState<Order | null>(null)
-  const [updateStatus, setUpdateStatus] = useState<string>("")
-  const [cancelReason, setCancelReason] = useState("")
-  const [showCancel, setShowCancel] = useState(false)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
 
-  const filtered = orders.filter(o => {
-    if (search && !o.id.toLowerCase().includes(search.toLowerCase()) && !o.customer.toLowerCase().includes(search.toLowerCase())) return false
-    if (statusFilter !== "all" && o.status !== statusFilter) return false
-    if (paymentFilter !== "all" && o.paymentStatus !== paymentFilter) return false
-    return true
-  })
+  const [viewOrder, setViewOrder] = useState<OrderDetail | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [newStatus, setNewStatus] = useState("")
+  const [newPayment, setNewPayment] = useState("")
+  const [tracking, setTracking] = useState("")
 
-  const totalPages = Math.ceil(filtered.length / 10)
-  const paginated = filtered.slice((page - 1) * 10, page * 10)
+  const fetchOrders = useCallback(async () => {
+    setLoading(true)
+    const result = await getAdminOrders({
+      search: search || undefined,
+      status: statusFilter !== "all" ? statusFilter : undefined,
+      payment: paymentFilter !== "all" ? paymentFilter : undefined,
+      page,
+      limit: 10,
+    })
+    setOrders(result.orders as AdminOrder[])
+    setTotal(result.total)
+    setTotalPages(result.totalPages)
+    setLoading(false)
+  }, [search, statusFilter, paymentFilter, page])
 
-  const handleStatusUpdate = () => {
-    if (!viewOrder || !updateStatus) return
-    setOrders(prev => prev.map(o => o.id === viewOrder.id ? { ...o, status: updateStatus } : o))
-    setViewOrder(prev => prev ? { ...prev, status: updateStatus } : null)
-    setUpdateStatus("")
-    toast.success(`Order ${viewOrder.id} status updated to ${updateStatus}`)
+  useEffect(() => {
+    const t = setTimeout(() => fetchOrders(), search ? 300 : 0)
+    return () => clearTimeout(t)
+  }, [fetchOrders, search])
+
+  const openDetail = async (id: string) => {
+    setDetailLoading(true)
+    setViewOrder(null)
+    const detail = await getAdminOrderById(id)
+    if (detail) {
+      setViewOrder(detail as OrderDetail)
+      setNewStatus(detail.order.status)
+      setNewPayment(detail.order.paymentStatus)
+      setTracking(detail.order.trackingNumber ?? "")
+    } else {
+      toast.error("Failed to load order")
+    }
+    setDetailLoading(false)
   }
 
-  const handleCancel = () => {
+  const handleStatusUpdate = async () => {
     if (!viewOrder) return
-    setOrders(prev => prev.map(o => o.id === viewOrder.id ? { ...o, status: "cancelled" } : o))
-    setShowCancel(false)
-    setCancelReason("")
-    toast.success(`Order ${viewOrder.id} cancelled`)
+    const res = await updateOrderStatus(viewOrder.order.id, newStatus, tracking || undefined)
+    if ("error" in res) {
+      toast.error(res.error)
+      return
+    }
+    setViewOrder({ ...viewOrder, order: { ...viewOrder.order, status: newStatus, trackingNumber: tracking || null } })
+    fetchOrders()
+    toast.success("Order updated")
   }
 
-  const handleInvoice = () => {
-    toast.success("Invoice downloaded")
+  const handlePaymentUpdate = async () => {
+    if (!viewOrder) return
+    const res = await updatePaymentStatus(viewOrder.order.id, newPayment)
+    if ("error" in res) {
+      toast.error(res.error)
+      return
+    }
+    setViewOrder({ ...viewOrder, order: { ...viewOrder.order, paymentStatus: newPayment } })
+    fetchOrders()
+    toast.success("Payment status updated")
   }
 
-  const columns: Column<Order>[] = [
-    { key: "id", label: "Order", sortable: true,
+  const handleCancel = async () => {
+    if (!viewOrder) return
+    const res = await updateOrderStatus(viewOrder.order.id, "cancelled")
+    if ("error" in res) {
+      toast.error(res.error)
+      return
+    }
+    setViewOrder({ ...viewOrder, order: { ...viewOrder.order, status: "cancelled" } })
+    setNewStatus("cancelled")
+    fetchOrders()
+    toast.success("Order cancelled")
+  }
+
+  const columns: Column<AdminOrder>[] = [
+    {
+      key: "id",
+      label: "Order",
+      sortable: true,
       render: (o) => (
-        <button onClick={() => setViewOrder(o)} className="font-medium text-primary hover:underline text-left">
-          {o.id}
+        <button
+          onClick={() => openDetail(o.id)}
+          className="text-left font-medium text-primary hover:underline"
+        >
+          #{o.id.slice(0, 8)}
         </button>
       ),
     },
-    { key: "customer", label: "Customer", sortable: true },
-    { key: "total", label: "Total", sortable: true,
-      render: (o) => <span className="font-medium">{formatPrice(o.total)}</span>,
-      className: "text-right",
-    },
-    { key: "items", label: "Items", className: "text-center" },
-    { key: "status", label: "Status", sortable: true, render: (o) => statusBadge(o.status) },
-    { key: "paymentStatus", label: "Payment", render: (o) => statusBadge(o.paymentStatus) },
-    { key: "paymentMethod", label: "Method", hidden: true },
-    { key: "date", label: "Date", sortable: true,
-      render: (o) => <span className="text-muted-foreground text-xs">{formatDateTime(o.date)}</span>,
-    },
-    { key: "actions", label: "Actions",
+    {
+      key: "customerName",
+      label: "Customer",
       render: (o) => (
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewOrder(o)}>
+        <div>
+          <p className="font-medium">{o.customerName ?? "—"}</p>
+          <p className="text-xs text-muted-foreground">{o.customerEmail}</p>
+        </div>
+      ),
+    },
+    {
+      key: "itemCount",
+      label: "Items",
+      className: "text-center",
+      render: (o) => <span>{o.itemCount}</span>,
+    },
+    {
+      key: "total",
+      label: "Total",
+      sortable: true,
+      className: "text-right",
+      render: (o) => <span className="font-medium">{formatPrice(Number(o.total))}</span>,
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (o) => statusBadge(o.status),
+    },
+    {
+      key: "paymentStatus",
+      label: "Payment",
+      render: (o) => statusBadge(o.paymentStatus),
+    },
+    {
+      key: "createdAt",
+      label: "Date",
+      sortable: true,
+      render: (o) => <span className="text-xs text-muted-foreground">{formatDateTime(o.createdAt)}</span>,
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      className: "text-right",
+      render: (o) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openDetail(o.id)}>
             <Eye className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleInvoice}>
-            <FileText className="h-3.5 w-3.5" />
           </Button>
         </div>
       ),
@@ -128,27 +256,22 @@ export default function AdminOrdersPage() {
   ]
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight premium-heading">Orders</h1>
-          <p className="text-muted-foreground">Manage all marketplace orders</p>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Orders"
+        description="Manage all marketplace orders"
+      />
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
           <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="confirmed">Confirmed</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
-            <SelectItem value="shipped">Shipped</SelectItem>
-            <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            {ORDER_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={paymentFilter} onValueChange={(v) => { setPaymentFilter(v); setPage(1) }}>
@@ -157,120 +280,215 @@ export default function AdminOrdersPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Payments</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="failed">Failed</SelectItem>
-            <SelectItem value="refunded">Refunded</SelectItem>
+            {PAYMENT_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search orders..."
+            placeholder="Search order, customer, email..."
             value={search}
-            onChange={e => { setSearch(e.target.value); setPage(1) }}
-            className="pl-9 w-[250px]"
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+            className="w-[260px] pl-9"
           />
         </div>
       </div>
 
       <DataTable
         columns={columns}
-        data={paginated}
-        total={filtered.length}
+        data={orders}
+        total={total}
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
+        onSort={(key, dir) => {
+          setOrders((prev) =>
+            [...prev].sort((a, b) => {
+              const aVal = a[key as keyof AdminOrder]
+              const bVal = b[key as keyof AdminOrder]
+              if (typeof aVal === "string" && typeof bVal === "string") {
+                return dir === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal)
+              }
+              return dir === "asc" ? Number(aVal) - Number(bVal) : Number(bVal) - Number(aVal)
+            })
+          )
+        }}
         searchable={false}
-        onExport={handleInvoice}
+        isLoading={loading}
+        emptyMessage="No orders found"
       />
 
-      {/* Order Detail Sheet */}
-      <Sheet open={!!viewOrder && !showCancel} onOpenChange={(o) => { if (!o) setViewOrder(null) }}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-          {viewOrder && (
+      <Sheet open={!!viewOrder || detailLoading} onOpenChange={(o) => { if (!o) { setViewOrder(null); setDetailLoading(false) } }}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+          {detailLoading ? (
+            <div className="space-y-4 pt-10">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-4 w-64" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
+            </div>
+          ) : viewOrder && (
             <>
               <SheetHeader>
-                <SheetTitle>Order {viewOrder.id}</SheetTitle>
-                <SheetDescription>
-                  Placed on {formatDateTime(viewOrder.date)}
-                </SheetDescription>
+                <SheetTitle>Order #{viewOrder.order.id.slice(0, 8)}</SheetTitle>
+                <SheetDescription>Placed on {formatDateTime(viewOrder.order.createdAt)}</SheetDescription>
               </SheetHeader>
+
               <div className="mt-6 space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium">{viewOrder.customer}</p>
-                    <p className="text-xs text-muted-foreground">{viewOrder.email}</p>
+                    <p className="text-sm font-medium">{viewOrder.user?.name ?? "Unknown"}</p>
+                    <p className="text-xs text-muted-foreground">{viewOrder.user?.email}</p>
                   </div>
-                  <div className="text-right space-y-1">
-                    {statusBadge(viewOrder.status)}
-                    <div className="mt-1">{statusBadge(viewOrder.paymentStatus)}</div>
+                  <div className="space-y-1 text-right">
+                    <div>{statusBadge(viewOrder.order.status)}</div>
+                    <div>{statusBadge(viewOrder.order.paymentStatus)}</div>
                   </div>
                 </div>
 
                 <Separator />
 
                 <div>
-                  <p className="text-sm font-medium mb-2">Order Summary</p>
+                  <p className="mb-2 text-sm font-medium">Items</p>
+                  <div className="divide-y">
+                    {viewOrder.items.map((item) => (
+                      <div key={item.id} className="flex items-center gap-3 py-2.5">
+                        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-muted">
+                          {item.productImage ? (
+                            <img src={item.productImage} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-xs">{item.productName.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{item.productName}</p>
+                          <p className="text-xs text-muted-foreground">Qty {item.quantity}</p>
+                        </div>
+                        <span className="text-sm font-medium">{formatPrice(Number(item.price) * item.quantity)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <p className="mb-2 text-sm font-medium">Summary</p>
                   <div className="space-y-2 text-sm">
-                    <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(viewOrder.total - viewOrder.shipping - viewOrder.tax + viewOrder.discount)}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{formatPrice(viewOrder.shipping)}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Tax</span><span>{formatPrice(viewOrder.tax)}</span></div>
-                    {viewOrder.discount > 0 && (
-                      <div className="flex justify-between text-success"><span>Discount</span><span>-{formatPrice(viewOrder.discount)}</span></div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span>{formatPrice(Number(viewOrder.order.subtotal))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span>{formatPrice(Number(viewOrder.order.shipping))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Tax</span>
+                      <span>{formatPrice(Number(viewOrder.order.tax))}</span>
+                    </div>
+                    {Number(viewOrder.order.discount) > 0 && (
+                      <div className="flex justify-between text-success">
+                        <span>Discount</span>
+                        <span>-{formatPrice(Number(viewOrder.order.discount))}</span>
+                      </div>
                     )}
                     <Separator />
-                    <div className="flex justify-between font-bold"><span>Total</span><span>{formatPrice(viewOrder.total)}</span></div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <p className="text-sm font-medium mb-2">Payment</p>
-                  <p className="text-sm text-muted-foreground">{viewOrder.paymentMethod}</p>
-                  {viewOrder.trackingNumber && (
-                    <div className="mt-2">
-                      <p className="text-sm font-medium">Tracking</p>
-                      <p className="text-sm text-muted-foreground">{viewOrder.trackingNumber}</p>
+                    <div className="flex justify-between font-semibold">
+                      <span>Total</span>
+                      <span>{formatPrice(Number(viewOrder.order.total))}</span>
                     </div>
-                  )}
+                  </div>
+                </div>
+
+                {viewOrder.shippingAddress && (
+                  <>
+                    <Separator />
+                    <div>
+                      <p className="mb-2 text-sm font-medium">Shipping Address</p>
+                      <p className="text-sm text-muted-foreground">
+                        {viewOrder.shippingAddress.fullName}
+                        <br />
+                        {viewOrder.shippingAddress.street}, {viewOrder.shippingAddress.city}
+                        <br />
+                        {[viewOrder.shippingAddress.state, viewOrder.shippingAddress.zipCode].filter(Boolean).join(", ")}{" "}
+                        {viewOrder.shippingAddress.country}
+                        <br />
+                        {viewOrder.shippingAddress.phone}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                <Separator />
+
+                <div>
+                  <p className="mb-2 text-sm font-medium">Payment</p>
+                  <p className="text-sm text-muted-foreground">
+                    {viewOrder.order.paymentMethod ?? "Not set"}
+                    {viewOrder.order.couponCode && ` · Coupon ${viewOrder.order.couponCode}`}
+                  </p>
+                  <div className="mt-2">
+                    <label className="mb-1.5 block text-sm font-medium">Payment Status</label>
+                    <div className="flex gap-2">
+                      <Select value={newPayment} onValueChange={setNewPayment}>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PAYMENT_STATUSES.map((s) => (
+                            <SelectItem key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button size="sm" onClick={handlePaymentUpdate} disabled={newPayment === viewOrder.order.paymentStatus}>
+                        Update
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
                 <Separator />
 
                 <div>
-                  <p className="text-sm font-medium mb-2">Update Status</p>
-                  <div className="flex gap-2">
-                    <Select value={updateStatus} onValueChange={setUpdateStatus}>
-                      <SelectTrigger className="flex-1">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="processing">Processing</SelectItem>
-                        <SelectItem value="shipped">Shipped</SelectItem>
-                        <SelectItem value="delivered">Delivered</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button size="sm" onClick={handleStatusUpdate} disabled={!updateStatus}>
-                      <Check className="h-4 w-4 mr-1" />
-                      Update
-                    </Button>
+                  <p className="mb-2 text-sm font-medium">Update Status</p>
+                  <div className="space-y-2">
+                    <div className="flex gap-2">
+                      <Select value={newStatus} onValueChange={setNewStatus}>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ORDER_STATUSES.map((s) => (
+                            <SelectItem key={s} value={s}>{s[0].toUpperCase() + s.slice(1)}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button size="sm" onClick={handleStatusUpdate} disabled={newStatus === viewOrder.order.status && tracking === (viewOrder.order.trackingNumber ?? "")}>
+                        Save
+                      </Button>
+                    </div>
+                    <Input
+                      label="Tracking Number"
+                      placeholder="e.g. 1Z999AA10123456784"
+                      value={tracking}
+                      onChange={(e) => setTracking(e.target.value)}
+                    />
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" onClick={handleInvoice}>
-                    <Download className="h-4 w-4 mr-1" /> Invoice
-                  </Button>
+                <div className="flex justify-end">
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => setShowCancel(true)}
-                    disabled={viewOrder.status === "cancelled" || viewOrder.status === "delivered"}
+                    onClick={handleCancel}
+                    disabled={viewOrder.order.status === "cancelled" || viewOrder.order.status === "delivered"}
                   >
-                    <X className="h-4 w-4 mr-1" /> Cancel Order
+                    <X className="h-4 w-4" />
+                    Cancel Order
                   </Button>
                 </div>
               </div>
@@ -278,28 +496,6 @@ export default function AdminOrdersPage() {
           )}
         </SheetContent>
       </Sheet>
-
-      {/* Cancel Dialog */}
-      <Dialog open={showCancel} onOpenChange={setShowCancel}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Cancel Order {viewOrder?.id}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">Please provide a reason for cancellation:</p>
-            <Textarea
-              placeholder="Reason for cancellation..."
-              value={cancelReason}
-              onChange={e => setCancelReason(e.target.value)}
-              rows={3}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCancel(false)}>Keep Order</Button>
-            <Button variant="danger" onClick={handleCancel}>Cancel Order</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </motion.div>
+    </div>
   )
 }

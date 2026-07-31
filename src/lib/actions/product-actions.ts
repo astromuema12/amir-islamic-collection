@@ -1,5 +1,8 @@
 "use server";
 
+import { db } from "@/lib/db";
+import { products } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { productRepository } from "@/lib/repositories/product-repository";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
@@ -84,7 +87,7 @@ export async function updateProduct(productId: string, formData: FormData) {
 
     const updates: Record<string, unknown> = {};
 
-    const fields = ["name", "description", "price", "discountPrice", "categoryId", "brandId", "stock", "weight", "dimensions", "isFeatured", "isFlashSale", "flashSaleEnds"];
+    const fields = ["name", "description", "price", "discountPrice", "categoryId", "brandId", "stock", "weight", "dimensions", "isActive", "isFeatured", "isFlashSale", "flashSaleEnds"];
     for (const field of fields) {
       const val = formData.get(field);
       if (val !== null) {
@@ -201,5 +204,54 @@ export async function uploadProductImages(productId: string, images: string[]) {
     return { success: true, images: updatedImages };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Failed to upload images" };
+  }
+}
+
+export async function setProductImages(productId: string, images: string[]) {
+  try {
+    const { requireRole } = await import("@/lib/auth");
+    const user = await requireRole("admin", "seller");
+
+    const product = await productRepository.getProductById(productId);
+    if (!product) return { error: "Product not found" };
+    if (user.role !== "admin" && product.sellerId !== user.id) {
+      return { error: "Forbidden" };
+    }
+
+    await db
+      .update(products)
+      .set({ images, updatedAt: new Date() })
+      .where(eq(products.id, productId));
+
+    updateTag(CACHE_TAGS.products);
+    return { success: true, images };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update images" };
+  }
+}
+
+export async function setProductStatus(productId: string, isActive: boolean) {
+  try {
+    const { requireRole } = await import("@/lib/auth");
+    const user = await requireRole("admin", "seller");
+
+    const product = await productRepository.getProductById(productId);
+    if (!product) return { error: "Product not found" };
+    if (user.role !== "admin" && product.sellerId !== user.id) {
+      return { error: "Forbidden" };
+    }
+
+    await db
+      .update(products)
+      .set({ isActive, updatedAt: new Date() })
+      .where(eq(products.id, productId));
+
+    updateTag(CACHE_TAGS.products);
+    revalidatePath("/admin/products");
+    revalidatePath("/seller/products");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update product status" };
   }
 }

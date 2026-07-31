@@ -8,7 +8,7 @@ interface PageLayoutProps {
 
 export function PageLayout({ children, className }: PageLayoutProps) {
   return (
-    <div className={cn("space-y-8", className)}>
+    <div className={cn("space-y-6", className)}>
       {children}
     </div>
   )
@@ -23,15 +23,15 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions, className }: PageHeaderProps) {
   return (
-    <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between", className)}>
+    <div className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", className)}>
       <div className="space-y-0.5">
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {description && (
-          <p className="text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground">{description}</p>
         )}
       </div>
       {actions && (
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {actions}
         </div>
       )}
@@ -50,7 +50,7 @@ export function PageCard({ children, className, hover }: PageCardProps) {
     <div
       className={cn(
         "rounded-xl border bg-card text-card-foreground shadow-sm",
-        hover && "transition-all duration-200 hover:shadow-md",
+        hover && "transition-shadow duration-200 hover:shadow-md",
         className
       )}
     >
@@ -66,7 +66,7 @@ interface FilterBarProps {
 
 export function FilterBar({ children, className }: FilterBarProps) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-3", className)}>
+    <div className={cn("flex flex-wrap items-center gap-2", className)}>
       {children}
     </div>
   )

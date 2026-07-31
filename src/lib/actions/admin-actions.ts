@@ -2,11 +2,12 @@
 
 import { db } from "@/lib/db";
 import {
-  users, products, orders, categories,
+  users, products, orders, categories, brands, orderItems, addresses,
   sellerProfiles, coupons, blogs, reviews, analytics, settings,
   withdrawals, notifications, sessions, wishlists,
+  type OrderStatus, type PaymentStatus,
 } from "@/lib/db/schema";
-import { eq, and, desc, sql, gte } from "drizzle-orm";
+import { eq, and, desc, asc, sql, gte, type SQL } from "drizzle-orm";
 import { productRepository } from "@/lib/repositories/product-repository";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
@@ -267,17 +268,81 @@ export async function verifySeller(sellerId: string, verified: boolean) {
   }
 }
 
-export async function getSellers() {
+export async function getSellers(options?: {
+  search?: string;
+  verified?: "verified" | "pending";
+  page?: number;
+  limit?: number;
+}) {
   try {
     await requireAdmin();
 
-    return await db
-      .select()
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const offset = (page - 1) * limit;
+
+    const conditions: SQL[] = [];
+    if (options?.search) {
+      conditions.push(
+        sql`(${sellerProfiles.storeName} ILIKE ${`%${options.search}%`} OR ${users.name} ILIKE ${`%${options.search}%`} OR ${users.email} ILIKE ${`%${options.search}%`})`
+      );
+    }
+    if (options?.verified === "verified") {
+      conditions.push(eq(sellerProfiles.isVerified, true));
+    }
+    if (options?.verified === "pending") {
+      conditions.push(eq(sellerProfiles.isVerified, false));
+    }
+
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const result = await db
+      .select({
+        id: sellerProfiles.id,
+        userId: sellerProfiles.userId,
+        storeName: sellerProfiles.storeName,
+        storeSlug: sellerProfiles.storeSlug,
+        description: sellerProfiles.description,
+        logo: sellerProfiles.logo,
+        banner: sellerProfiles.banner,
+        phone: sellerProfiles.phone,
+        address: sellerProfiles.address,
+        city: sellerProfiles.city,
+        state: sellerProfiles.state,
+        country: sellerProfiles.country,
+        isVerified: sellerProfiles.isVerified,
+        rating: sellerProfiles.rating,
+        totalSales: sellerProfiles.totalSales,
+        balance: sellerProfiles.balance,
+        createdAt: sellerProfiles.createdAt,
+        ownerName: users.name,
+        ownerEmail: users.email,
+        productCount: sql<number>`(
+          SELECT COUNT(*) FROM ${products}
+          WHERE ${products.sellerId} = ${sellerProfiles.userId}
+        )`,
+      })
       .from(sellerProfiles)
-      .orderBy(desc(sellerProfiles.createdAt));
+      .innerJoin(users, eq(sellerProfiles.userId, users.id))
+      .where(where)
+      .orderBy(desc(sellerProfiles.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(sellerProfiles)
+      .where(where);
+
+    return {
+      sellers: result,
+      total: Number(countResult.count),
+      page,
+      totalPages: Math.ceil(Number(countResult.count) / limit),
+    };
   } catch (error) {
     console.error("[admin-actions] getSellers failed:", error);
-    return [];
+    return { sellers: [], total: 0, page: 1, totalPages: 0 };
   }
 }
 
@@ -624,5 +689,266 @@ export async function sendNotification(userId: string, title: string, message: s
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Failed to send notification" };
+  }
+}
+
+export async function getAdminProducts(options?: {
+  search?: string;
+  categoryId?: string;
+  status?: "active" | "inactive";
+  featured?: boolean;
+  page?: number;
+  limit?: number;
+}) {
+  try {
+    await requireAdmin();
+
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const offset = (page - 1) * limit;
+
+    const conditions: SQL[] = [];
+    if (options?.search) {
+      conditions.push(
+        sql`(${products.name} ILIKE ${`%${options.search}%`} OR ${products.sku} ILIKE ${`%${options.search}%`})`
+      );
+    }
+    if (options?.categoryId) {
+      conditions.push(eq(products.categoryId, options.categoryId));
+    }
+    if (options?.status === "active") {
+      conditions.push(eq(products.isActive, true));
+    }
+    if (options?.status === "inactive") {
+      conditions.push(eq(products.isActive, false));
+    }
+    if (options?.featured !== undefined) {
+      conditions.push(eq(products.isFeatured, options.featured));
+    }
+
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const result = await db
+      .select({
+        id: products.id,
+        name: products.name,
+        slug: products.slug,
+        sku: products.sku,
+        price: products.price,
+        discountPrice: products.discountPrice,
+        stock: products.stock,
+        images: products.images,
+        isActive: products.isActive,
+        isFeatured: products.isFeatured,
+        salesCount: products.salesCount,
+        averageRating: products.averageRating,
+        categoryId: products.categoryId,
+        categoryName: categories.name,
+        createdAt: products.createdAt,
+      })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .where(where)
+      .orderBy(desc(products.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(products)
+      .where(where);
+
+    return {
+      products: result,
+      total: Number(countResult.count),
+      page,
+      totalPages: Math.ceil(Number(countResult.count) / limit),
+    };
+  } catch (error) {
+    console.error("[admin-actions] getAdminProducts failed:", error);
+    return { products: [], total: 0, page: 1, totalPages: 0 };
+  }
+}
+
+export async function getAdminCategories() {
+  try {
+    await requireAdmin();
+
+    return await db
+      .select({
+        id: categories.id,
+        name: categories.name,
+        slug: categories.slug,
+        parentId: categories.parentId,
+        isActive: categories.isActive,
+      })
+      .from(categories)
+      .orderBy(asc(categories.name));
+  } catch (error) {
+    console.error("[admin-actions] getAdminCategories failed:", error);
+    return [];
+  }
+}
+
+export async function getAdminBrands() {
+  try {
+    await requireAdmin();
+
+    return await db
+      .select({ id: brands.id, name: brands.name, slug: brands.slug })
+      .from(brands)
+      .orderBy(asc(brands.name));
+  } catch (error) {
+    console.error("[admin-actions] getAdminBrands failed:", error);
+    return [];
+  }
+}
+
+export async function getAdminOrders(options?: {
+  status?: string;
+  payment?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}) {
+  try {
+    await requireAdmin();
+
+    const page = options?.page || 1;
+    const limit = options?.limit || 10;
+    const offset = (page - 1) * limit;
+
+    const conditions: SQL[] = [];
+    if (options?.status) {
+      conditions.push(eq(orders.status, options.status as OrderStatus));
+    }
+    if (options?.payment) {
+      conditions.push(eq(orders.paymentStatus, options.payment as PaymentStatus));
+    }
+    if (options?.search) {
+      conditions.push(
+        sql`(${orders.id}::text ILIKE ${`%${options.search}%`} OR ${users.name} ILIKE ${`%${options.search}%`} OR ${users.email} ILIKE ${`%${options.search}%`})`
+      );
+    }
+
+    const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const result = await db
+      .select({
+        id: orders.id,
+        total: orders.total,
+        subtotal: orders.subtotal,
+        shipping: orders.shipping,
+        tax: orders.tax,
+        discount: orders.discount,
+        status: orders.status,
+        paymentStatus: orders.paymentStatus,
+        paymentMethod: orders.paymentMethod,
+        couponCode: orders.couponCode,
+        trackingNumber: orders.trackingNumber,
+        createdAt: orders.createdAt,
+        userId: orders.userId,
+        customerName: users.name,
+        customerEmail: users.email,
+        itemCount: sql<number>`(
+          SELECT COALESCE(SUM(${orderItems.quantity}), 0)
+          FROM ${orderItems}
+          WHERE ${orderItems.orderId} = ${orders.id}
+        )`,
+      })
+      .from(orders)
+      .innerJoin(users, eq(orders.userId, users.id))
+      .where(where)
+      .orderBy(desc(orders.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    const [countResult] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(orders)
+      .where(where);
+
+    return {
+      orders: result,
+      total: Number(countResult.count),
+      page,
+      totalPages: Math.ceil(Number(countResult.count) / limit),
+    };
+  } catch (error) {
+    console.error("[admin-actions] getAdminOrders failed:", error);
+    return { orders: [], total: 0, page: 1, totalPages: 0 };
+  }
+}
+
+export async function getAdminOrderById(orderId: string) {
+  try {
+    await requireAdmin();
+
+    const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+    if (!order) return null;
+
+    const [user] = await db.select().from(users).where(eq(users.id, order.userId)).limit(1);
+    const items = await db
+      .select()
+      .from(orderItems)
+      .where(eq(orderItems.orderId, orderId))
+      .orderBy(asc(orderItems.createdAt));
+
+    const [shippingAddress] = order.shippingAddressId
+      ? await db.select().from(addresses).where(eq(addresses.id, order.shippingAddressId)).limit(1)
+      : [null];
+    const [billingAddress] = order.billingAddressId
+      ? await db.select().from(addresses).where(eq(addresses.id, order.billingAddressId)).limit(1)
+      : [null];
+
+    return { order, user, items, shippingAddress, billingAddress };
+  } catch (error) {
+    console.error("[admin-actions] getAdminOrderById failed:", error);
+    return null;
+  }
+}
+
+export async function updateOrderStatus(orderId: string, status: string, trackingNumber?: string) {
+  try {
+    await requireAdmin();
+
+    const valid = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled", "returned"];
+    if (!valid.includes(status)) return { error: "Invalid status" };
+
+    await db
+      .update(orders)
+      .set({
+        status: status as OrderStatus,
+        trackingNumber: trackingNumber === undefined ? undefined : trackingNumber,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId));
+
+    revalidatePath("/admin/orders");
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update order status" };
+  }
+}
+
+export async function updatePaymentStatus(orderId: string, paymentStatus: string) {
+  try {
+    await requireAdmin();
+
+    const valid = ["pending", "completed", "failed", "refunded"];
+    if (!valid.includes(paymentStatus)) return { error: "Invalid payment status" };
+
+    await db
+      .update(orders)
+      .set({
+        paymentStatus: paymentStatus as PaymentStatus,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, orderId));
+
+    revalidatePath("/admin/orders");
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update payment status" };
   }
 }

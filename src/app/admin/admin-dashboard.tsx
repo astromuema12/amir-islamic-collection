@@ -1,15 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
 import {
   DollarSign, ShoppingBag, Package, Users, Store,
-  Plus, Eye, FileBarChart, ArrowRight, CreditCard,
-  PackageX,
+  Plus, ArrowRight, PackageX, FileBarChart, ShoppingCart,
 } from "lucide-react"
 import { StatsCard } from "@/components/admin/stats-card"
 import { AreaChartCard } from "@/components/admin/chart"
+import { PageHeader } from "@/components/admin/page-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -56,15 +54,25 @@ type DashboardData = {
 }
 
 const statusBadge = (status: string) => {
-  const variants: Record<string, "default" | "success" | "warning" | "danger"> = {
+  const variants: Record<string, "default" | "secondary" | "success" | "warning" | "danger"> = {
     delivered: "success",
     shipped: "default",
     processing: "warning",
-    pending: "danger",
-    confirmed: "default",
+    pending: "warning",
+    confirmed: "secondary",
     cancelled: "danger",
+    returned: "danger",
   }
-  return <Badge variant={variants[status] || "default"}>{status}</Badge>
+  return <Badge variant={variants[status] || "secondary"}>{status}</Badge>
+}
+
+const roleBadge = (role: string) => {
+  const variants: Record<string, "default" | "secondary" | "success"> = {
+    admin: "default",
+    seller: "success",
+    user: "secondary",
+  }
+  return <Badge variant={variants[role] || "secondary"}>{role}</Badge>
 }
 
 function getInitials(name: string) {
@@ -77,13 +85,6 @@ function getInitials(name: string) {
 }
 
 export function AdminDashboardClient({ data }: { data: DashboardData }) {
-  const [dateTime, setDateTime] = useState(new Date())
-
-  useEffect(() => {
-    const timer = setInterval(() => setDateTime(new Date()), 60000)
-    return () => clearInterval(timer)
-  }, [])
-
   const { stats, recentOrders, recentUsers, lowInventoryProducts, revenueChart } = data
 
   const chartData = revenueChart.map((d) => ({
@@ -91,191 +92,109 @@ export function AdminDashboardClient({ data }: { data: DashboardData }) {
     revenue: Number(d.revenue),
   }))
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-8"
-    >
-      {/* Welcome */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight premium-heading">
-            Welcome back, Admin
-          </h1>
-          <p className="text-muted-foreground">
-            {dateTime.toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}{" "}
-            —{" "}
-            {dateTime.toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-            })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/admin/products/new">
-              <Plus className="mr-1 h-4 w-4" />
-              Create Product
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/admin/orders">Manage Orders</Link>
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/admin/analytics">
-              <FileBarChart className="mr-1 h-4 w-4" />
-              Reports
-            </Link>
-          </Button>
-        </div>
-      </div>
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
 
-      {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Dashboard"
+        description={today}
+        actions={
+          <>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/analytics">
+                <FileBarChart className="h-4 w-4" />
+                Reports
+              </Link>
+            </Button>
+            <Button size="sm" asChild>
+              <Link href="/admin/products/new">
+                <Plus className="h-4 w-4" />
+                New Product
+              </Link>
+            </Button>
+          </>
+        }
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         <StatsCard
           title="Total Revenue"
           value={formatPrice(stats.totalRevenue)}
-          icon={<DollarSign className="h-5 w-5" />}
+          icon={<DollarSign className="h-4 w-4" />}
           description="From delivered orders"
         />
         <StatsCard
           title="Total Orders"
           value={stats.totalOrders.toLocaleString()}
-          icon={<ShoppingBag className="h-5 w-5" />}
+          icon={<ShoppingBag className="h-4 w-4" />}
         />
         <StatsCard
-          title="Total Products"
+          title="Products"
           value={stats.totalProducts.toLocaleString()}
-          icon={<Package className="h-5 w-5" />}
+          icon={<Package className="h-4 w-4" />}
         />
         <StatsCard
-          title="Total Users"
+          title="Customers"
           value={stats.totalUsers.toLocaleString()}
-          icon={<Users className="h-5 w-5" />}
+          icon={<Users className="h-4 w-4" />}
         />
         <StatsCard
           title="Sellers"
           value={stats.totalSellers.toLocaleString()}
-          icon={<Store className="h-5 w-5" />}
-          description={
-            stats.pendingSellers > 0
-              ? `${stats.pendingSellers} pending approval`
-              : undefined
-          }
+          icon={<Store className="h-4 w-4" />}
+          description={stats.pendingSellers > 0 ? `${stats.pendingSellers} pending approval` : undefined}
         />
         <StatsCard
-          title="Low Stock Items"
+          title="Low Stock"
           value={lowInventoryProducts.length}
-          icon={<PackageX className="h-5 w-5" />}
-          description="Products with ≤10 in stock"
-          trend={
-            lowInventoryProducts.length > 0
-              ? { value: lowInventoryProducts.length, positive: false }
-              : undefined
-          }
+          icon={<PackageX className="h-4 w-4" />}
+          description="Items with ≤10 in stock"
         />
       </div>
 
-      {/* Charts & Quick Actions */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <AreaChartCard
-            title="Revenue Overview (Last 30 Days)"
-            data={chartData.length > 0 ? chartData : [{ name: "No data", revenue: 0 }]}
-            dataKey="revenue"
-          />
-        </div>
+      <AreaChartCard
+        title="Revenue (Last 30 Days)"
+        data={chartData.length > 0 ? chartData : [{ name: "No data", revenue: 0 }]}
+        dataKey="revenue"
+      />
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button className="w-full justify-start" variant="outline" asChild>
-                <Link href="/admin/products/new">
-                  <Plus className="mr-2 h-4 w-4 text-emerald-500" />
-                  Create New Product
-                </Link>
-              </Button>
-              <Button className="w-full justify-start" variant="outline" asChild>
-                <Link href="/admin/orders">
-                  <Eye className="mr-2 h-4 w-4 text-emerald-500" />
-                  View All Orders
-                </Link>
-              </Button>
-              <Button className="w-full justify-start" variant="outline" asChild>
-                <Link href="/admin/sellers">
-                  <Store className="mr-2 h-4 w-4 text-emerald-500" />
-                  Approve Sellers
-                </Link>
-              </Button>
-              <Button className="w-full justify-start" variant="outline" asChild>
-                <Link href="/admin/coupons">
-                  <CreditCard className="mr-2 h-4 w-4 text-emerald-500" />
-                  Manage Coupons
-                </Link>
-              </Button>
-              <Button className="w-full justify-start" variant="outline" asChild>
-                <Link href="/admin/analytics">
-                  <FileBarChart className="mr-2 h-4 w-4 text-emerald-500" />
-                  View Reports
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Recent Orders & Recent Users */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Recent Orders */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Recent Orders</CardTitle>
+            <CardTitle className="text-base font-semibold">Recent Orders</CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/orders">
-                View All <ArrowRight className="ml-1 h-4 w-4" />
+                View all <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
             {recentOrders.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">
-                No orders yet.
-              </p>
+              <div className="flex flex-col items-center gap-2 py-10 text-center">
+                <ShoppingCart className="h-8 w-8 text-muted-foreground/40" />
+                <p className="text-sm text-muted-foreground">No orders yet.</p>
+              </div>
             ) : (
-              <div className="space-y-4">
+              <div className="divide-y">
                 {recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between"
-                  >
+                  <div key={order.id} className="flex items-center justify-between py-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarFallback className="text-xs">
-                          {getInitials(order.userName)}
-                        </AvatarFallback>
+                        <AvatarFallback className="text-xs">{getInitials(order.userName)}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-medium">
-                          {order.userName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {order.id.slice(0, 8)}...
-                        </p>
+                        <p className="text-sm font-medium">{order.userName}</p>
+                        <p className="text-xs text-muted-foreground">#{order.id.slice(0, 8)}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">
-                        {formatPrice(Number(order.total))}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-medium">{formatPrice(Number(order.total))}</span>
                       {statusBadge(order.status)}
                     </div>
                   </div>
@@ -285,50 +204,35 @@ export function AdminDashboardClient({ data }: { data: DashboardData }) {
           </CardContent>
         </Card>
 
-        {/* Recent Registrations */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Recent Registrations</CardTitle>
+            <CardTitle className="text-base font-semibold">New Customers</CardTitle>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/customers">
-                View All <ArrowRight className="ml-1 h-4 w-4" />
+                View all <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
             {recentUsers.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">
-                No users yet.
-              </p>
+              <div className="flex flex-col items-center gap-2 py-10 text-center">
+                <Users className="h-8 w-8 text-muted-foreground/40" />
+                <p className="text-sm text-muted-foreground">No customers yet.</p>
+              </div>
             ) : (
-              <div className="space-y-4">
+              <div className="divide-y">
                 {recentUsers.map((user) => (
-                  <div
-                    key={user.id}
-                    className="flex items-center justify-between"
-                  >
+                  <div key={user.id} className="flex items-center justify-between py-3">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarFallback className="text-xs">
-                          {getInitials(user.name)}
-                        </AvatarFallback>
+                        <AvatarFallback className="text-xs">{getInitials(user.name)}</AvatarFallback>
                       </Avatar>
                       <div>
                         <p className="text-sm font-medium">{user.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {user.email}
-                        </p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
-                    <Badge
-                      variant={
-                        user.role === "seller" || user.role === "admin"
-                          ? "premium"
-                          : "secondary"
-                      }
-                    >
-                      {user.role}
-                    </Badge>
+                    {roleBadge(user.role)}
                   </div>
                 ))}
               </div>
@@ -337,61 +241,41 @@ export function AdminDashboardClient({ data }: { data: DashboardData }) {
         </Card>
       </div>
 
-      {/* Low Inventory Products */}
       {lowInventoryProducts.length > 0 && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
-              <CardTitle className="text-lg">Low Inventory Alert</CardTitle>
-              <Badge variant="danger" className="ml-1">
-                {lowInventoryProducts.length}
-              </Badge>
+              <CardTitle className="text-base font-semibold">Low Inventory</CardTitle>
+              <Badge variant="danger">{lowInventoryProducts.length}</Badge>
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link href="/admin/products">
-                Manage Stock <ArrowRight className="ml-1 h-4 w-4" />
+                Manage stock <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="divide-y">
               {lowInventoryProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
+                <div key={product.id} className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted">
                       <Package className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatPrice(Number(product.price))}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{formatPrice(Number(product.price))}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <Badge
-                      variant={
-                        product.stock === 0
-                          ? "danger"
-                          : product.stock <= 3
-                            ? "warning"
-                            : "default"
-                      }
-                    >
-                      {product.stock === 0
-                        ? "Out of stock"
-                        : `${product.stock} left`}
-                    </Badge>
-                  </div>
+                  <Badge variant={product.stock === 0 ? "danger" : product.stock <= 3 ? "warning" : "default"}>
+                    {product.stock === 0 ? "Out of stock" : `${product.stock} left`}
+                  </Badge>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
       )}
-    </motion.div>
+    </div>
   )
 }
