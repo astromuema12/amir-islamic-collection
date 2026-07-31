@@ -23,7 +23,6 @@ const protectedRoutes = [
   "/admin",
   "/account",
   "/checkout",
-  "/wishlist",
   "/orders",
   "/profile",
   "/settings",

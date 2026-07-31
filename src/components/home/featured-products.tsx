@@ -12,7 +12,9 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { formatPrice, calculateDiscount } from "@/lib/utils"
+import { cn, formatPrice, calculateDiscount } from "@/lib/utils"
+import { useWishlistStore } from "@/store"
+import toast from "react-hot-toast"
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -29,6 +31,94 @@ function StarRating({ rating }: { rating: number }) {
       ))}
       <span className="text-xs text-muted-foreground ml-1">{rating}</span>
     </div>
+  )
+}
+
+function FeaturedProductCard({ product, index }: { product: Product; index: number }) {
+  const toggleItem = useWishlistStore((s) => s.toggleItem)
+  const inWishlist = useWishlistStore((s) => s.isInWishlist(product.id))
+  const discount = product.discountPrice
+    ? calculateDiscount(product.price, product.discountPrice)
+    : 0
+
+  function handleToggleWishlist(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    const inWishlistBefore = useWishlistStore.getState().isInWishlist(product.id)
+    toggleItem(product.id)
+    toast.success(inWishlistBefore ? "Removed from wishlist" : "Added to wishlist")
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      className="min-w-[250px] sm:min-w-[280px] flex-shrink-0"
+      style={{ scrollSnapAlign: "start" }}
+    >
+      <Link href={`/products/${product.slug}`} className="group block">
+        <div className="relative rounded-2xl border border-border/50 bg-card overflow-hidden card-hover">
+          <div className="absolute top-3 left-3 z-10">
+            {discount > 0 && (
+              <Badge variant="danger" className="border-0 shadow-lg">
+                -{discount}%
+              </Badge>
+            )}
+          </div>
+          <div className="absolute top-3 right-3 z-10">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm"
+              onClick={handleToggleWishlist}
+              aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+            >
+              <Heart
+                className={cn("h-4 w-4", inWishlist && "fill-red-500 text-red-500")}
+              />
+            </Button>
+          </div>
+
+          <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
+            <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
+              📦
+            </div>
+          </div>
+
+          <div className="p-4 space-y-2.5">
+            <h3 className="font-semibold text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+              {product.name}
+            </h3>
+
+            <StarRating rating={product.averageRating} />
+
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold text-primary">
+                {product.discountPrice
+                  ? formatPrice(product.discountPrice)
+                  : formatPrice(product.price)}
+              </span>
+              {product.discountPrice && (
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatPrice(product.price)}
+                </span>
+              )}
+            </div>
+
+            <Button
+              size="sm"
+              className="w-full gap-2 rounded-xl"
+              onClick={(e) => e.preventDefault()}
+            >
+              <ShoppingBag className="h-4 w-4" />
+              Add to Cart
+            </Button>
+          </div>
+        </div>
+      </Link>
+    </motion.div>
   )
 }
 
@@ -94,81 +184,9 @@ export function FeaturedProducts({ products }: { products: Product[] }) {
           className="flex gap-4 sm:gap-6 overflow-x-auto px-4 sm:px-8 pb-4 scrollbar-hide"
           style={{ scrollSnapType: "x mandatory" }}
         >
-          {products.map((product, index) => {
-            const discount = product.discountPrice
-              ? calculateDiscount(product.price, product.discountPrice)
-              : 0
-
-            return (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, x: 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.08 }}
-                className="min-w-[250px] sm:min-w-[280px] flex-shrink-0"
-                style={{ scrollSnapAlign: "start" }}
-              >
-                <Link href={`/products/${product.slug}`} className="group block">
-                  <div className="relative rounded-2xl border border-border/50 bg-card overflow-hidden card-hover">
-                    <div className="absolute top-3 left-3 z-10">
-                      {discount > 0 && (
-                        <Badge variant="danger" className="border-0 shadow-lg">
-                          -{discount}%
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="absolute top-3 right-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        variant="secondary"
-                        size="icon"
-                        className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
-                      <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                        📦
-                      </div>
-                    </div>
-
-                    <div className="p-4 space-y-2.5">
-                      <h3 className="font-semibold text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
-                        {product.name}
-                      </h3>
-
-                      <StarRating rating={product.averageRating} />
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-primary">
-                          {product.discountPrice
-                            ? formatPrice(product.discountPrice)
-                            : formatPrice(product.price)}
-                        </span>
-                        {product.discountPrice && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            {formatPrice(product.price)}
-                          </span>
-                        )}
-                      </div>
-
-                      <Button
-                        size="sm"
-                        className="w-full gap-2 rounded-xl"
-                        onClick={(e) => e.preventDefault()}
-                      >
-                        <ShoppingBag className="h-4 w-4" />
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            )
-          })}
+          {products.map((product, index) => (
+            <FeaturedProductCard key={product.id} product={product} index={index} />
+          ))}
         </div>
       </div>
     </section>

@@ -42,6 +42,7 @@ import {
   ExternalLink,
 } from "lucide-react"
 import { deleteAccount } from "@/lib/actions/auth-actions"
+import { useWishlistStore } from "@/store/wishlist-store"
 
 const passwordSchema = z
   .object({
@@ -91,6 +92,7 @@ export default function SettingsPage() {
     try {
       const result = await deleteAccount()
       if (result.success) {
+        useWishlistStore.getState().clearWishlist()
         toast.success("Account deleted successfully")
         setDeleteDialogOpen(false)
         router.push("/")

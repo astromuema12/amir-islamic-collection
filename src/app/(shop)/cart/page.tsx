@@ -21,6 +21,7 @@ import { CouponInput } from "@/components/cart/coupon-input"
 import { OrderSummary } from "@/components/cart/order-summary"
 import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/store/cart-store"
+import { useWishlistStore } from "@/store/wishlist-store"
 import { useUIStore } from "@/store/ui-store"
 import { FREE_SHIPPING_THRESHOLD, TAX_RATE } from "@/lib/constants"
 import toast from "react-hot-toast"
@@ -37,8 +38,8 @@ export default function CartPage() {
   } = useCartStore()
 
   const { recentlyViewed } = useUIStore()
+  const addToWishlist = useWishlistStore((s) => s.addItem)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
-  const [savedForLater, setSavedForLater] = useState<string[]>([])
   const [isCheckingOut, setIsCheckingOut] = useState(false)
 
   const subtotal = useMemo(
@@ -103,9 +104,9 @@ export default function CartPage() {
   }
 
   function handleSaveForLater(productId: string) {
-    setSavedForLater((prev) => [...prev, productId])
+    addToWishlist(productId)
     removeItem(productId)
-    toast.success("Saved for later")
+    toast.success("Saved to wishlist")
   }
 
   function handleCheckout() {
@@ -280,19 +281,22 @@ export default function CartPage() {
             />
           </div>
 
-          {savedForLater.length > 0 && (
-            <div className="rounded-xl border bg-card p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Heart className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold">
-                  Saved for later ({savedForLater.length})
-                </h3>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Items saved for later will appear here.
-              </p>
+          <div className="rounded-xl border bg-card p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Heart className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">Wishlist</h3>
             </div>
-          )}
+            <p className="text-xs text-muted-foreground">
+              Items you save are moved to your wishlist.
+            </p>
+            <Link
+              href="/wishlist"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              View wishlist
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
 
         <div className="lg:col-span-1">

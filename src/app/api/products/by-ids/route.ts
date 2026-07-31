@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { products } from "@/lib/db/schema"
-import { inArray } from "drizzle-orm"
+import { and, eq, inArray } from "drizzle-orm"
 
 export async function GET(request: Request) {
   try {
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const result = await db
       .select()
       .from(products)
-      .where(inArray(products.id, ids))
+      .where(and(inArray(products.id, ids), eq(products.isActive, true)))
 
     return NextResponse.json({ products: result })
   } catch (error) {

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/store"
 import { useWishlistStore } from "@/store"
+import toast from "react-hot-toast"
 import type { Product } from "@/types"
 
 interface ProductCardProps {
@@ -19,8 +20,8 @@ interface ProductCardProps {
 
 export function ProductCard({ product, view = "grid" }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem)
-  const { toggleItem, isInWishlist } = useWishlistStore()
-  const inWishlist = isInWishlist(product.id)
+  const toggleItem = useWishlistStore((s) => s.toggleItem)
+  const inWishlist = useWishlistStore((s) => s.isInWishlist(product.id))
 
   const discount = useMemo(() => {
     if (product.discountPrice && product.discountPrice < product.price) {
@@ -47,7 +48,9 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    const inWishlistBefore = useWishlistStore.getState().isInWishlist(product.id)
     toggleItem(product.id)
+    toast.success(inWishlistBefore ? "Removed from wishlist" : "Added to wishlist")
   }
 
   const handleQuickView = (e: React.MouseEvent) => {
@@ -108,7 +111,7 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
               )}
             </div>
             <div className="flex items-center gap-1">
-              <Button size="icon" variant="ghost" onClick={handleToggleWishlist}>
+              <Button size="icon" variant="ghost" onClick={handleToggleWishlist} aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}>
                 <Heart className={cn("h-4 w-4", inWishlist && "fill-red-500 text-red-500")} />
               </Button>
               <Button size="sm" onClick={handleAddToCart} disabled={product.stock === 0}>
@@ -183,7 +186,7 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
             <ShoppingCart className="mr-1.5 h-4 w-4" />
             {product.stock === 0 ? "Sold Out" : "Add"}
           </Button>
-          <Button size="icon" variant="outline" onClick={handleToggleWishlist}>
+          <Button size="icon" variant="outline" onClick={handleToggleWishlist} aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}>
             <Heart className={cn("h-4 w-4", inWishlist && "fill-red-500 text-red-500")} />
           </Button>
           <Button size="icon" variant="outline" onClick={handleQuickView}>

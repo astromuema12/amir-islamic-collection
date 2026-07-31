@@ -45,6 +45,10 @@ export function Header({
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  useEffect(() => {
+    useWishlistStore.getState().hydrateFromServer()
+  }, [])
+
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
   return (

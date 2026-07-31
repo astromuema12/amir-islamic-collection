@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useCartStore } from "@/store"
 import { useWishlistStore } from "@/store"
+import toast from "react-hot-toast"
 import type { Product } from "@/types"
 
 interface ProductInfoProps {
@@ -18,8 +19,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1)
   const [copied, setCopied] = useState(false)
   const addItem = useCartStore((s) => s.addItem)
-  const { toggleItem, isInWishlist } = useWishlistStore()
-  const inWishlist = isInWishlist(product.id)
+  const toggleItem = useWishlistStore((s) => s.toggleItem)
+  const inWishlist = useWishlistStore((s) => s.isInWishlist(product.id))
 
   const discount = useMemo(() => {
     if (product.discountPrice && product.discountPrice < product.price) {
@@ -67,8 +68,13 @@ export function ProductInfo({ product }: ProductInfoProps) {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => toggleItem(product.id)}
+          onClick={() => {
+            const inWishlistBefore = useWishlistStore.getState().isInWishlist(product.id)
+            toggleItem(product.id)
+            toast.success(inWishlistBefore ? "Removed from wishlist" : "Added to wishlist")
+          }}
           className="shrink-0"
+          aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart className={cn("h-5 w-5", inWishlist && "fill-red-500 text-red-500")} />
         </Button>

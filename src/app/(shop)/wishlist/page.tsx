@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -10,10 +10,10 @@ import {
   ArrowRight,
   ShoppingCart,
   Share2,
+  Check,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
 import { useWishlistStore } from "@/store/wishlist-store"
 import { useCartStore } from "@/store/cart-store"
@@ -27,18 +27,30 @@ interface WishlistItem {
   discountPrice?: number
   rating: number
   reviewCount: number
+  stock: number
   inStock: boolean
 }
 
 export default function WishlistPage() {
-  const { items, removeItem } = useWishlistStore()
-  const { addItem } = useCartStore()
+  const items = useWishlistStore((s) => s.items)
+  const removeItem = useWishlistStore((s) => s.removeItem)
+  const addItem = useCartStore((s) => s.addItem)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [addingToCart, setAddingToCart] = useState<string | null>(null)
+  const [copied, setCopied] = useState<string | null>(null)
   const [wishlistProducts, setWishlistProducts] = useState<Record<string, WishlistItem>>({})
   const [loading, setLoading] = useState(true)
+  const timersRef = useRef<number[]>([])
 
   useEffect(() => {
+    const timers = timersRef.current
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer))
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
     async function fetchWishlistProducts() {
       if (items.length === 0) {
         setLoading(false)
@@ -46,7 +58,7 @@ export default function WishlistPage() {
       }
       try {
         const response = await fetch(`/api/products/by-ids?ids=${items.join(",")}`)
-        if (response.ok) {
+        if (response.ok && !cancelled) {
           const data = await response.json()
           const productMap: Record<string, WishlistItem> = {}
           for (const p of data.products || []) {
@@ -58,17 +70,28 @@ export default function WishlistPage() {
               discountPrice: p.discountPrice ? Number(p.discountPrice) : undefined,
               rating: Number(p.averageRating) || 0,
               reviewCount: p.reviewCount || 0,
-              inStock: p.stock > 0,
+              stock: Number(p.stock) || 0,
+              inStock: Number(p.stock) > 0,
             }
           }
           setWishlistProducts(productMap)
+
+          const missing = items.filter((id) => !productMap[id])
+          if (missing.length > 0) {
+            for (const id of missing) {
+              useWishlistStore.getState().removeItem(id)
+            }
+          }
         }
       } catch {
         // silently fail, user sees empty state
       }
-      setLoading(false)
+      if (!cancelled) setLoading(false)
     }
     fetchWishlistProducts()
+    return () => {
+      cancelled = true
+    }
   }, [items])
 
   const wishlistItems = items
@@ -77,11 +100,13 @@ export default function WishlistPage() {
 
   function handleRemove(productId: string) {
     setRemovingId(productId)
-    setTimeout(() => {
-      removeItem(productId)
-      setRemovingId(null)
-      toast.success("Removed from wishlist")
-    }, 300)
+    timersRef.current.push(
+      window.setTimeout(() => {
+        removeItem(productId)
+        setRemovingId(null)
+        toast.success("Removed from wishlist")
+      }, 300),
+    )
   }
 
   function handleAddToCart(item: WishlistItem) {
@@ -90,18 +115,34 @@ export default function WishlistPage() {
       return
     }
     setAddingToCart(item.productId)
-    setTimeout(() => {
-      addItem({
-        productId: item.productId,
-        name: item.name,
-        image: item.image,
-        price: item.discountPrice || item.price,
-        quantity: 1,
-        maxQuantity: 10,
-      })
-      setAddingToCart(null)
-      toast.success("Added to cart!")
-    }, 500)
+    timersRef.current.push(
+      window.setTimeout(() => {
+        addItem({
+          productId: item.productId,
+          name: item.name,
+          image: item.image,
+          price: item.discountPrice || item.price,
+          quantity: 1,
+          maxQuantity: item.stock,
+        })
+        setAddingToCart(null)
+        toast.success("Added to cart!")
+      }, 500),
+    )
+  }
+
+  async function handleShare(productId: string) {
+    const url = `${window.location.origin}/products/${productId}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(productId)
+      toast.success("Link copied to clipboard")
+      timersRef.current.push(
+        window.setTimeout(() => setCopied(null), 2000),
+      )
+    } catch {
+      toast.error("Could not copy link")
+    }
   }
 
   if (loading) {
@@ -192,10 +233,15 @@ export default function WishlistPage() {
                     <Trash2 className="h-4 w-4" />
                   </button>
                   <button
+                    onClick={() => handleShare(item.productId)}
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all shadow-sm"
-                    aria-label="Share"
+                    aria-label="Copy product link"
                   >
-                    <Share2 className="h-4 w-4" />
+                    {copied === item.productId ? (
+                      <Check className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <Share2 className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
 
