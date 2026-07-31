@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
   Plus, Pencil, Trash2, Copy, Search, ToggleLeft, ToggleRight
 } from "lucide-react"
+import { getCoupons, manageCoupon, deleteCoupon, toggleCouponActive } from "@/lib/actions/admin-actions"
 import { DataTable, type Column } from "@/components/admin/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,9 +36,12 @@ interface Coupon {
 const mockCoupons: Coupon[] = []
 
 export default function AdminCouponsPage() {
-  const [coupons, setCoupons] = useState(mockCoupons)
+  const [coupons, setCoupons] = useState<Coupon[]>(mockCoupons)
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<Coupon | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -51,9 +55,21 @@ export default function AdminCouponsPage() {
   const [formUsageLimit, setFormUsageLimit] = useState("")
   const [formExpiresAt, setFormExpiresAt] = useState("")
 
-  const filtered = coupons.filter(c => !search || c.code.toLowerCase().includes(search.toLowerCase()))
-  const totalPages = Math.ceil(filtered.length / 10)
-  const paginated = filtered.slice((page - 1) * 10, page * 10)
+  const loadCoupons = useCallback(async (p: number, s: string) => {
+    setLoading(true)
+    const result = await getCoupons({ search: s || undefined, page: p, limit: 10 })
+    setCoupons(result.coupons)
+    setTotal(result.total)
+    setTotalPages(result.totalPages)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => loadCoupons(page, search), 0)
+    return () => clearTimeout(t)
+  }, [loadCoupons, page, search])
+
+  const paginated = coupons
 
   const handleEdit = (coupon: Coupon) => {
     setEditing(coupon)
@@ -79,40 +95,51 @@ export default function AdminCouponsPage() {
     setDialogOpen(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formCode || !formValue) { toast.error("Code and value are required"); return }
-    const couponData: Coupon = {
-      id: editing?.id || `coupon-${Date.now()}`,
-      code: formCode.toUpperCase(),
-      type: formType,
-      value: Number(formValue),
-      minOrderAmount: formMinOrder ? Number(formMinOrder) : null,
-      maxDiscount: formMaxDiscount ? Number(formMaxDiscount) : null,
-      usageLimit: formUsageLimit ? Number(formUsageLimit) : null,
-      usedCount: editing?.usedCount || 0,
-      expiresAt: formExpiresAt ? new Date(formExpiresAt) : null,
-      isActive: editing?.isActive ?? true,
-    }
+    const fd = new FormData()
+    if (editing) fd.set("id", editing.id)
+    fd.set("code", formCode)
+    fd.set("type", formType)
+    fd.set("value", formValue)
+    if (formMinOrder) fd.set("minOrderAmount", formMinOrder)
+    if (formMaxDiscount) fd.set("maxDiscount", formMaxDiscount)
+    if (formUsageLimit) fd.set("usageLimit", formUsageLimit)
+    if (formExpiresAt) fd.set("expiresAt", formExpiresAt)
+    fd.set("isActive", String(editing?.isActive ?? true))
 
-    if (editing) {
-      setCoupons(prev => prev.map(c => c.id === editing.id ? couponData : c))
-      toast.success("Coupon updated")
-    } else {
-      setCoupons(prev => [...prev, couponData])
-      toast.success("Coupon created")
+    const result = await manageCoupon(fd)
+    if (result?.error) {
+      toast.error(result.error)
+      return
     }
+    toast.success(editing ? "Coupon updated" : "Coupon created")
     setDialogOpen(false)
+    setPage(1)
+    loadCoupons(1, search)
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return
-    setCoupons(prev => prev.filter(c => c.id !== deleteId))
+    const result = await deleteCoupon(deleteId)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     setDeleteId(null)
     toast.success("Coupon deleted")
+    loadCoupons(page, search)
   }
 
-  const handleToggle = (id: string) => {
-    setCoupons(prev => prev.map(c => c.id === id ? { ...c, isActive: !c.isActive } : c))
+  const handleToggle = async (id: string) => {
+    const target = coupons.find(c => c.id === id)
+    if (!target) return
+    const result = await toggleCouponActive(id, !target.isActive)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
+    loadCoupons(page, search)
   }
 
   const copyCode = (code: string) => {
@@ -181,7 +208,7 @@ export default function AdminCouponsPage() {
         <Input placeholder="Search coupons..." value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} className="pl-9" />
       </div>
 
-      <DataTable columns={columns} data={paginated} total={filtered.length} page={page} totalPages={totalPages} onPageChange={setPage} searchable={false} />
+      <DataTable columns={columns} data={paginated} total={total} page={page} totalPages={totalPages} onPageChange={setPage} searchable={false} isLoading={loading} />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[480px]">

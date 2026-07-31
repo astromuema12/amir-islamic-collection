@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
+import { getCategoryTree, manageCategory, deleteCategory, toggleCategoryActive } from "@/lib/actions/admin-actions"
 import {
   Plus, Pencil, Trash2, ChevronRight, ChevronDown,
   ImagePlus, FolderTree, GripVertical
@@ -28,51 +29,15 @@ interface Category {
   id: string
   name: string
   slug: string
-  description: string
-  image: string
+  description: string | null
+  image: string | null
   parentId: string | null
   isActive: boolean
   productCount: number
   children: Category[]
 }
 
-const initialCategories: Category[] = [
-  {
-    id: "1", name: "Prayer Mats", slug: "prayer-mats", description: "Premium prayer mats for daily salah",
-    image: "", parentId: null, isActive: true, productCount: 234,
-    children: [
-      { id: "1a", name: "Velvet Prayer Mats", slug: "velvet-prayer-mats", description: "", image: "", parentId: "1", isActive: true, productCount: 67, children: [] },
-      { id: "1b", name: "Travel Prayer Mats", slug: "travel-prayer-mats", description: "", image: "", parentId: "1", isActive: true, productCount: 45, children: [] },
-    ],
-  },
-  {
-    id: "2", name: "Holy Qur'an", slug: "holy-quran", description: "The Holy Qur'an in various sizes and bindings",
-    image: "", parentId: null, isActive: true, productCount: 189,
-    children: [
-      { id: "2a", name: "Leather Bound", slug: "leather-bound", description: "", image: "", parentId: "2", isActive: true, productCount: 78, children: [] },
-      { id: "2b", name: "Tajweed Qur'an", slug: "tajweed-quran", description: "", image: "", parentId: "2", isActive: true, productCount: 34, children: [] },
-    ],
-  },
-  {
-    id: "3", name: "Tasbih", slug: "tasbih", description: "Islamic prayer beads",
-    image: "", parentId: null, isActive: true, productCount: 156,
-    children: [],
-  },
-  {
-    id: "4", name: "Islamic Clothing", slug: "islamic-clothing", description: "Modest Islamic fashion",
-    image: "", parentId: null, isActive: true, productCount: 412,
-    children: [
-      { id: "4a", name: "Abayas", slug: "abayas", description: "", image: "", parentId: "4", isActive: true, productCount: 167, children: [] },
-      { id: "4b", name: "Hijabs", slug: "hijabs", description: "", image: "", parentId: "4", isActive: true, productCount: 189, children: [] },
-      { id: "4c", name: "Thobes", slug: "thobes", description: "", image: "", parentId: "4", isActive: true, productCount: 56, children: [] },
-    ],
-  },
-  {
-    id: "5", name: "Home Decor", slug: "home-decor", description: "Islamic wall art and home decorations",
-    image: "", parentId: null, isActive: false, productCount: 89,
-    children: [],
-  },
-]
+const initialCategories: Category[] = []
 
 function CategoryRow({
   category, level, onEdit, onDelete, onToggle
@@ -137,10 +102,22 @@ function CategoryRow({
 }
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState(initialCategories)
+  const [categories, setCategories] = useState<Category[]>(initialCategories)
   const [editDialog, setEditDialog] = useState(false)
   const [editing, setEditing] = useState<Category | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const loadCategories = useCallback(async () => {
+    const tree = await getCategoryTree()
+    setCategories(tree)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => loadCategories(), 0)
+    return () => clearTimeout(t)
+  }, [loadCategories])
 
   const flattenCategories = (cats: Category[]): Category[] => {
     const result: Category[] = []
@@ -163,58 +140,46 @@ export default function AdminCategoriesPage() {
     setEditDialog(true)
   }
 
-  const handleSave = (formData: { name: string; description: string; parentId: string | null; isActive: boolean }) => {
-    if (editing) {
-      setCategories(prev => updateCategory(prev, editing.id, { ...editing, ...formData }))
-      toast.success("Category updated")
-    } else {
-      const newCat: Category = {
-        id: `cat-${crypto.randomUUID()}`, name: formData.name, slug: formData.name.toLowerCase().replace(/\s+/g, "-"),
-        description: formData.description, image: "", parentId: formData.parentId,
-        isActive: formData.isActive, productCount: 0, children: [],
-      }
-      if (formData.parentId) {
-        setCategories(prev => addChildCategory(prev, formData.parentId!, newCat))
-      } else {
-        setCategories(prev => [...prev, newCat])
-      }
-      toast.success("Category created")
+  const handleSave = async (formData: { name: string; description: string; parentId: string | null; isActive: boolean }) => {
+    const fd = new FormData()
+    if (editing) fd.set("id", editing.id)
+    fd.set("name", formData.name)
+    fd.set("description", formData.description)
+    if (editing?.image) fd.set("image", editing.image)
+    if (formData.parentId) fd.set("parentId", formData.parentId)
+    fd.set("isActive", String(formData.isActive))
+
+    const result = await manageCategory(fd)
+    if (result?.error) {
+      toast.error(result.error)
+      return
     }
+    toast.success(editing ? "Category updated" : "Category created")
     setEditDialog(false)
+    loadCategories()
   }
 
-  const updateCategory = (cats: Category[], id: string, updated: Category): Category[] =>
-    cats.map(cat => {
-      if (cat.id === id) return updated
-      return { ...cat, children: updateCategory(cat.children, id, updated) }
-    })
-
-  const addChildCategory = (cats: Category[], parentId: string, child: Category): Category[] =>
-    cats.map(cat => {
-      if (cat.id === parentId) return { ...cat, children: [...cat.children, child] }
-      return { ...cat, children: addChildCategory(cat.children, parentId, child) }
-    })
-
-  const handleDelete = (id: string) => {
-    setCategories(prev => removeCategory(prev, id))
+  const handleDelete = async (id: string) => {
+    const result = await deleteCategory(id)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     setDeleteId(null)
     toast.success("Category deleted")
+    loadCategories()
   }
 
-  const removeCategory = (cats: Category[], id: string): Category[] =>
-    cats.filter(cat => cat.id !== id).map(cat => ({
-      ...cat, children: removeCategory(cat.children, id)
-    }))
-
-  const handleToggle = (id: string) => {
-    setCategories(prev => toggleCategoryActive(prev, id))
+  const handleToggle = async (id: string) => {
+    const target = categories.find(c => c.id === id) || flattenCategories(categories).find(c => c.id === id)
+    if (!target) return
+    const result = await toggleCategoryActive(id, !target.isActive)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
+    loadCategories()
   }
-
-  const toggleCategoryActive = (cats: Category[], id: string): Category[] =>
-    cats.map(cat => {
-      if (cat.id === id) return { ...cat, isActive: !cat.isActive }
-      return { ...cat, children: toggleCategoryActive(cat.children, id) }
-    })
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
@@ -246,7 +211,7 @@ export default function AdminCategoriesPage() {
           ))}
           {categories.length === 0 && (
             <div className="p-8 text-center text-muted-foreground">
-              No categories yet. Create your first category.
+              {loading ? "Loading categories..." : "No categories yet. Create your first category."}
             </div>
           )}
         </CardContent>

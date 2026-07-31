@@ -154,7 +154,7 @@ export default function AdminOrdersPage() {
     if (!viewOrder) return
     const res = await updateOrderStatus(viewOrder.order.id, newStatus, tracking || undefined)
     if ("error" in res) {
-      toast.error(res.error)
+      toast.error(res.error!)
       return
     }
     setViewOrder({ ...viewOrder, order: { ...viewOrder.order, status: newStatus, trackingNumber: tracking || null } })
@@ -166,7 +166,7 @@ export default function AdminOrdersPage() {
     if (!viewOrder) return
     const res = await updatePaymentStatus(viewOrder.order.id, newPayment)
     if ("error" in res) {
-      toast.error(res.error)
+      toast.error(res.error!)
       return
     }
     setViewOrder({ ...viewOrder, order: { ...viewOrder.order, paymentStatus: newPayment } })
@@ -178,7 +178,7 @@ export default function AdminOrdersPage() {
     if (!viewOrder) return
     const res = await updateOrderStatus(viewOrder.order.id, "cancelled")
     if ("error" in res) {
-      toast.error(res.error)
+      toast.error(res.error!)
       return
     }
     setViewOrder({ ...viewOrder, order: { ...viewOrder.order, status: "cancelled" } })

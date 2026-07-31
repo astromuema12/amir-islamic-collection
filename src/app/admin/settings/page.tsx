@@ -1,28 +1,104 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Save, Key, Image, Mail, Truck, Percent, Palette } from "lucide-react"
+import { Save, Key, Image, Mail, Truck, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getSettings, updateSettings } from "@/lib/actions/admin-actions"
 import toast from "react-hot-toast"
 
-export default function AdminSettingsPage() {
-  const [saving, setSaving] = useState(false)
+interface SettingsData {
+  siteName: string
+  siteDescription: string
+  logo: string
+  favicon: string
+  primaryColor: string
+  supportEmail: string
+  supportPhone: string
+  facebook: string
+  twitter: string
+  instagram: string
+  youtube: string
+  whatsapp: string
+  paystackPublicKey: string
+  paystackSecretKey: string
+  flutterwavePublicKey: string
+  flutterwaveSecretKey: string
+  fromEmail: string
+  fromName: string
+  freeShippingThreshold: string
+  standardRate: string
+  expressRate: string
+}
 
-  const handleSave = (section: string) => {
+const EMPTY: SettingsData = {
+  siteName: "", siteDescription: "", logo: "", favicon: "", primaryColor: "#059669",
+  supportEmail: "", supportPhone: "", facebook: "", twitter: "", instagram: "", youtube: "", whatsapp: "",
+  paystackPublicKey: "", paystackSecretKey: "", flutterwavePublicKey: "", flutterwaveSecretKey: "",
+  fromEmail: "", fromName: "", freeShippingThreshold: "", standardRate: "", expressRate: "",
+}
+
+export default function AdminSettingsPage() {
+  const [data, setData] = useState<SettingsData>(EMPTY)
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  const load = useCallback(async () => {
+    const settings = await getSettings()
+    if (settings) {
+      setData({
+        siteName: settings.siteName || "",
+        siteDescription: settings.siteDescription || "",
+        logo: settings.logo || "",
+        favicon: settings.favicon || "",
+        primaryColor: settings.primaryColor || "#059669",
+        supportEmail: settings.supportEmail || "",
+        supportPhone: settings.supportPhone || "",
+        facebook: settings.socialLinks?.facebook || "",
+        twitter: settings.socialLinks?.twitter || "",
+        instagram: settings.socialLinks?.instagram || "",
+        youtube: settings.socialLinks?.youtube || "",
+        whatsapp: settings.socialLinks?.whatsapp || "",
+        paystackPublicKey: settings.paymentProviders?.paystack?.publicKey || "",
+        paystackSecretKey: settings.paymentProviders?.paystack?.secretKey || "",
+        flutterwavePublicKey: settings.paymentProviders?.flutterwave?.publicKey || "",
+        flutterwaveSecretKey: settings.paymentProviders?.flutterwave?.secretKey || "",
+        fromEmail: settings.emailSettings?.fromEmail || "",
+        fromName: settings.emailSettings?.fromName || "",
+        freeShippingThreshold: settings.shippingSettings?.freeShippingThreshold ? String(settings.shippingSettings.freeShippingThreshold) : "",
+        standardRate: settings.shippingSettings?.standardRate ? String(settings.shippingSettings.standardRate) : "",
+        expressRate: settings.shippingSettings?.expressRate ? String(settings.shippingSettings.expressRate) : "",
+      })
+    }
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => load(), 0)
+    return () => clearTimeout(t)
+  }, [load])
+
+  const set = (key: keyof SettingsData) => (value: string) => setData(prev => ({ ...prev, [key]: value }))
+
+  const handleSave = async (section: string, keys: (keyof SettingsData)[]) => {
+    if (loading) return
     setSaving(true)
-    setTimeout(() => {
-      setSaving(false)
-      toast.success(`${section} settings saved`)
-    }, 1000)
+    const fd = new FormData()
+    keys.forEach(key => fd.set(key, data[key]))
+    const result = await updateSettings(fd)
+    setSaving(false)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
+    toast.success(`${section} settings saved`)
   }
 
   return (
@@ -39,9 +115,12 @@ export default function AdminSettingsPage() {
           <TabsTrigger value="email">Email</TabsTrigger>
           <TabsTrigger value="cloudinary">Cloudinary</TabsTrigger>
           <TabsTrigger value="shipping">Shipping</TabsTrigger>
-          <TabsTrigger value="tax">Tax</TabsTrigger>
           <TabsTrigger value="theme">Theme</TabsTrigger>
         </TabsList>
+
+        {loading && (
+          <p className="text-sm text-muted-foreground">Loading settings...</p>
+        )}
 
         {/* General */}
         <TabsContent value="general">
@@ -51,29 +130,28 @@ export default function AdminSettingsPage() {
               <CardDescription>Basic site information</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Input label="Site Name" defaultValue="Amir Islamic Collections" placeholder="Your site name" />
-              <Textarea label="Site Description" defaultValue="Premium Islamic products marketplace - Prayer mats, Qur'an, hijabs, perfumes, and more." rows={2} />
+              <Input label="Site Name" value={data.siteName} onChange={e => set("siteName")(e.target.value)} placeholder="Your site name" />
+              <Textarea label="Site Description" value={data.siteDescription} onChange={e => set("siteDescription")(e.target.value)} rows={2} />
               <div className="grid grid-cols-2 gap-4">
-                <Input label="Logo URL" defaultValue="/logo.png" placeholder="https://..." />
-                <Input label="Favicon URL" defaultValue="/favicon.ico" placeholder="https://..." />
+                <Input label="Logo URL" value={data.logo} onChange={e => set("logo")(e.target.value)} placeholder="https://..." />
+                <Input label="Favicon URL" value={data.favicon} onChange={e => set("favicon")(e.target.value)} placeholder="https://..." />
               </div>
               <Separator />
               <h3 className="text-sm font-semibold">Contact Information</h3>
               <div className="grid grid-cols-2 gap-4">
-                <Input label="Support Email" defaultValue="support@amirislamic.com" type="email" />
-                <Input label="Support Phone" defaultValue="+254 800 264 7526" />
+                <Input label="Support Email" value={data.supportEmail} onChange={e => set("supportEmail")(e.target.value)} type="email" />
+                <Input label="Support Phone" value={data.supportPhone} onChange={e => set("supportPhone")(e.target.value)} />
               </div>
-              <Input label="Address" defaultValue="Nairobi, Kenya" />
               <Separator />
               <h3 className="text-sm font-semibold">Social Media Links</h3>
               <div className="grid grid-cols-2 gap-4">
-                <Input label="Facebook URL" defaultValue="https://facebook.com/amirislamic" />
-                <Input label="Twitter URL" defaultValue="https://twitter.com/amirislamic" />
-                <Input label="Instagram URL" defaultValue="https://instagram.com/amirislamic" />
-                <Input label="YouTube URL" defaultValue="https://youtube.com/@amirislamic" />
-                <Input label="WhatsApp Number" defaultValue="+2548002647526" />
+                <Input label="Facebook URL" value={data.facebook} onChange={e => set("facebook")(e.target.value)} />
+                <Input label="Twitter URL" value={data.twitter} onChange={e => set("twitter")(e.target.value)} />
+                <Input label="Instagram URL" value={data.instagram} onChange={e => set("instagram")(e.target.value)} />
+                <Input label="YouTube URL" value={data.youtube} onChange={e => set("youtube")(e.target.value)} />
+                <Input label="WhatsApp Number" value={data.whatsapp} onChange={e => set("whatsapp")(e.target.value)} />
               </div>
-              <Button onClick={() => handleSave("General")} isLoading={saving}>
+              <Button onClick={() => handleSave("General", ["siteName", "siteDescription", "logo", "favicon", "supportEmail", "supportPhone", "facebook", "twitter", "instagram", "youtube", "whatsapp"])} isLoading={saving}>
                 <Save className="mr-2 h-4 w-4" /> Save General Settings
               </Button>
             </CardContent>
@@ -97,10 +175,9 @@ export default function AdminSettingsPage() {
                     <h3 className="text-sm font-semibold">Paystack</h3>
                     <p className="text-xs text-muted-foreground">Primary payment gateway</p>
                   </div>
-                   <Switch className="ml-auto" />
                 </div>
-                <Input label="Public Key" placeholder="pk_test_..." type="password" />
-                <Input label="Secret Key" placeholder="sk_test_..." type="password" />
+                <Input label="Public Key" value={data.paystackPublicKey} onChange={e => set("paystackPublicKey")(e.target.value)} placeholder="pk_test_..." type="password" />
+                <Input label="Secret Key" value={data.paystackSecretKey} onChange={e => set("paystackSecretKey")(e.target.value)} placeholder="sk_test_..." type="password" />
               </div>
               <div className="rounded-lg border p-4 space-y-4">
                 <div className="flex items-center gap-3">
@@ -111,12 +188,11 @@ export default function AdminSettingsPage() {
                     <h3 className="text-sm font-semibold">Flutterwave</h3>
                     <p className="text-xs text-muted-foreground">Secondary payment gateway</p>
                   </div>
-                  <Switch className="ml-auto" />
                 </div>
-                <Input label="Public Key" placeholder="FLWPUBK-..." type="password" />
-                <Input label="Secret Key" placeholder="FLWSEC-..." type="password" />
+                <Input label="Public Key" value={data.flutterwavePublicKey} onChange={e => set("flutterwavePublicKey")(e.target.value)} placeholder="FLWPUBK-..." type="password" />
+                <Input label="Secret Key" value={data.flutterwaveSecretKey} onChange={e => set("flutterwaveSecretKey")(e.target.value)} placeholder="FLWSEC-..." type="password" />
               </div>
-              <Button onClick={() => handleSave("Payment")} isLoading={saving}>
+              <Button onClick={() => handleSave("Payment", ["paystackPublicKey", "paystackSecretKey", "flutterwavePublicKey", "flutterwaveSecretKey"])} isLoading={saving}>
                 <Save className="mr-2 h-4 w-4" /> Save Payment Settings
               </Button>
             </CardContent>
@@ -128,17 +204,16 @@ export default function AdminSettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Email Settings</CardTitle>
-              <CardDescription>Configure email delivery with Resend</CardDescription>
+              <CardDescription>Configure email delivery</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Mail className="h-5 w-5 text-primary" />
-                <p className="text-sm text-muted-foreground">Using Resend for email delivery</p>
+                <p className="text-sm text-muted-foreground">The Resend API key is configured via environment variables</p>
               </div>
-              <Input label="Resend API Key" placeholder="re_..." type="password" />
-              <Input label="From Email" defaultValue="noreply@amirislamic.com" type="email" />
-              <Input label="From Name" defaultValue="Amir Islamic Collections" />
-              <Button onClick={() => handleSave("Email")} isLoading={saving}>
+              <Input label="From Email" value={data.fromEmail} onChange={e => set("fromEmail")(e.target.value)} type="email" />
+              <Input label="From Name" value={data.fromName} onChange={e => set("fromName")(e.target.value)} />
+              <Button onClick={() => handleSave("Email", ["fromEmail", "fromName"])} isLoading={saving}>
                 <Save className="mr-2 h-4 w-4" /> Save Email Settings
               </Button>
             </CardContent>
@@ -155,15 +230,8 @@ export default function AdminSettingsPage() {
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
                 <Image className="h-5 w-5 text-primary" />
-                <p className="text-sm text-muted-foreground">Cloudinary is used for image uploads and transformations</p>
+                <p className="text-sm text-muted-foreground">Cloudinary is configured via environment variables (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)</p>
               </div>
-              <Input label="Cloud Name" placeholder="your-cloud-name" />
-              <Input label="API Key" placeholder="your-api-key" type="password" />
-              <Input label="API Secret" placeholder="your-api-secret" type="password" />
-              <Input label="Upload Preset" placeholder="your-upload-preset" />
-              <Button onClick={() => handleSave("Cloudinary")} isLoading={saving}>
-                <Save className="mr-2 h-4 w-4" /> Save Cloudinary Settings
-              </Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -180,38 +248,13 @@ export default function AdminSettingsPage() {
                 <Truck className="h-5 w-5 text-primary" />
                 <p className="text-sm text-muted-foreground">Shipping rates in KES</p>
               </div>
-              <Input label="Free Shipping Threshold (KES)" type="number" defaultValue="5000" />
+              <Input label="Free Shipping Threshold (KES)" type="number" value={data.freeShippingThreshold} onChange={e => set("freeShippingThreshold")(e.target.value)} />
               <div className="grid grid-cols-3 gap-4">
-                <Input label="Standard Rate (KES)" type="number" defaultValue="150" />
-                <Input label="Express Rate (KES)" type="number" defaultValue="350" />
-                <Input label="Next Day Rate (KES)" type="number" defaultValue="500" />
+                <Input label="Standard Rate (KES)" type="number" value={data.standardRate} onChange={e => set("standardRate")(e.target.value)} />
+                <Input label="Express Rate (KES)" type="number" value={data.expressRate} onChange={e => set("expressRate")(e.target.value)} />
               </div>
-              <Button onClick={() => handleSave("Shipping")} isLoading={saving}>
+              <Button onClick={() => handleSave("Shipping", ["freeShippingThreshold", "standardRate", "expressRate"])} isLoading={saving}>
                 <Save className="mr-2 h-4 w-4" /> Save Shipping Settings
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tax */}
-        <TabsContent value="tax">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tax Settings</CardTitle>
-              <CardDescription>Configure tax rates</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Percent className="h-5 w-5 text-primary" />
-                <p className="text-sm text-muted-foreground">Tax is applied automatically to all orders</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Input label="Tax Rate (%)" type="number" defaultValue="7.5" step="0.1" />
-                <Input label="Tax Name" defaultValue="VAT" />
-              </div>
-              <Input label="Tax Description" defaultValue="Value Added Tax (VAT)" />
-              <Button onClick={() => handleSave("Tax")} isLoading={saving}>
-                <Save className="mr-2 h-4 w-4" /> Save Tax Settings
               </Button>
             </CardContent>
           </Card>
@@ -233,19 +276,12 @@ export default function AdminSettingsPage() {
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">Primary Color</label>
                   <div className="flex items-center gap-2">
-                    <input type="color" defaultValue="#059669" className="h-10 w-10 rounded-lg border cursor-pointer" />
-                    <Input defaultValue="#059669" className="flex-1 font-mono" />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Premium/Gold Color</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" defaultValue="#B8860B" className="h-10 w-10 rounded-lg border cursor-pointer" />
-                    <Input defaultValue="#B8860B" className="flex-1 font-mono" />
+                    <input type="color" value={data.primaryColor} onChange={e => set("primaryColor")(e.target.value)} className="h-10 w-10 rounded-lg border cursor-pointer" />
+                    <Input value={data.primaryColor} onChange={e => set("primaryColor")(e.target.value)} className="flex-1 font-mono" />
                   </div>
                 </div>
               </div>
-              <Button onClick={() => handleSave("Theme")} isLoading={saving}>
+              <Button onClick={() => handleSave("Theme", ["primaryColor"])} isLoading={saving}>
                 <Save className="mr-2 h-4 w-4" /> Save Theme Settings
               </Button>
             </CardContent>

@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
   Plus, Pencil, Trash2, Search, Eye, EyeOff,
   Calendar, FileText, User
 } from "lucide-react"
+import { getBlogs, manageBlog, deleteBlog, toggleBlogPublished } from "@/lib/actions/admin-actions"
 import { DataTable, type Column } from "@/components/admin/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -25,6 +26,7 @@ interface BlogPost {
   slug: string
   excerpt: string
   content: string
+  image: string
   author: string
   published: boolean
   tags: string[]
@@ -34,9 +36,12 @@ interface BlogPost {
 const mockPosts: BlogPost[] = []
 
 export default function AdminBlogsPage() {
-  const [posts, setPosts] = useState(mockPosts)
+  const [posts, setPosts] = useState<BlogPost[]>(mockPosts)
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<BlogPost | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -47,9 +52,27 @@ export default function AdminBlogsPage() {
   const [formPublished, setFormPublished] = useState(false)
   const [formImage, setFormImage] = useState("")
 
-  const filtered = posts.filter(p => !search || p.title.toLowerCase().includes(search.toLowerCase()))
-  const totalPages = Math.ceil(filtered.length / 10)
-  const paginated = filtered.slice((page - 1) * 10, page * 10)
+  const loadPosts = useCallback(async (p: number, s: string) => {
+    setLoading(true)
+    const result = await getBlogs({ search: s || undefined, page: p, limit: 10 })
+    setPosts(result.posts.map(post => ({
+      ...post,
+      excerpt: post.excerpt || "",
+      image: post.image || "",
+      tags: post.tags || [],
+      author: post.authorName,
+    })))
+    setTotal(result.total)
+    setTotalPages(result.totalPages)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => loadPosts(page, search), 0)
+    return () => clearTimeout(t)
+  }, [loadPosts, page, search])
+
+  const paginated = posts
 
   const handleNew = () => {
     setEditing(null)
@@ -59,43 +82,54 @@ export default function AdminBlogsPage() {
 
   const handleEdit = (post: BlogPost) => {
     setEditing(post)
-    setFormTitle(post.title); setFormContent(post.content); setFormExcerpt(post.excerpt); setFormPublished(post.published)
+    setFormTitle(post.title); setFormContent(post.content); setFormExcerpt(post.excerpt); setFormPublished(post.published); setFormImage(post.image || "")
     setDialogOpen(true)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formTitle.trim() || !formContent.trim()) { toast.error("Title and content are required"); return }
-    const post: BlogPost = {
-      id: editing?.id || `blog-${Date.now()}`,
-      title: formTitle,
-      slug: editing?.slug || formTitle.toLowerCase().replace(/\s+/g, "-"),
-      excerpt: formExcerpt,
-      content: formContent,
-      author: editing?.author || "Admin",
-      published: formPublished,
-      tags: editing?.tags || [],
-      createdAt: editing?.createdAt || new Date(),
+    const fd = new FormData()
+    if (editing) fd.set("id", editing.id)
+    fd.set("title", formTitle)
+    fd.set("content", formContent)
+    fd.set("excerpt", formExcerpt)
+    fd.set("image", formImage)
+    fd.set("tags", JSON.stringify(editing?.tags || []))
+    fd.set("published", String(formPublished))
+
+    const result = await manageBlog(fd)
+    if (result?.error) {
+      toast.error(result.error)
+      return
     }
-    if (editing) {
-      setPosts(prev => prev.map(p => p.id === editing.id ? post : p))
-      toast.success("Blog post updated")
-    } else {
-      setPosts(prev => [post, ...prev])
-      toast.success("Blog post created")
-    }
+    toast.success(editing ? "Blog post updated" : "Blog post created")
     setDialogOpen(false)
+    setPage(1)
+    loadPosts(1, search)
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return
-    setPosts(prev => prev.filter(p => p.id !== deleteId))
+    const result = await deleteBlog(deleteId)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     setDeleteId(null)
     toast.success("Blog post deleted")
+    loadPosts(page, search)
   }
 
-  const handleToggle = (id: string) => {
-    setPosts(prev => prev.map(p => p.id === id ? { ...p, published: !p.published } : p))
+  const handleToggle = async (id: string) => {
+    const target = posts.find(p => p.id === id)
+    if (!target) return
+    const result = await toggleBlogPublished(id, !target.published)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     toast.success("Status toggled")
+    loadPosts(page, search)
   }
 
   const columns: Column<BlogPost>[] = [
@@ -157,7 +191,7 @@ export default function AdminBlogsPage() {
         <Input placeholder="Search posts..." value={search} onChange={e => { setSearch(e.target.value); setPage(1) }} className="pl-9" />
       </div>
 
-      <DataTable columns={columns} data={paginated} total={filtered.length} page={page} totalPages={totalPages} onPageChange={setPage} searchable={false} />
+      <DataTable columns={columns} data={paginated} total={total} page={page} totalPages={totalPages} onPageChange={setPage} searchable={false} isLoading={loading} />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">

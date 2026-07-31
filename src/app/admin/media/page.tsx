@@ -37,19 +37,33 @@ export default function AdminMediaPage() {
   const filtered = media.filter(m => !search || m.name.toLowerCase().includes(search.toLowerCase()))
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return
     setUploading(true)
-    await new Promise(r => setTimeout(r, 1500))
-    const newMedia: MediaItem[] = acceptedFiles.map((file, i) => ({
-      id: `media-${Date.now()}-${i}`,
-      url: URL.createObjectURL(file),
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      createdAt: new Date(),
-    }))
-    setMedia(prev => [...newMedia, ...prev])
+    const newItems: MediaItem[] = []
+    for (const file of acceptedFiles) {
+      try {
+        const fd = new FormData()
+        fd.append("file", file)
+        const res = await fetch("/api/upload", { method: "POST", body: fd })
+        const data = await res.json()
+        if (!res.ok || data.status === "error") throw new Error(data.message || "Upload failed")
+        newItems.push({
+          id: `media-${Date.now()}-${newItems.length}`,
+          url: data.url,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          createdAt: new Date(),
+        })
+      } catch {
+        toast.error(`Failed to upload ${file.name}`)
+      }
+    }
+    if (newItems.length > 0) {
+      setMedia(prev => [...newItems, ...prev])
+      toast.success(`${newItems.length} file(s) uploaded`)
+    }
     setUploading(false)
-    toast.success(`${acceptedFiles.length} file(s) uploaded`)
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

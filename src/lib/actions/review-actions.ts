@@ -104,6 +104,35 @@ export async function approveReview(reviewId: string) {
   }
 }
 
+export async function setReviewStatus(reviewId: string, isApproved: boolean) {
+  try {
+    const { requireRole } = await import("@/lib/auth");
+    await requireRole("admin");
+
+    const [review] = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.id, reviewId))
+      .limit(1);
+
+    if (!review) return { error: "Review not found" };
+
+    await db
+      .update(reviews)
+      .set({ isApproved })
+      .where(eq(reviews.id, reviewId));
+
+    await productRepository.recalculateRating(review.productId);
+
+    updateTag(CACHE_TAGS.products);
+    revalidatePath("/admin/reviews");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update review" };
+  }
+}
+
 export async function deleteReview(reviewId: string) {
   try {
     const { requireRole } = await import("@/lib/auth");

@@ -162,7 +162,7 @@ export function ProductForm({ mode, initial, categories, brands }: ProductFormPr
         return
       }
 
-      const productId = "productId" in result ? result.productId : initial!.id
+      const productId = "productId" in result && typeof result.productId === "string" ? result.productId : initial!.id
       if (images.length > 0) {
         await setProductImages(productId, images)
       }

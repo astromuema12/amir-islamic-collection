@@ -35,7 +35,7 @@ function useBreadcrumbs() {
   const segments = pathname.split("/").filter(Boolean)
 
   if (segments.length <= 1 || segments[0] !== "admin") {
-    return [{ label: "Dashboard", href: "/admin" }]
+    return [{ label: "Dashboard", href: "/admin", current: true }]
   }
 
   const crumbs = segments.slice(1).map((segment, i) => {
@@ -53,7 +53,10 @@ function ThemeToggle() {
   const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 0)
+    return () => clearTimeout(t)
+  }, [])
 
   return (
     <Button

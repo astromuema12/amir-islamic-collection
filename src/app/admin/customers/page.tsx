@@ -37,7 +37,7 @@ interface AdminUser {
 const ROLES = ["user", "seller", "admin", "super_admin"]
 
 const roleBadge = (role: string) => {
-  const variants: Record<string, "default" | "secondary" | "success"> = {
+  const variants: Record<string, "default" | "secondary" | "success" | "danger"> = {
     admin: "default",
     seller: "success",
     user: "secondary",

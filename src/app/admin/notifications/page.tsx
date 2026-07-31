@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Send, Bell, Mail, MessageSquare, History } from "lucide-react"
+import { getUsers, getNotifications, sendBulkNotification } from "@/lib/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,15 +32,42 @@ interface NotificationHistory {
 
 const mockHistory: NotificationHistory[] = []
 
-const users: string[] = []
-
 export default function AdminNotificationsPage() {
   const [target, setTarget] = useState("all")
   const [specificUser, setSpecificUser] = useState("")
   const [title, setTitle] = useState("")
   const [message, setMessage] = useState("")
   const [sending, setSending] = useState(false)
-  const [history] = useState(mockHistory)
+  const [history, setHistory] = useState(mockHistory)
+  const [userOptions, setUserOptions] = useState<{ id: string; name: string }[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(true)
+
+  const loadHistory = useCallback(async () => {
+    const result = await getNotifications({ limit: 50 })
+    setHistory(result.notifications.map(n => ({
+      id: n.id,
+      title: n.title,
+      message: n.message,
+      target: n.userName,
+      sentBy: "System",
+      sentAt: n.createdAt,
+      deliveredCount: 1,
+    })))
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => loadHistory(), 0)
+    return () => clearTimeout(t)
+  }, [loadHistory])
+
+  useEffect(() => {
+    const t = setTimeout(async () => {
+      const result = await getUsers({ limit: 500 })
+      setUserOptions(result.users.map(u => ({ id: u.id, name: u.name })))
+      setLoadingUsers(false)
+    }, 0)
+    return () => clearTimeout(t)
+  }, [])
 
   const handleSend = async () => {
     if (!title.trim() || !message.trim()) {
@@ -51,21 +79,21 @@ export default function AdminNotificationsPage() {
       return
     }
     setSending(true)
-    await new Promise(r => setTimeout(r, 1500))
-    const targetLabel = target === "all" ? "All Users" : target === "sellers" ? "Sellers" : target === "specific" ? specificUser : "Users"
-    history.unshift({
-      id: `n-${Date.now()}`,
-      title: title.trim(),
-      message: message.trim(),
-      target: targetLabel,
-      sentBy: "Admin",
-      sentAt: new Date(),
-      deliveredCount: target === "all" ? 1245 : target === "sellers" ? 847 : 1,
-    })
+    const result = await sendBulkNotification(
+      target as "all" | "users" | "sellers" | "specific",
+      title.trim(),
+      message.trim(),
+      target === "specific" ? specificUser : undefined
+    )
+    setSending(false)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     setTitle("")
     setMessage("")
-    setSending(false)
-    toast.success(`Notification sent to ${targetLabel}`)
+    await loadHistory()
+    toast.success(`Notification sent to ${result?.count ?? 1} recipient(s)`)
   }
 
   return (
@@ -111,8 +139,12 @@ export default function AdminNotificationsPage() {
                       <SelectValue placeholder="Choose a user" />
                     </SelectTrigger>
                     <SelectContent>
-                      {users.map((u, i) => (
-                        <SelectItem key={i} value={u}>{u}</SelectItem>
+                      {loadingUsers ? (
+                        <div className="p-2 text-sm text-muted-foreground">Loading users...</div>
+                      ) : userOptions.length === 0 ? (
+                        <div className="p-2 text-sm text-muted-foreground">No users found</div>
+                      ) : userOptions.map((u) => (
+                        <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

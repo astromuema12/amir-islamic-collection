@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
+import { getReviews } from "@/lib/actions/admin-actions"
+import { setReviewStatus, deleteReview } from "@/lib/actions/review-actions"
 import {
   Star, ThumbsUp, ThumbsDown, Trash2, Search, MessageSquare
 } from "lucide-react"
@@ -34,37 +36,78 @@ interface Review {
 const mockReviews: Review[] = []
 
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState(mockReviews)
+  const [reviews, setReviews] = useState<Review[]>(mockReviews)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(true)
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  const filtered = reviews.filter(r => {
-    if (search && !r.product.toLowerCase().includes(search.toLowerCase()) && !r.user.toLowerCase().includes(search.toLowerCase())) return false
-    if (statusFilter === "approved" && !r.isApproved) return false
-    if (statusFilter === "pending" && r.isApproved) return false
-    return true
-  })
+  const loadReviews = useCallback(async (p: number, s: string, status: string) => {
+    setLoading(true)
+    const result = await getReviews({
+      search: s || undefined,
+      status: status === "all" ? undefined : (status as "approved" | "pending"),
+      page: p,
+      limit: 10,
+    })
+    setReviews(result.reviews.map(r => ({
+      id: r.id,
+      product: r.productName,
+      user: r.userName,
+      userImage: r.userImage || "",
+      rating: r.rating,
+      title: r.title || "",
+      content: r.content || "",
+      isApproved: r.isApproved,
+      createdAt: r.createdAt,
+    })))
+    setTotal(result.total)
+    setTotalPages(result.totalPages)
+    setLoading(false)
+  }, [])
 
-  const totalPages = Math.ceil(filtered.length / 10)
-  const paginated = filtered.slice((page - 1) * 10, page * 10)
+  useEffect(() => {
+    const t = setTimeout(() => loadReviews(page, search, statusFilter), 0)
+    return () => clearTimeout(t)
+  }, [loadReviews, page, search, statusFilter])
 
-  const handleApprove = (id: string) => {
-    setReviews(prev => prev.map(r => r.id === id ? { ...r, isApproved: true } : r))
+  const paginated = reviews
+
+  const reload = () => loadReviews(page, search, statusFilter)
+
+  const handleApprove = async (id: string) => {
+    const result = await setReviewStatus(id, true)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     toast.success("Review approved")
+    reload()
   }
 
-  const handleReject = (id: string) => {
-    setReviews(prev => prev.map(r => r.id === id ? { ...r, isApproved: false } : r))
+  const handleReject = async (id: string) => {
+    const result = await setReviewStatus(id, false)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     toast.success("Review rejected")
+    reload()
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return
-    setReviews(prev => prev.filter(r => r.id !== deleteId))
+    const result = await deleteReview(deleteId)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
     setDeleteId(null)
     toast.success("Review deleted")
+    reload()
   }
 
   const columns: Column<Review>[] = [
@@ -158,7 +201,7 @@ export default function AdminReviewsPage() {
         </div>
       </div>
 
-      <DataTable columns={columns} data={paginated} total={filtered.length} page={page} totalPages={totalPages} onPageChange={setPage} searchable={false} />
+      <DataTable columns={columns} data={paginated} total={total} page={page} totalPages={totalPages} onPageChange={setPage} searchable={false} isLoading={loading} />
 
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent>

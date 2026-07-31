@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
   TrendingUp, DollarSign, ShoppingBag, Users, Download,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card"
 import { formatPrice } from "@/lib/utils"
 import toast from "react-hot-toast"
+import { getAnalyticsData } from "@/lib/actions/admin-actions"
 
 const visitorsData: { name: string; visitors: number; pageViews: number }[] = []
 
@@ -33,10 +34,69 @@ const topCategories: { name: string; revenue: number; percentage: number }[] = [
 
 export default function AdminAnalyticsPage() {
   const [period, setPeriod] = useState("30days")
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    revenue: 0,
+    sales: 0,
+    visitors: 0,
+    orders: 0,
+  })
+  const [visitors, setVisitors] = useState(visitorsData)
+  const [sales, setSales] = useState(salesData)
+  const [revenue, setRevenue] = useState(revenueData)
+  const [growth, setGrowth] = useState(userGrowthData)
+
+  const loadAnalytics = useCallback(async (p: string) => {
+    setLoading(true)
+    const periodMap: Record<string, "daily" | "weekly" | "monthly"> = {
+      "7days": "daily",
+      "30days": "weekly",
+      "90days": "monthly",
+      year: "monthly",
+    }
+    const rows = await getAnalyticsData(periodMap[p] || "monthly")
+
+    let totalRevenue = 0
+    let totalSales = 0
+    let totalVisitors = 0
+    let totalOrders = 0
+
+    const v: typeof visitorsData = []
+    const s: typeof salesData = []
+    const r: typeof revenueData = []
+    const g: typeof userGrowthData = []
+
+    for (const row of rows) {
+      const numRevenue = Number(row.revenue) || 0
+      totalRevenue += numRevenue
+      totalSales += row.sales
+      totalVisitors += row.visitors
+      totalOrders += row.orders
+
+      v.push({ name: row.date, visitors: row.visitors, pageViews: row.pageViews })
+      s.push({ name: row.date, sales: row.sales })
+      r.push({ name: row.date, revenue: numRevenue, expenses: 0 })
+      g.push({ name: row.date, users: row.newUsers, sellers: row.newSellers })
+    }
+
+    setStats({ revenue: totalRevenue, sales: totalSales, visitors: totalVisitors, orders: totalOrders })
+    setVisitors(v)
+    setSales(s)
+    setRevenue(r)
+    setGrowth(g)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => loadAnalytics(period), 0)
+    return () => clearTimeout(t)
+  }, [loadAnalytics, period])
 
   const handleExport = () => {
     toast.success("Report downloaded")
   }
+
+  const conversionRate = stats.visitors > 0 ? ((stats.orders / stats.visitors) * 100).toFixed(1) : "0"
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
@@ -66,30 +126,30 @@ export default function AdminAnalyticsPage() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Total Revenue" value="KES 0" icon={<DollarSign className="h-5 w-5" />} />
-        <StatsCard title="Total Sales" value="0" icon={<ShoppingBag className="h-5 w-5" />} />
-        <StatsCard title="Total Visitors" value="0" icon={<TrendingUp className="h-5 w-5" />} />
-        <StatsCard title="Conversion Rate" value="0%" icon={<Users className="h-5 w-5" />} />
+        <StatsCard title="Total Revenue" value={loading ? "..." : formatPrice(stats.revenue)} icon={<DollarSign className="h-5 w-5" />} />
+        <StatsCard title="Total Sales" value={loading ? "..." : stats.sales.toLocaleString()} icon={<ShoppingBag className="h-5 w-5" />} />
+        <StatsCard title="Total Visitors" value={loading ? "..." : stats.visitors.toLocaleString()} icon={<TrendingUp className="h-5 w-5" />} />
+        <StatsCard title="Conversion Rate" value={loading ? "..." : `${conversionRate}%`} icon={<Users className="h-5 w-5" />} />
       </div>
 
       {/* Charts */}
       <div className="grid gap-6 lg:grid-cols-2">
         <LineChartCard
           title="Visitors & Page Views"
-          data={visitorsData}
+          data={visitors}
           lines={[
             { dataKey: "visitors", color: "#059669", name: "Visitors" },
             { dataKey: "pageViews", color: "#F59E0B", name: "Page Views" },
           ]}
         />
-        <BarChartCard title="Monthly Sales" data={salesData} dataKey="sales" color="#059669" />
+        <BarChartCard title="Sales" data={sales} dataKey="sales" color="#059669" />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <AreaChartCard title="Revenue vs Expenses" data={revenueData} dataKey="revenue" color="#059669" />
+        <AreaChartCard title="Revenue" data={revenue} dataKey="revenue" color="#059669" />
         <LineChartCard
           title="User Growth"
-          data={userGrowthData}
+          data={growth}
           lines={[
             { dataKey: "users", color: "#059669", name: "Users" },
             { dataKey: "sellers", color: "#B8860B", name: "Sellers" },

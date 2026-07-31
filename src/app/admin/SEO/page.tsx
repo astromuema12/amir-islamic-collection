@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
   Search, Globe, Image, RefreshCw, Save, Code,
   FileCode, ExternalLink
 } from "lucide-react"
+import { getSettings, updateSettings } from "@/lib/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -20,13 +21,42 @@ import toast from "react-hot-toast"
 export default function AdminSEOPage() {
   const [saving, setSaving] = useState(false)
   const [regenerating, setRegenerating] = useState(false)
+  const [metaTitle, setMetaTitle] = useState("")
+  const [metaDescription, setMetaDescription] = useState("")
 
-  const handleSave = (section: string) => {
-    setSaving(true)
-    setTimeout(() => {
-      setSaving(false)
+  const load = useCallback(async () => {
+    const settings = await getSettings()
+    if (settings) {
+      setMetaTitle(settings.seoTitle || "")
+      setMetaDescription(settings.seoDescription || "")
+    }
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => load(), 0)
+    return () => clearTimeout(t)
+  }, [load])
+
+  const handleSave = async (section: string, fd: FormData) => {
+    if (fd.entries().next().done) {
       toast.success(`${section} saved`)
-    }, 1000)
+      return
+    }
+    setSaving(true)
+    const result = await updateSettings(fd)
+    setSaving(false)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
+    toast.success(`${section} saved`)
+  }
+
+  const saveMetaTags = () => {
+    const fd = new FormData()
+    if (metaTitle) fd.set("seoTitle", metaTitle)
+    if (metaDescription) fd.set("seoDescription", metaDescription)
+    handleSave("Meta Tags", fd)
   }
 
   const handleRegenerateSitemap = () => {
@@ -56,15 +86,15 @@ export default function AdminSEOPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Input label="Meta Title" defaultValue="Amir Islamic Collections - Premium Islamic Products Marketplace" placeholder="Site title" />
-          <Textarea label="Meta Description" defaultValue="Discover premium Islamic products including prayer mats, Holy Qur&apos;an, hijabs, perfumes, and more at Amir Islamic Collections. Your trusted marketplace for authentic Islamic goods." rows={3} />
+          <Input label="Meta Title" value={metaTitle} onChange={e => setMetaTitle(e.target.value)} placeholder="Site title" />
+          <Textarea label="Meta Description" value={metaDescription} onChange={e => setMetaDescription(e.target.value)} rows={3} />
           <div className="rounded-lg border p-4 bg-muted/30">
             <p className="text-xs font-medium text-muted-foreground mb-2">Preview</p>
-            <p className="text-sm text-blue-600 dark:text-blue-400">Amir Islamic Collections - Premium Islamic Products Marketplace</p>
-            <p className="text-xs text-muted-foreground line-clamp-2">Discover premium Islamic products including prayer mats, Holy Qur&apos;an, hijabs, perfumes, and more...</p>
+            <p className="text-sm text-blue-600 dark:text-blue-400">{metaTitle || "Site title"}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2">{metaDescription || "Site description"}</p>
             <p className="text-xs text-emerald-600 dark:text-emerald-400">https://amirislamic.com/</p>
           </div>
-          <Button onClick={() => handleSave("Meta Tags")} isLoading={saving}>
+          <Button onClick={saveMetaTags} isLoading={saving}>
             <Save className="mr-2 h-4 w-4" /> Save Meta Tags
           </Button>
         </CardContent>
@@ -102,7 +132,7 @@ export default function AdminSEOPage() {
               </div>
             </div>
           </div>
-          <Button onClick={() => handleSave("Open Graph")} isLoading={saving}>
+          <Button onClick={() => handleSave("Open Graph", new FormData())} isLoading={saving}>
             <Save className="mr-2 h-4 w-4" /> Save Open Graph
           </Button>
         </CardContent>
@@ -126,7 +156,7 @@ export default function AdminSEOPage() {
             <span className="text-sm text-muted-foreground">Analytics tracking is currently active</span>
             <Switch className="ml-auto" />
           </div>
-          <Button onClick={() => handleSave("Analytics")} isLoading={saving}>
+          <Button onClick={() => handleSave("Analytics", new FormData())} isLoading={saving}>
             <Save className="mr-2 h-4 w-4" /> Save Analytics Settings
           </Button>
         </CardContent>
@@ -160,7 +190,7 @@ export default function AdminSEOPage() {
             <Switch defaultChecked />
             <span className="text-sm">Enable structured data</span>
           </div>
-          <Button onClick={() => handleSave("Structured Data")} isLoading={saving}>
+          <Button onClick={() => handleSave("Structured Data", new FormData())} isLoading={saving}>
             <Save className="mr-2 h-4 w-4" /> Save Structured Data
           </Button>
         </CardContent>
@@ -219,7 +249,7 @@ Disallow: /auth/
 Sitemap: https://amirislamic.com/sitemap.xml`}
             </pre>
           </div>
-          <Button onClick={() => handleSave("Robots")} isLoading={saving}>
+          <Button onClick={() => handleSave("Robots", new FormData())} isLoading={saving}>
             <Save className="mr-2 h-4 w-4" /> Save Robots.txt
           </Button>
         </CardContent>

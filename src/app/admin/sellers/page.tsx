@@ -76,7 +76,7 @@ export default function AdminSellersPage() {
   const handleVerify = async (s: Seller, verified: boolean) => {
     const result = await verifySeller(s.id, verified)
     if ("error" in result) {
-      toast.error(result.error)
+      toast.error(result.error!)
       return
     }
     setSellers((prev) => prev.map((x) => (x.id === s.id ? { ...x, isVerified: verified } : x)))

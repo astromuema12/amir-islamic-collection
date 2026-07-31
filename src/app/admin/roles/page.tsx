@@ -1,10 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
   Shield, Plus, Pencil, Trash2, Check, X, Users, Key
 } from "lucide-react"
+import {
+  getRolesWithPermissions, manageRole, deleteRole,
+  getUserRoleAssignments, assignUserRole
+} from "@/lib/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -23,7 +27,7 @@ import toast from "react-hot-toast"
 interface Role {
   id: string
   name: string
-  description: string
+  description: string | null
   userCount: number
   permissions: string[]
 }
@@ -62,13 +66,6 @@ const permissionGroups = [
   { group: "Settings & Roles", perms: allPermissions.filter(p => p.includes("settings") || p.includes("role") || p.includes("analytics") || p.includes("log") || p.includes("seo")) },
 ]
 
-const initialRoles: Role[] = [
-  { id: "super_admin", name: "Super Admin", description: "Full access to all features", userCount: 2, permissions: [...allPermissions] },
-  { id: "admin", name: "Admin", description: "Administrative access with most features", userCount: 5, permissions: allPermissions.filter(p => !p.includes("delete_") && p !== "create_roles" && p !== "edit_roles" && p !== "delete_roles") },
-  { id: "moderator", name: "Moderator", description: "Can manage reviews, products, and orders", userCount: 8, permissions: ["view_products", "edit_products", "view_orders", "edit_orders", "view_users", "view_reviews", "approve_reviews", "delete_reviews", "view_categories", "view_blogs"] },
-  { id: "support", name: "Support Agent", description: "Can view and manage customer orders", userCount: 3, permissions: ["view_orders", "edit_orders", "view_users", "view_reviews"] },
-]
-
 const permissionLabels: Record<string, string> = {
   view_products: "View Products", create_products: "Create Products", edit_products: "Edit Products", delete_products: "Delete Products",
   view_orders: "View Orders", create_orders: "Create Orders", edit_orders: "Edit Orders", cancel_orders: "Cancel Orders",
@@ -89,7 +86,7 @@ const permissionLabels: Record<string, string> = {
 }
 
 export default function AdminRolesPage() {
-  const [roles, setRoles] = useState(initialRoles)
+  const [roles, setRoles] = useState<Role[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editing, setEditing] = useState<Role | null>(null)
   const [formName, setFormName] = useState("")
@@ -97,6 +94,33 @@ export default function AdminRolesPage() {
   const [formPerms, setFormPerms] = useState<string[]>([])
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("roles")
+  const [assignments, setAssignments] = useState<{ id: string; name: string; email: string; roleId: string | null }[]>([])
+  const [loadingAssignments, setLoadingAssignments] = useState(true)
+  const [savingAssignments, setSavingAssignments] = useState(false)
+
+  const loadRoles = useCallback(async () => {
+    setRoles(await getRolesWithPermissions())
+  }, [])
+
+  const loadAssignments = useCallback(async () => {
+    setLoadingAssignments(true)
+    const rows = await getUserRoleAssignments()
+    setAssignments(rows.map(a => ({
+      id: a.userId,
+      name: a.name,
+      email: a.email,
+      roleId: a.assignedRoleId,
+    })))
+    setLoadingAssignments(false)
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      loadRoles()
+      loadAssignments()
+    }, 0)
+    return () => clearTimeout(t)
+  }, [loadRoles, loadAssignments])
 
   const handleNew = () => {
     setEditing(null)
@@ -106,7 +130,7 @@ export default function AdminRolesPage() {
 
   const handleEdit = (role: Role) => {
     setEditing(role)
-    setFormName(role.name); setFormDesc(role.description); setFormPerms([...role.permissions])
+    setFormName(role.name); setFormDesc(role.description || ""); setFormPerms([...role.permissions])
     setDialogOpen(true)
   }
 
@@ -116,23 +140,47 @@ export default function AdminRolesPage() {
     )
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formName.trim()) { toast.error("Role name is required"); return }
-    if (editing) {
-      setRoles(prev => prev.map(r => r.id === editing.id ? { ...r, name: formName, description: formDesc, permissions: formPerms } : r))
-      toast.success("Role updated")
-    } else {
-      setRoles(prev => [...prev, { id: `role-${Date.now()}`, name: formName, description: formDesc, userCount: 0, permissions: formPerms }])
-      toast.success("Role created")
-    }
+    const fd = new FormData()
+    if (editing) fd.set("id", editing.id)
+    fd.set("name", formName.trim())
+    fd.set("description", formDesc)
+    fd.set("permissions", JSON.stringify(formPerms))
+    const result = await manageRole(fd)
+    if (result?.error) { toast.error(result.error); return }
     setDialogOpen(false)
+    await loadRoles()
+    await loadAssignments()
+    toast.success(editing ? "Role updated" : "Role created")
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return
-    setRoles(prev => prev.filter(r => r.id !== deleteId))
+    const result = await deleteRole(deleteId)
+    if (result?.error) { toast.error(result.error); return }
     setDeleteId(null)
+    await loadRoles()
+    await loadAssignments()
     toast.success("Role deleted")
+  }
+
+  const handleSaveAssignments = async () => {
+    setSavingAssignments(true)
+    const base = await getUserRoleAssignments()
+    const baseMap = new Map(base.map(a => [a.userId, a.assignedRoleId ?? null]))
+    const changed = assignments.filter(a => baseMap.get(a.id) !== a.roleId)
+    for (const a of changed) {
+      const result = await assignUserRole(a.id, a.roleId)
+      if (result?.error) {
+        setSavingAssignments(false)
+        toast.error(result.error)
+        return
+      }
+    }
+    setSavingAssignments(false)
+    await loadAssignments()
+    toast.success(changed.length === 0 ? "No changes" : "Roles updated")
   }
 
   return (
@@ -200,26 +248,35 @@ export default function AdminRolesPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {["Aisha Bello", "Fatima Usman", "Muhammad Abubakar", "Zainab Abdullah"].map((name, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 rounded-lg border">
+                {loadingAssignments ? (
+                  <div className="p-4 text-sm text-muted-foreground">Loading users...</div>
+                ) : assignments.length === 0 ? (
+                  <div className="p-4 text-sm text-muted-foreground">No users found</div>
+                ) : assignments.map(a => (
+                  <div key={a.id} className="flex items-center justify-between p-3 rounded-lg border">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs">{name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+                        <AvatarFallback className="text-xs">{a.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-sm font-medium">{name}</p>
-                        <p className="text-xs text-muted-foreground">{["admin", "moderator", "support", "user"][i]}</p>
+                        <p className="text-sm font-medium">{a.name}</p>
+                        <p className="text-xs text-muted-foreground">{a.email}</p>
                       </div>
                     </div>
-                    <select className="text-sm border rounded-lg px-2 py-1 bg-background">
+                    <select
+                      className="text-sm border rounded-lg px-2 py-1 bg-background"
+                      value={a.roleId ?? ""}
+                      onChange={e => setAssignments(prev => prev.map(x => x.id === a.id ? { ...x, roleId: e.target.value || null } : x))}
+                    >
+                      <option value="">No role</option>
                       {roles.map(r => (
-                        <option key={r.id} value={r.id} selected={i < 2 && r.id === ["admin", "moderator", "support", "user"][i]}>{r.name}</option>
+                        <option key={r.id} value={r.id}>{r.name}</option>
                       ))}
                     </select>
                   </div>
                 ))}
               </div>
-              <Button className="mt-4" size="sm" onClick={() => toast.success("Roles updated")}>
+              <Button className="mt-4" size="sm" disabled={savingAssignments} onClick={handleSaveAssignments}>
                 <Check className="mr-2 h-4 w-4" /> Save Assignments
               </Button>
             </CardContent>

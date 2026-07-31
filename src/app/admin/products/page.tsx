@@ -103,7 +103,7 @@ export default function AdminProductsPage() {
   const handleToggleActive = async (p: AdminProduct) => {
     const res = await setProductStatus(p.id, !p.isActive)
     if ("error" in res) {
-      toast.error(res.error)
+      toast.error(res.error!)
       return
     }
     setProducts((prev) => prev.map((pr) => (pr.id === p.id ? { ...pr, isActive: !p.isActive } : pr)))
@@ -113,7 +113,7 @@ export default function AdminProductsPage() {
   const handleToggleFeatured = async (p: AdminProduct) => {
     const res = await toggleFeatured(p.id)
     if ("error" in res) {
-      toast.error(res.error)
+      toast.error(res.error!)
       return
     }
     setProducts((prev) => prev.map((pr) => (pr.id === p.id ? { ...pr, isFeatured: !p.isFeatured } : pr)))
@@ -124,7 +124,7 @@ export default function AdminProductsPage() {
     if (!deleteId) return
     const res = await deleteProduct(deleteId)
     if ("error" in res) {
-      toast.error(res.error)
+      toast.error(res.error!)
     } else {
       toast.success("Product deleted")
     }

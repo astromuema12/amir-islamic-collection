@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { Search, Download, Filter, FileSpreadsheet } from "lucide-react"
+import { getAuditLogs } from "@/lib/actions/admin-actions"
 import { DataTable, type Column } from "@/components/admin/data-table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -38,25 +39,49 @@ const mockLogs: AuditLog[] = []
 }
 
 export default function AdminLogsPage() {
-  const [logs] = useState(mockLogs)
+  const [logs, setLogs] = useState<AuditLog[]>(mockLogs)
   const [search, setSearch] = useState("")
   const [actionFilter, setActionFilter] = useState("all")
   const [entityFilter, setEntityFilter] = useState("all")
   const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(true)
 
-  const filtered = logs.filter(l => {
-    if (search && !l.user.toLowerCase().includes(search.toLowerCase()) && !l.entityId.toLowerCase().includes(search.toLowerCase())) return false
-    if (actionFilter !== "all" && l.action !== actionFilter) return false
-    if (entityFilter !== "all" && l.entity !== entityFilter) return false
-    return true
-  })
+  const loadLogs = useCallback(async (p: number, s: string, action: string, entity: string) => {
+    setLoading(true)
+    const result = await getAuditLogs({
+      search: s || undefined,
+      action: action === "all" ? undefined : action,
+      entity: entity === "all" ? undefined : entity,
+      page: p,
+      limit: 15,
+    })
+    setLogs(result.logs.map(l => ({
+      id: l.id,
+      user: l.userName || "System",
+      action: l.action,
+      entity: l.entity,
+      entityId: l.entityId,
+      metadata: l.metadata || {},
+      ipAddress: l.ipAddress || "",
+      createdAt: l.createdAt,
+    })))
+    setTotal(result.total)
+    setTotalPages(result.totalPages)
+    setLoading(false)
+  }, [])
 
-  const totalPages = Math.ceil(filtered.length / 15)
-  const paginated = filtered.slice((page - 1) * 15, page * 15)
+  useEffect(() => {
+    const t = setTimeout(() => loadLogs(page, search, actionFilter, entityFilter), 0)
+    return () => clearTimeout(t)
+  }, [loadLogs, page, search, actionFilter, entityFilter])
+
+  const paginated = logs
 
   const handleExport = () => {
     const headers = ["User", "Action", "Entity", "Entity ID", "IP Address", "Timestamp"]
-    const rows = filtered.map(l => [l.user, l.action, l.entity, l.entityId, l.ipAddress, l.createdAt.toISOString()])
+    const rows = logs.map(l => [l.user, l.action, l.entity, l.entityId, l.ipAddress, l.createdAt.toISOString()])
     const csv = [headers.join(","), ...rows.map(r => r.join(","))].join("\n")
     const blob = new Blob([csv], { type: "text/csv" })
     const url = URL.createObjectURL(blob)
@@ -82,7 +107,7 @@ export default function AdminLogsPage() {
           <h1 className="text-3xl font-bold tracking-tight premium-heading">Audit Logs</h1>
           <p className="text-muted-foreground">View system activity and audit trail</p>
         </div>
-        <Badge variant="secondary" className="text-sm px-3 py-1">{logs.length} total entries</Badge>
+        <Badge variant="secondary" className="text-sm px-3 py-1">{total} total entries</Badge>
       </div>
 
       <Card>
@@ -136,11 +161,12 @@ export default function AdminLogsPage() {
       <DataTable
         columns={columns}
         data={paginated}
-        total={filtered.length}
+        total={total}
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
         searchable={false}
+        isLoading={loading}
       />
     </motion.div>
   )
