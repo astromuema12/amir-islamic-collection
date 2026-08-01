@@ -8,8 +8,11 @@ import { SidebarProvider } from "@/components/admin/sidebar-context"
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser()
 
-  if (!user || (user.role !== "admin" && user.role !== "super_admin")) {
+  if (!user) {
     redirect("/login")
+  }
+  if (user.role !== "admin" && user.role !== "super_admin") {
+    redirect("/")
   }
 
   return (

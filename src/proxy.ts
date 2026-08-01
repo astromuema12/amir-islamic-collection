@@ -104,13 +104,15 @@ export async function proxy(request: NextRequest) {
   // --- Session Validation ---
   const sessionToken = request.cookies.get("session_token")?.value;
   let isAuthenticated = false;
+  let session: typeof sessions.$inferSelect | null = null;
 
   if (sessionToken) {
     try {
-      const [session] = await db
+      const [found] = await db
         .select()
         .from(sessions)
         .where(eq(sessions.token, sessionToken));
+      session = found ?? null;
 
       if (session && session.expiresAt > new Date()) {
         isAuthenticated = true;
@@ -132,17 +134,19 @@ export async function proxy(request: NextRequest) {
   // --- Admin Route Guard ---
   if (pathname.startsWith("/admin") && isAuthenticated) {
     try {
-      const [session] = await db
-        .select()
-        .from(sessions)
-        .where(eq(sessions.token, sessionToken!));
       if (session) {
         const [user] = await db
           .select({ role: users.role })
           .from(users)
           .where(eq(users.id, session.userId))
           .limit(1);
+
         if (!user || (user.role !== "admin" && user.role !== "super_admin")) {
+          // Authenticated but not an admin — keep them out of the admin panel.
+          // Redirect browser navigations home, deny non-browser clients with 403.
+          if (request.headers.get("accept")?.includes("text/html")) {
+            return NextResponse.redirect(new URL("/", request.url));
+          }
           return NextResponse.json(
             { status: "error", message: "Forbidden — admin access required" },
             { status: 403 },
