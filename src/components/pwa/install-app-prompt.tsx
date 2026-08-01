@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Download, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { usePWAInstall } from "@/hooks/use-pwa-install"
@@ -39,14 +38,7 @@ export function InstallAppPrompt() {
   if (isInstalled || dismissed || !showPrompt) return null
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="fixed bottom-20 left-4 right-4 z-50 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm"
-      >
+    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-10 duration-300 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm">
         <div className="rounded-2xl border bg-background/95 backdrop-blur-xl shadow-2xl p-5">
           <button
             onClick={handleDismiss}
@@ -80,7 +72,6 @@ export function InstallAppPrompt() {
             </div>
           </div>
         </div>
-      </motion.div>
-    </AnimatePresence>
+    </div>
   )
 }

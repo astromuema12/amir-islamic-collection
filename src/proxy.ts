@@ -208,7 +208,7 @@ export async function proxy(request: NextRequest) {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://imgproxy.attic.sh https://attic.sh https://res.cloudinary.com https://placehold.co",
       "font-src 'self' https://fonts.gstatic.com",
-      `connect-src 'self' https://api.paystack.co${process.env.NODE_ENV === "development" ? " ws://localhost:*" : ""}`,
+      `connect-src 'self' https://api.paystack.co https://imgproxy.attic.sh https://attic.sh https://res.cloudinary.com${process.env.NODE_ENV === "development" ? " ws://localhost:*" : ""}`,
       "frame-src 'none'",
       "object-src 'none'",
       "base-uri 'self'",

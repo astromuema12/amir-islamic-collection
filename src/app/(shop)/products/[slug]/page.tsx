@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import { Check, Truck, RotateCcw, Shield } from "lucide-react"
@@ -10,6 +11,7 @@ import { RelatedProducts } from "@/components/products/related-products"
 import { ProductInfo } from "@/components/products/product-info"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import { APP_NAME, APP_URL } from "@/lib/constants"
 
 interface ProductPageProps {
@@ -37,11 +39,7 @@ export default async function ProductPage(props: ProductPageProps) {
   const product = await getProduct(slug)
   if (!product) notFound()
 
-  const [reviews, relatedProducts, nonce] = await Promise.all([
-    getProductReviews(product.id),
-    getRelatedProducts(product.categoryId, product.id),
-    headers().then((h) => h.get("x-nonce") || undefined),
-  ])
+  const nonce = (await headers()).get("x-nonce") || undefined
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -150,7 +148,7 @@ export default async function ProductPage(props: ProductPageProps) {
         {product.specifications && Object.keys(product.specifications).length > 0 && (
           <div className="mt-12">
             <h2 className="mb-4 text-2xl font-bold text-foreground">Specifications</h2>
-            <div className="overflow-hidden rounded-xl border">
+            <div className="overflow-x-auto rounded-xl border">
               <table className="w-full">
                 <tbody>
                   {Object.entries(product.specifications).map(([key, value], index) => (
@@ -169,18 +167,74 @@ export default async function ProductPage(props: ProductPageProps) {
         )}
 
         <div className="mt-12">
-          <ProductReviews
-            reviews={reviews}
-            productId={product.id}
-            averageRating={product.averageRating}
-            reviewCount={product.reviewCount}
-          />
+          <Suspense
+            fallback={
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-40" />
+                <div className="space-y-4">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <Skeleton key={i} className="h-24 w-full" />
+                  ))}
+                </div>
+              </div>
+            }
+          >
+            <ReviewsSection
+              productId={product.id}
+              averageRating={product.averageRating}
+              reviewCount={product.reviewCount}
+            />
+          </Suspense>
         </div>
 
         <div className="mt-12">
-          <RelatedProducts products={relatedProducts} />
+          <Suspense
+            fallback={
+              <div>
+                <Skeleton className="h-8 w-44" />
+                <div className="mt-6 flex gap-3 overflow-hidden">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-48 w-36 shrink-0 rounded-xl" />
+                  ))}
+                </div>
+              </div>
+            }
+          >
+            <RelatedSection categoryId={product.categoryId} productId={product.id} />
+          </Suspense>
         </div>
       </div>
     </>
   )
+}
+
+async function ReviewsSection({
+  productId,
+  averageRating,
+  reviewCount,
+}: {
+  productId: string
+  averageRating: number
+  reviewCount: number
+}) {
+  const reviews = await getProductReviews(productId)
+  return (
+    <ProductReviews
+      reviews={reviews}
+      productId={productId}
+      averageRating={averageRating}
+      reviewCount={reviewCount}
+    />
+  )
+}
+
+async function RelatedSection({
+  categoryId,
+  productId,
+}: {
+  categoryId: string
+  productId: string
+}) {
+  const relatedProducts = await getRelatedProducts(categoryId, productId)
+  return <RelatedProducts products={relatedProducts} />
 }

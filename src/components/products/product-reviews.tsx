@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Star, ThumbsUp, Flag } from "lucide-react"
 import { cn, formatDate } from "@/lib/utils"
 import { Avatar } from "@/components/ui/avatar"
@@ -130,10 +131,12 @@ export function ProductReviews({ reviews, productId, averageRating, reviewCount 
                   {review.images && review.images.length > 0 && (
                     <div className="mt-3 flex gap-2">
                       {review.images.map((img, i) => (
-                        <img
+                        <Image
                           key={i}
                           src={img}
                           alt={`Review image ${i + 1}`}
+                          width={64}
+                          height={64}
                           className="h-16 w-16 rounded-lg object-cover"
                         />
                       ))}

@@ -28,6 +28,20 @@ interface ProductsPageProps {
   }>
 }
 
+function getPageNumbers(totalPages: number, currentPage: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1)
+  }
+  const pages: (number | "...")[] = [1]
+  if (currentPage > 3) pages.push("...")
+  const start = Math.max(2, currentPage - 1)
+  const end = Math.min(totalPages - 1, currentPage + 1)
+  for (let i = start; i <= end; i++) pages.push(i)
+  if (currentPage < totalPages - 2) pages.push("...")
+  pages.push(totalPages)
+  return pages
+}
+
 async function ProductsContent({ searchParams }: ProductsPageProps) {
   const params = await searchParams
   const categorySlugs = params.category?.split(",").filter(Boolean) || []
@@ -84,8 +98,15 @@ async function ProductsContent({ searchParams }: ProductsPageProps) {
           </div>
 
           {productsData.totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
-              {Array.from({ length: productsData.totalPages }, (_, i) => i + 1).map((pageNum) => {
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+              {getPageNumbers(productsData.totalPages, productsData.page).map((pageNum, index) => {
+                if (pageNum === "...") {
+                  return (
+                    <span key={`ellipsis-${index}`} className="text-sm text-muted-foreground">
+                      …
+                    </span>
+                  )
+                }
                 const isCurrent = pageNum === productsData.page
                 const hrefParams = new URLSearchParams()
                 if (params.q) hrefParams.set("q", params.q)

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
   Menu,
@@ -184,9 +185,11 @@ export function MobileNav({
                           )}
                         >
                           {category.icon?.startsWith("http") ? (
-                            <img
+                            <Image
                               src={category.icon}
                               alt={category.name}
+                              width={20}
+                              height={20}
                               className="h-5 w-5 object-contain"
                             />
                           ) : (

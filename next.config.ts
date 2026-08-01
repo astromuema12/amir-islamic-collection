@@ -11,7 +11,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "attic.sh",
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
     ],
+  },
+  experimental: {
+    optimizePackageImports: ["framer-motion"],
   },
 };
 

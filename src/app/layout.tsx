@@ -178,6 +178,8 @@ export default async function RootLayout({
       nonce={nonce}
     >
       <head>
+        <link rel="preconnect" href="https://imgproxy.attic.sh" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           nonce={nonce}

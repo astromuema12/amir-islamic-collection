@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import {
@@ -43,7 +42,7 @@ export default function DashboardLayout({
       />
 
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm pl-14 pr-4 lg:px-6">
           <div className="flex flex-1 items-center gap-2">
             <h1 className="text-lg font-semibold text-foreground">
               My Account
@@ -84,13 +83,9 @@ export default function DashboardLayout({
         </nav>
 
         <main className="flex-1 p-4 lg:p-6">
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+          <div>
             {children}
-          </motion.div>
+          </div>
         </main>
       </div>
     </div>
