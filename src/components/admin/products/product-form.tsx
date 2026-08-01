@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card"
 import toast from "react-hot-toast"
 import { createProduct, updateProduct, setProductImages } from "@/lib/actions/product-actions"
+import { csrfFetch } from "@/lib/csrf-client"
 
 export interface ProductFormCategory {
   id: string
@@ -103,7 +104,7 @@ export function ProductForm({ mode, initial, categories, brands }: ProductFormPr
       for (const file of Array.from(files)) {
         const fd = new FormData()
         fd.append("file", file)
-        const res = await fetch("/api/upload", { method: "POST", body: fd })
+        const res = await csrfFetch("/api/upload", { method: "POST", body: fd })
         const data = await res.json()
         if (data.url) urls.push(data.url)
         else toast.error(data.message || "Upload failed")

@@ -175,7 +175,13 @@ export async function proxy(request: NextRequest) {
 
   // --- Security Headers + CSRF Cookie + Nonce ---
   const nonce = generateNonce();
-  const response = NextResponse.next();
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 
   if (!request.cookies.get(CSRF_COOKIE)?.value) {
     response.cookies.set(CSRF_COOKIE, generateCsrfToken(), csrfCookieOptions());
@@ -210,12 +216,7 @@ export async function proxy(request: NextRequest) {
     ].join("; ")
   );
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-nonce", nonce);
-
-  return NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  return response;
 }
 
 export const config = {

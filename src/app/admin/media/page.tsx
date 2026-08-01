@@ -13,6 +13,7 @@ import {
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/utils"
+import { csrfFetch } from "@/lib/csrf-client"
 import toast from "react-hot-toast"
 
 interface MediaItem {
@@ -44,7 +45,7 @@ export default function AdminMediaPage() {
       try {
         const fd = new FormData()
         fd.append("file", file)
-        const res = await fetch("/api/upload", { method: "POST", body: fd })
+        const res = await csrfFetch("/api/upload", { method: "POST", body: fd })
         const data = await res.json()
         if (!res.ok || data.status === "error") throw new Error(data.message || "Upload failed")
         newItems.push({
