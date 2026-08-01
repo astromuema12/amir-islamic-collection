@@ -185,7 +185,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <Providers>
+        <Providers nonce={nonce}>
           <Header user={user} />
           <main className="flex-1">{children}</main>
           <Footer />
