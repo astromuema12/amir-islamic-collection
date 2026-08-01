@@ -1,14 +1,14 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { db, getRlsDb } from "@/lib/db";
 import {
   users, products, orders, categories, brands, orderItems, addresses,
   sellerProfiles, coupons, blogs, reviews, analytics, settings,
-  withdrawals, notifications, sessions, wishlists,
+  withdrawals, notifications, sessions, wishlists, cart,
   auditLogs, roles, permissions, rolePermissions, userRoles,
   type OrderStatus, type PaymentStatus,
 } from "@/lib/db/schema";
-import { eq, and, desc, asc, sql, gte, type SQL } from "drizzle-orm";
+import { eq, and, desc, asc, sql, gte, inArray, type SQL } from "drizzle-orm";
 import { productRepository } from "@/lib/repositories/product-repository";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
@@ -214,41 +214,63 @@ export async function updateUserRole(userId: string, role: string) {
 
 export async function deleteUser(userId: string) {
   try {
-    await requireAdmin();
+    const admin = await requireAdmin();
 
     const [existing] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
     if (!existing) return { error: "User not found" };
 
-    const anonymizedEmail = `deleted-${userId}@anonymized.invalid`;
-    const result = await db
-      .update(users)
-      .set({
-        name: "Deleted Account",
-        email: anonymizedEmail,
-        phone: null,
-        bio: null,
-        image: null,
-        password: null,
-        emailVerified: false,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userId));
-
-    if (result.rowCount === 0) {
-      return { error: "No rows affected — deletion failed" };
+    if (existing.id === admin.id) {
+      return { error: "You cannot delete your own account" };
+    }
+    if (existing.role === "super_admin" && admin.role !== "super_admin") {
+      return { error: "Only a super admin can delete another super admin" };
+    }
+    if (existing.role === "super_admin") {
+      const [countResult] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(users)
+        .where(eq(users.role, "super_admin"));
+      if (Number(countResult.count) <= 1) {
+        return { error: "Cannot delete the last super admin" };
+      }
     }
 
-    await db.delete(sessions).where(eq(sessions.userId, userId));
-    await db.delete(notifications).where(eq(notifications.userId, userId));
-    await db.delete(wishlists).where(eq(wishlists.userId, userId));
+    const rlsDb = getRlsDb();
+    await rlsDb.transaction(async (tx) => {
+      const sellerProducts = await tx
+        .select({ id: products.id })
+        .from(products)
+        .where(eq(products.sellerId, userId));
 
+      if (sellerProducts.length > 0) {
+        await tx.delete(orderItems).where(inArray(orderItems.productId, sellerProducts.map((p) => p.id)));
+      }
+
+      await tx.delete(orders).where(eq(orders.userId, userId));
+      await tx.delete(withdrawals).where(eq(withdrawals.sellerId, userId));
+      await tx.delete(blogs).where(eq(blogs.authorId, userId));
+      await tx.delete(products).where(eq(products.sellerId, userId));
+      await tx.delete(cart).where(eq(cart.userId, userId));
+      await tx.delete(addresses).where(eq(addresses.userId, userId));
+      await tx.delete(reviews).where(eq(reviews.userId, userId));
+      await tx.delete(sellerProfiles).where(eq(sellerProfiles.userId, userId));
+      await tx.delete(sessions).where(eq(sessions.userId, userId));
+      await tx.delete(notifications).where(eq(notifications.userId, userId));
+      await tx.delete(wishlists).where(eq(wishlists.userId, userId));
+      await tx.delete(userRoles).where(eq(userRoles.userId, userId));
+      await tx.delete(auditLogs).where(eq(auditLogs.userId, userId));
+      await tx.delete(users).where(eq(users.id, userId));
+    });
+
+    updateTag(CACHE_TAGS.dashboard);
     revalidatePath("/admin/customers");
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/sellers");
+    revalidatePath("/admin/dashboard");
     return { success: true, deleted: true };
   } catch (error) {
     const msg = error instanceof Error ? error.message : "Failed to delete user";
-    if (msg.includes("foreign key constraint")) {
-      return { error: "Cannot delete user — they have existing orders or products. Anonymize instead." };
-    }
     return { error: msg };
   }
 }

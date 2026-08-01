@@ -305,10 +305,10 @@ export default function AdminCustomersPage() {
       <Dialog open={!!deleteId} onOpenChange={(o) => { if (!o) setDeleteId(null) }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
+            <DialogTitle>Delete User Permanently</DialogTitle>
             <DialogDescription>
-              This will anonymize the user account. Personal data is cleared, they can no longer
-              log in, and their orders remain intact. This action cannot be undone.
+              This will permanently delete the user account and ALL associated data, including
+              orders, products, reviews, addresses, and more. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
