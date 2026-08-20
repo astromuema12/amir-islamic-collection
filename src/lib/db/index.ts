@@ -10,7 +10,9 @@ function getDb() {
   if (!_db) {
     const url = process.env.DATABASE_URL;
     if (!url) {
-      throw new Error("DATABASE_URL environment variable is not set");
+      throw new Error(
+        "DATABASE_URL is not set. Ensure it is defined in your environment variables."
+      );
     }
     const sql = neon(url);
     _db = drizzle(sql, { schema });
@@ -22,7 +24,9 @@ function getRlsDb() {
   if (!_rlsDb) {
     const url = process.env.DATABASE_URL;
     if (!url) {
-      throw new Error("DATABASE_URL environment variable is not set");
+      throw new Error(
+        "DATABASE_URL is not set. Ensure it is defined in your environment variables."
+      );
     }
     const pool = new Pool({ connectionString: url, max: 1 });
     _rlsDb = neonDrizzle(pool, { schema });

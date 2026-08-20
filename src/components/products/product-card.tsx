@@ -3,7 +3,7 @@
 import { useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, ShoppingCart, Eye, Star } from "lucide-react"
+import { Heart, ShoppingCart, Star } from "lucide-react"
 import { cn, formatPrice, calculateDiscount } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -50,11 +50,6 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
     const inWishlistBefore = useWishlistStore.getState().isInWishlist(product.id)
     toggleItem(product.id)
     toast.success(inWishlistBefore ? "Removed from wishlist" : "Added to wishlist")
-  }
-
-  const handleQuickView = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
   }
 
   if (view === "list") {
@@ -183,9 +178,6 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
           </Button>
           <Button size="icon" variant="outline" className="h-8 w-8 sm:h-9 sm:w-9" onClick={handleToggleWishlist} aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}>
             <Heart className={cn("h-4 w-4", inWishlist && "fill-red-500 text-red-500")} />
-          </Button>
-          <Button size="icon" variant="outline" className="h-8 w-8 sm:h-9 sm:w-9" onClick={handleQuickView}>
-            <Eye className="h-4 w-4" />
           </Button>
         </div>
       </div>

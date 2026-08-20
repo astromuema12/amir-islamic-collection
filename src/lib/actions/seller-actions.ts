@@ -113,7 +113,8 @@ export async function getSellerProfile() {
       .limit(1);
 
     return profile || null;
-  } catch {
+  } catch (error) {
+    console.error("[getSellerProfile] Failed to fetch seller profile:", error);
     return null;
   }
 }
@@ -196,7 +197,8 @@ export async function getSellerDashboard() {
       },
       recentOrders,
     };
-  } catch {
+  } catch (error) {
+    console.error("[getSellerDashboard] Failed to load dashboard:", error);
     return null;
   }
 }
@@ -207,7 +209,8 @@ export async function getSellerProducts() {
     const user = await requireRole("seller");
 
     return productRepository.getSellerProducts(user.id);
-  } catch {
+  } catch (error) {
+    console.error("[getSellerProducts] Failed to fetch products:", error);
     return [];
   }
 }
@@ -226,7 +229,8 @@ export async function getSellerOrders() {
       .orderBy(desc(orders.createdAt));
 
     return result;
-  } catch {
+  } catch (error) {
+    console.error("[getSellerOrders] Failed to fetch orders:", error);
     return [];
   }
 }
@@ -289,7 +293,8 @@ export async function getWithdrawals() {
       .from(withdrawals)
       .where(eq(withdrawals.sellerId, user.id))
       .orderBy(desc(withdrawals.createdAt));
-  } catch {
+  } catch (error) {
+    console.error("[getWithdrawals] Failed to fetch withdrawals:", error);
     return [];
   }
 }

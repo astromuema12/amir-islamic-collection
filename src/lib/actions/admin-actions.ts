@@ -738,7 +738,8 @@ export async function getAnalyticsData(period: "daily" | "weekly" | "monthly" = 
       .limit(30);
 
     return result;
-  } catch {
+  } catch (error) {
+    console.error("[getAnalyticsData] Failed to fetch analytics:", error);
     return [];
   }
 }

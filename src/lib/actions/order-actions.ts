@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { revalidatePath, updateTag } from "next/cache";
 import { checkoutSchema } from "@/lib/validations";
 import { sendOrderConfirmation } from "@/lib/resend";
-import { ORDER_STATUS, PAYMENT_STATUS } from "@/lib/constants";
+import { ORDER_STATUS, PAYMENT_STATUS, FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export type CheckoutError = {
@@ -170,8 +170,8 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
           );
       }
 
-      const shipping = subtotal >= 50000 ? 0 : 1500;
-      const tax = subtotal * 0.075;
+      const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_METHODS[0].price;
+      const tax = subtotal * TAX_RATE;
       const discount = 0;
       const total = subtotal + shipping + tax - discount;
 
@@ -219,6 +219,7 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
     if (err.code === "CART_EMPTY" || err.code === "OUT_OF_STOCK" || err.code === "INSUFFICIENT_STOCK" || err.code === "PRODUCT_NOT_FOUND") {
       return { error: err.message!, code: err.code as CheckoutError["code"] };
     }
+    console.error("[createOrder] Unexpected error:", error);
     return {
       error: error instanceof Error ? error.message : "Failed to create order",
       code: "VALIDATION_ERROR",
@@ -297,7 +298,8 @@ export async function getOrders(userId?: string) {
       .from(orders)
       .where(eq(orders.userId, user.id))
       .orderBy(orders.createdAt);
-  } catch {
+  } catch (error) {
+    console.error("[getOrders] Failed to fetch orders:", error);
     return [];
   }
 }

@@ -6,14 +6,10 @@ import {
   ShoppingBag,
   Store,
   Star,
-  Users,
-  Package,
   ArrowRight,
   TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-const stats: { icon: typeof Package; value: string; label: string }[] = []
 
 const floatingIcons = [
   { Icon: Star, delay: 0, x: "10%", y: "20%", size: 24 },
@@ -36,15 +32,6 @@ const itemVariants = {
     opacity: 1,
     y: 0,
     transition: { duration: 0.6, ease: "easeOut" },
-  },
-} as const
-
-const statVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: "easeOut" },
   },
 } as const
 
@@ -135,35 +122,6 @@ export function HeroSection() {
           </motion.div>
         </div>
       </div>
-
-      {stats.length > 0 && (
-        <div className="relative -mt-8 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-20">
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 rounded-2xl border border-border/50 bg-card/95 backdrop-blur-xl p-4 sm:p-6 shadow-xl"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
-          >
-            {stats.map(({ icon: Icon, value, label }) => (
-              <motion.div
-                key={label}
-                variants={statVariants}
-                className="flex flex-col items-center gap-1.5 py-2 sm:py-3 text-center"
-              >
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                </div>
-                <span className="text-lg sm:text-xl font-bold text-foreground">
-                  {value}
-                </span>
-                <span className="text-xs sm:text-sm text-muted-foreground">
-                  {label}
-                </span>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      )}
 
       <div className="h-12 sm:h-16 lg:h-24" />
     </section>
