@@ -35,18 +35,37 @@ type ClientEnv = z.infer<typeof clientSchema>;
 let _serverEnv: ServerEnv | null = null;
 let _clientEnv: ClientEnv | null = null;
 
+function isBuildTime(): boolean {
+  return process.env.NEXT_PHASE === "phase-production-build" ||
+    process.env._STANDALONE_BUILD === "true";
+}
+
+function formatErrors(result: z.ZodFormattedError<unknown>): string {
+  return Object.entries(result)
+    .filter(([, v]) => v && "_errors" in v && (v as { _errors: string[] })._errors.length > 0)
+    .map(([k, v]) => `  ${k}: ${(v as { _errors: string[] })._errors.join(", ")}`)
+    .join("\n");
+}
+
 function validateServerEnv(): ServerEnv {
   if (_serverEnv) return _serverEnv;
 
   const result = serverSchema.safeParse(process.env);
   if (!result.success) {
-    const formatted = result.error.format();
-    const missing = Object.entries(formatted)
-      .filter(([, v]) => v && "_errors" in v && v._errors.length > 0)
-      .map(([k, v]) => `  ${k}: ${(v as { _errors: string[] })._errors.join(", ")}`)
-      .join("\n");
+    const errors = formatErrors(result.error.format());
 
-    console.error("\n❌ Invalid server environment variables:\n" + missing + "\n");
+    if (isBuildTime()) {
+      console.warn("\n⚠️  Server env validation warnings (build time):\n" + errors + "\n");
+      // During build, return defaults so the build can succeed.
+      // Runtime will re-validate when env vars are actually available.
+      return {
+        DATABASE_URL: process.env.DATABASE_URL || "postgresql://localhost:5432/build_placeholder",
+        AUTH_SECRET: process.env.AUTH_SECRET || "build_placeholder",
+        PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || "sk_build_placeholder",
+      } as ServerEnv;
+    }
+
+    console.error("\n❌ Invalid server environment variables:\n" + errors + "\n");
     throw new Error("Invalid server environment variables. Check server logs for details.");
   }
 
@@ -65,13 +84,16 @@ function validateClientEnv(): ClientEnv {
   });
 
   if (!result.success) {
-    const formatted = result.error.format();
-    const missing = Object.entries(formatted)
-      .filter(([, v]) => v && "_errors" in v && v._errors.length > 0)
-      .map(([k, v]) => `  ${k}: ${(v as { _errors: string[] })._errors.join(", ")}`)
-      .join("\n");
+    const errors = formatErrors(result.error.format());
 
-    console.error("\n❌ Invalid client environment variables:\n" + missing + "\n");
+    if (isBuildTime()) {
+      console.warn("\n⚠️  Client env validation warnings (build time):\n" + errors + "\n");
+      return {
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+      } as ClientEnv;
+    }
+
+    console.error("\n❌ Invalid client environment variables:\n" + errors + "\n");
     throw new Error("Invalid client environment variables. Check server logs for details.");
   }
 
@@ -85,9 +107,4 @@ export function getServerEnv(): ServerEnv {
 
 export function getClientEnv(): ClientEnv {
   return validateClientEnv();
-}
-
-export function getEnvForBuild(): void {
-  validateServerEnv();
-  validateClientEnv();
 }

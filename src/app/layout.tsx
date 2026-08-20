@@ -9,9 +9,6 @@ import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-regis
 import { InstallAppPrompt } from "@/components/pwa/install-app-prompt"
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants"
 import { getCurrentUser } from "@/lib/auth"
-import { getServerEnv } from "@/lib/env"
-
-getServerEnv()
 
 const inter = Inter({
   variable: "--font-inter",
