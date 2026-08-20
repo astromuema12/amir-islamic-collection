@@ -6,6 +6,7 @@ import {
   ShoppingBag,
   Store,
   Star,
+  Package,
   ArrowRight,
   TrendingUp,
 } from "lucide-react"
