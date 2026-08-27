@@ -32,6 +32,12 @@ const _getCategoryBySlug = unstable_cache(
   { tags: [CACHE_TAGS.categories], revalidate: CACHE_TTL.categories },
 );
 
+const _getCategoryNavigation = unstable_cache(
+  productRepository.getCategoryNavigation.bind(productRepository),
+  ["category-navigation"],
+  { tags: [CACHE_TAGS.categories], revalidate: CACHE_TTL.categories },
+);
+
 const _getBrands = unstable_cache(
   productRepository.getBrands.bind(productRepository),
   ["brands"],
@@ -62,6 +68,10 @@ export function getCategories() {
 
 export function getCategoryBySlug(slug: string) {
   return _getCategoryBySlug(slug);
+}
+
+export function getCategoryNavigation() {
+  return _getCategoryNavigation();
 }
 
 export function getBrands() {

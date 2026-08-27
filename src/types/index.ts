@@ -56,6 +56,10 @@ export interface Category {
   createdAt: Date;
 }
 
+export interface CategoryTree extends Category {
+  children: CategoryTree[];
+}
+
 export interface Brand {
   id: string;
   name: string;

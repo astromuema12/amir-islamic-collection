@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { products, categories, brands, reviews, users } from "@/lib/db/schema";
 import { eq, and, like, desc, asc, sql, gte, lte, inArray, ne } from "drizzle-orm";
-import type { Product, Category, Review } from "@/types";
+import type { Product, Category, Review, CategoryTree } from "@/types";
 
 function serializeProduct(p: typeof products.$inferSelect & { category?: unknown; brand?: unknown }): Product {
   return {
@@ -457,6 +457,51 @@ class ProductRepository {
       productCount: 0,
       createdAt: result.createdAt,
     } satisfies Category;
+  }
+
+  async getCategoryNavigation() {
+    const [catRows, countRows] = await Promise.all([
+      db
+        .select()
+        .from(categories)
+        .where(eq(categories.isActive, true))
+        .orderBy(asc(categories.name)),
+      db
+        .select({
+          categoryId: products.categoryId,
+          count: sql<number>`count(*)`,
+        })
+        .from(products)
+        .where(eq(products.isActive, true))
+        .groupBy(products.categoryId),
+    ]);
+
+    const countMap = new Map(countRows.map((r) => [r.categoryId, Number(r.count)]));
+
+    const nodes: CategoryTree[] = catRows.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      description: c.description || undefined,
+      image: c.image || undefined,
+      parentId: c.parentId || undefined,
+      productCount: countMap.get(c.id) || 0,
+      createdAt: c.createdAt,
+      children: [],
+    }));
+
+    const map = new Map(nodes.map((n) => [n.id, n]));
+    const roots: CategoryTree[] = [];
+
+    nodes.forEach((node) => {
+      if (node.parentId && map.has(node.parentId)) {
+        map.get(node.parentId)!.children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    return roots;
   }
 
   async getBrands() {
