@@ -5,6 +5,7 @@ import "./globals.css"
 import { Providers } from "@/components/layout/providers"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
+import { BottomNavigation } from "@/components/layout/bottom-navigation"
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration"
 import { InstallAppPrompt } from "@/components/pwa/install-app-prompt"
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants"
@@ -116,43 +117,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "verification_token",
-  },
   category: "shopping",
-}
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Store",
-  name: APP_NAME,
-  description: APP_DESCRIPTION,
-  url: siteUrl,
-  telephone: "+254759632162",
-  email: "amirislamiccollections@gmail.com",
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Nairobi",
-    addressCountry: "KE",
-  },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: "4.8",
-    reviewCount: "50000",
-  },
-  openingHours: "Mo-Su 08:00-22:00",
-  areaServed: "Worldwide",
-  hasOfferCatalog: {
-    "@type": "OfferCatalog",
-    name: "Islamic Products",
-    itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Prayer Mats" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Holy Qur'an" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Hijabs" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Perfumes" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Islamic Clothing" } },
-    ],
-  },
 }
 
 export default async function RootLayout({
@@ -163,8 +128,8 @@ export default async function RootLayout({
   let user = null
   try {
     user = await getCurrentUser()
-  } catch (error) {
-    console.error("[RootLayout] Failed to get current user:", error)
+  } catch {
+    console.error("[RootLayout] Failed to get current user")
   }
 
   const nonce = (await headers()).get("x-nonce") || undefined
@@ -183,14 +148,23 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           nonce={nonce}
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Store",
+              name: APP_NAME,
+              description: APP_DESCRIPTION,
+              url: siteUrl,
+            }),
+          }}
         />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col pb-16 lg:pb-0">
         <Providers nonce={nonce}>
           <Header user={user} />
           <main className="flex-1">{children}</main>
           <Footer />
+          <BottomNavigation />
           <InstallAppPrompt />
         </Providers>
         <ServiceWorkerRegistration />

@@ -2,9 +2,10 @@
 
 import { SlidersHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetFooter } from "@/components/ui/sheet"
 import { ProductFilters } from "./product-filters"
 import type { Category } from "@/types"
+import { Separator } from "@/components/ui/separator"
 
 interface MobileFilterSheetProps {
   categories: Category[]
@@ -20,13 +21,21 @@ export function MobileFilterSheet({ categories, brands }: MobileFilterSheetProps
           Filters
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[min(300px,85vw)] overflow-y-auto">
-        <SheetHeader>
+      <SheetContent side="bottom" className="h-[85vh] flex flex-col p-0">
+        <SheetHeader className="px-5 pt-5 pb-3 border-b">
           <SheetTitle>Filters</SheetTitle>
         </SheetHeader>
-        <div className="mt-4">
+        <div className="flex-1 overflow-y-auto px-5 py-4">
           <ProductFilters categories={categories} brands={brands} />
         </div>
+        <Separator />
+        <SheetFooter className="px-5 py-4">
+          <Button asChild className="w-full">
+            <a href="?" className="w-full">
+              Done — View Results
+            </a>
+          </Button>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   )

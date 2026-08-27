@@ -70,16 +70,17 @@ export function Header({
             wishlistItemCount={wishlistCount}
           />
 
-          <Link href="/" className="flex-shrink-0 group">
-            <span className="text-xl sm:text-2xl font-bold tracking-tight">
-              <span className="text-primary group-hover:text-primary/80 transition-colors">
-                Amir
-              </span>{" "}
-              <span className="text-premium group-hover:text-premium/80 transition-colors">
-                Islamic
+          <Link href="/" className="flex-shrink-0 group" aria-label="Amir Islamic Collections - Home">
+            <span className="flex items-center gap-1.5">
+              <span className="text-xl sm:text-2xl font-bold tracking-tight premium-heading">
+                <span className="text-primary group-hover:text-primary/80 transition-colors">
+                  Amir
+                </span>{" "}
+                <span className="text-premium group-hover:text-premium/80 transition-colors">
+                  Islamic
+                </span>
               </span>
-              <span className="text-foreground hidden sm:inline">
-                {" "}
+              <span className="hidden sm:inline text-sm font-semibold text-muted-foreground -mt-1">
                 Collections
               </span>
             </span>

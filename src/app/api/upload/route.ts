@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
+import { getCurrentUser } from "@/lib/auth";
+
+const ALLOWED_ROLES: readonly string[] = ["admin", "super_admin", "seller"];
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -9,6 +12,14 @@ cloudinary.config({
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+    if (!user || !ALLOWED_ROLES.includes(user.role)) {
+      return NextResponse.json(
+        { status: "error", message: "Forbidden — insufficient permissions" },
+        { status: 403 },
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 

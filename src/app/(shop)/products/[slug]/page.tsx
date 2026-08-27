@@ -9,6 +9,7 @@ import { ImageGallery } from "@/components/products/image-gallery"
 import { ProductReviews } from "@/components/products/product-reviews"
 import { RelatedProducts } from "@/components/products/related-products"
 import { ProductInfo } from "@/components/products/product-info"
+import { MobilePurchaseBar } from "@/components/products/mobile-purchase-bar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -70,7 +71,7 @@ export default async function ProductPage(props: ProductPageProps) {
         nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 pb-24 lg:pb-6">
         <Breadcrumbs
           items={[
             { label: "Products", href: "/products" },
@@ -204,6 +205,8 @@ export default async function ProductPage(props: ProductPageProps) {
           </Suspense>
         </div>
       </div>
+
+      <MobilePurchaseBar product={product} />
     </>
   )
 }
