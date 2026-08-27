@@ -3,7 +3,7 @@ import { PromoCarousel } from "@/components/home/promo-carousel"
 import { CategoryScroller } from "@/components/home/category-scroller"
 import { ProductSection } from "@/components/home/product-section"
 import { FlashSales } from "@/components/home/flash-sales"
-import { Testimonials } from "@/components/home/testimonials"
+import { ReviewPreview } from "@/components/reviews/review-preview"
 import { Newsletter } from "@/components/home/newsletter"
 import { ConnectWithUs } from "@/components/home/connect-with-us"
 import { BlogPreview } from "@/components/home/blog-preview"
@@ -97,7 +97,7 @@ export default function Home() {
           <TrendingSection />
         </Suspense>
 
-        <Testimonials />
+        <ReviewPreview />
         <Newsletter />
         <ConnectWithUs />
         <BlogPreview />

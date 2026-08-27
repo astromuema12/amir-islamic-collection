@@ -29,6 +29,7 @@ import { APP_NAME, CATEGORIES } from "@/lib/constants"
 
 const QUICK_LINKS = [
   { href: "/about", label: "About Us" },
+  { href: "/reviews", label: "Customer Reviews" },
   { href: "/contact", label: "Contact Us" },
   { href: "/faq", label: "FAQ" },
   { href: "/blog", label: "Our Blog" },

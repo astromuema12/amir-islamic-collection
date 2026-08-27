@@ -8,6 +8,8 @@ export interface Testimonial {
   content: string
   rating: number
   location: string
+  date?: string
+  verified?: boolean
 }
 
 export interface FlashDeal extends Product {

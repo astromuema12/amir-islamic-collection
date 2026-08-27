@@ -20,6 +20,7 @@ import {
   Info,
   HelpCircle,
   ShieldCheck,
+  Star,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -70,6 +71,7 @@ export function MobileNav({
 
   const customerLinks = [
     { href: "/about", label: "About Us", icon: Info },
+    { href: "/reviews", label: "Customer Reviews", icon: Star },
     { href: "/contact", label: "Contact", icon: Phone },
     { href: "/faq", label: "FAQ", icon: HelpCircle },
     { href: "/privacy", label: "Privacy Policy", icon: ShieldCheck },
