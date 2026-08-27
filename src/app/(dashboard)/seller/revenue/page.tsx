@@ -178,7 +178,7 @@ export default function SellerRevenuePage() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg">Revenue Chart</CardTitle>
           <Tabs value={chartView} onValueChange={(v) => setChartView(v as typeof chartView)}>
             <TabsList>

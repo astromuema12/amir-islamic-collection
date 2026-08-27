@@ -121,7 +121,7 @@ export default function OrderDetailPage() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-serif text-2xl font-bold text-foreground">
               Order {params.id}
             </h2>

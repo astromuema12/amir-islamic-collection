@@ -80,8 +80,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
         </Button>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-0.5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <div className="flex items-center gap-0.5">
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
@@ -101,8 +101,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
         <span className="text-sm text-muted-foreground">{product.salesCount} sold</span>
       </div>
 
-      <div className="flex items-baseline gap-3">
-        <span className="text-3xl font-bold text-foreground">
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <span className="text-2xl sm:text-3xl font-bold text-foreground">
           {formatPrice(product.discountPrice || product.price)}
         </span>
         {product.discountPrice && (

@@ -36,7 +36,7 @@ export function TrendingProducts({ products }: { products: Product[] }) {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product, index) => (
             <motion.div
               key={product.id}
@@ -60,13 +60,13 @@ export function TrendingProducts({ products }: { products: Product[] }) {
                     </Badge>
                   </div>
 
-                  <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-8">
-                    <div className="text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
+                  <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-4 sm:p-8">
+                    <div className="text-4xl sm:text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
                       📦
                     </div>
                   </div>
 
-                  <div className="p-4 space-y-2.5">
+                  <div className="p-3 sm:p-4 space-y-2.5">
                     <div className="flex items-center gap-1">
                       <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
                       <span className="text-xs font-medium">{product.averageRating}</span>
@@ -80,13 +80,13 @@ export function TrendingProducts({ products }: { products: Product[] }) {
                     </h3>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-primary">
+                      <span className="text-base sm:text-lg font-bold text-primary">
                         {product.discountPrice
                           ? formatPrice(product.discountPrice)
                           : formatPrice(product.price)}
                       </span>
                       {product.discountPrice && (
-                        <span className="text-sm text-muted-foreground line-through">
+                        <span className="text-xs sm:text-sm text-muted-foreground line-through">
                           {formatPrice(product.price)}
                         </span>
                       )}

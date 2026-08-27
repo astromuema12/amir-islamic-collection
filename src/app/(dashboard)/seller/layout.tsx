@@ -34,7 +34,7 @@ export default function SellerDashboardLayout({
         onLogout={handleLogout}
       />
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center justify-between border-b bg-card px-6 py-3 lg:px-8">
+        <div className="flex items-center justify-between border-b bg-card pl-14 pr-4 py-3 lg:px-8">
           <div className="flex items-center gap-2">
             {!isVerified && (
               <motion.div

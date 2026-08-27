@@ -216,7 +216,7 @@ export default function AdminCouponsPage() {
             <DialogTitle>{editing ? "Edit Coupon" : "New Coupon"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Coupon Code" value={formCode} onChange={e => setFormCode(e.target.value.toUpperCase())} placeholder="e.g. SUMMER20" />
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Type</label>
@@ -232,11 +232,11 @@ export default function AdminCouponsPage() {
               </div>
             </div>
             <Input label={formType === "percentage" ? "Discount (%)" : "Discount Amount (KES)"} type="number" value={formValue} onChange={e => setFormValue(e.target.value)} />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Min Order Amount" type="number" value={formMinOrder} onChange={e => setFormMinOrder(e.target.value)} placeholder="Optional" />
               <Input label="Max Discount" type="number" value={formMaxDiscount} onChange={e => setFormMaxDiscount(e.target.value)} placeholder="Optional" />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input label="Usage Limit" type="number" value={formUsageLimit} onChange={e => setFormUsageLimit(e.target.value)} placeholder="Unlimited" />
               <Input label="Expires At" type="date" value={formExpiresAt} onChange={e => setFormExpiresAt(e.target.value)} />
             </div>

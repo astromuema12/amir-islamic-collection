@@ -300,7 +300,7 @@ export default function AdminRolesPage() {
                 {permissionGroups.map(group => (
                   <div key={group.group}>
                     <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">{group.group}</h4>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {group.perms.map(perm => (
                         <div key={perm} className="flex items-center gap-2">
                           <Switch

@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useTheme } from "next-themes"
 import {
   Menu,
   X,
@@ -21,6 +22,8 @@ import {
   HelpCircle,
   ShieldCheck,
   Star,
+  Moon,
+  Sun,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -46,6 +49,7 @@ export function MobileNav({
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
 
   const isActive = (path: string) => pathname === path
 
@@ -136,6 +140,25 @@ export function MobileNav({
                     </Button>
                   </div>
                 )}
+
+                <div className="flex items-center justify-between rounded-lg border px-3 py-2.5">
+                  <div className="flex items-center gap-3">
+                    {theme === "dark" ? (
+                      <Sun className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Moon className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="text-sm font-medium">Dark Mode</span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  >
+                    {theme === "dark" ? "Light" : "Dark"}
+                  </Button>
+                </div>
 
                 <div>
                   <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">

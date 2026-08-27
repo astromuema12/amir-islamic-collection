@@ -54,14 +54,14 @@ function CategoryRow({
     <>
       <div
         className={cn(
-          "flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors border-b",
+          "flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 hover:bg-muted/50 transition-colors border-b",
           !category.isActive && "opacity-60"
         )}
         style={{ paddingLeft: `${16 + level * 24}px` }}
       >
         <button
           onClick={() => setExpanded(!expanded)}
-          className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-foreground"
+          className="h-5 w-5 shrink-0 flex items-center justify-center text-muted-foreground hover:text-foreground"
         >
           {category.children.length > 0 ? (
             expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />
@@ -69,29 +69,31 @@ function CategoryRow({
             <span className="w-4" />
           )}
         </button>
-        <GripVertical className="h-4 w-4 text-muted-foreground/50 cursor-grab" />
-        <div className="flex-1 flex items-center gap-3">
+        <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/50 cursor-grab" />
+        <div className="min-w-0 flex-1 flex items-center gap-3">
           {category.image ? (
-            <img src={category.image} alt="" className="h-8 w-8 rounded-lg object-cover" />
+            <img src={category.image} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" />
           ) : (
-            <FolderTree className="h-5 w-5 text-primary" />
+            <FolderTree className="h-5 w-5 shrink-0 text-primary" />
           )}
-          <div>
-            <p className="text-sm font-medium">{category.name}</p>
-            <p className="text-xs text-muted-foreground">/{category.slug}</p>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{category.name}</p>
+            <p className="truncate text-xs text-muted-foreground">/{category.slug}</p>
           </div>
         </div>
-        <Badge variant="secondary" className="ml-auto">
-          {category.productCount} products
-        </Badge>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(category)}>
-            <Pencil className="h-3.5 w-3.5" />
-          </Button>
-          <Switch checked={category.isActive} onCheckedChange={() => onToggle(category.id)} />
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(category.id)}>
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+        <div className="ml-auto flex items-center gap-2">
+          <Badge variant="secondary">
+            {category.productCount} products
+          </Badge>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(category)}>
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+            <Switch checked={category.isActive} onCheckedChange={() => onToggle(category.id)} />
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(category.id)}>
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
       </div>
       {expanded && category.children.map(child => (
@@ -291,7 +293,7 @@ function CategoryDialog({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center justify-between">
+<div className="flex flex-wrap items-center justify-between gap-3">
             <label className="text-sm font-medium">Active</label>
             <Switch checked={isActive} onCheckedChange={setIsActive} />
           </div>

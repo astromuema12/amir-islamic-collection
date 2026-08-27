@@ -90,7 +90,7 @@ export default function HelpPage() {
                       </div>
                       <h3 className="font-semibold mb-1">{method.title}</h3>
                       <p className="text-sm text-muted-foreground mb-3">{method.description}</p>
-                      <p className="text-sm font-medium text-primary">{method.action}</p>
+                      <p className="text-sm font-medium text-primary break-all">{method.action}</p>
                     </CardContent>
                   </a>
                 </Card>

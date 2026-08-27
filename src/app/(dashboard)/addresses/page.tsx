@@ -333,7 +333,7 @@ export default function AddressesPage() {
               error={errors.street?.message}
               {...register("street")}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="City"
                 placeholder="City"
@@ -347,7 +347,7 @@ export default function AddressesPage() {
                 {...register("state")}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Country"
                 placeholder="Country"

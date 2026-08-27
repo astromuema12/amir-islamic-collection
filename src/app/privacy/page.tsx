@@ -224,20 +224,22 @@ export default function PrivacyPage() {
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <nav className="lg:col-span-1">
-            <div className="sticky top-24 space-y-1">
+            <div className="lg:sticky lg:top-24 space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                 Sections
               </p>
-              {sections.map((section) => (
-                <a
-                  key={section.id}
-                  href={`#${section.id}`}
-                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors py-1.5"
-                >
-                  <section.icon className="h-3.5 w-3.5 shrink-0" />
-                  <span>{section.title}</span>
-                </a>
-              ))}
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide lg:flex-col lg:overflow-visible lg:pb-0">
+                {sections.map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border bg-card px-3 py-2 text-sm text-muted-foreground hover:text-primary transition-colors lg:border-transparent lg:bg-transparent lg:px-0 lg:py-1.5"
+                  >
+                    <section.icon className="h-3.5 w-3.5 shrink-0" />
+                    <span>{section.title}</span>
+                  </a>
+                ))}
+              </div>
             </div>
           </nav>
 

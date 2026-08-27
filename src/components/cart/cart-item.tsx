@@ -50,14 +50,14 @@ export function CartItem({
         </div>
       )}
 
-      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border bg-muted sm:h-28 sm:w-28">
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border bg-muted sm:h-28 sm:w-28">
         {item.image ? (
           <Image
             src={item.image}
             alt={item.name}
             fill
             className="object-cover"
-            sizes="112px"
+            sizes="(max-width: 640px) 80px, 112px"
           />
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -88,7 +88,7 @@ export function CartItem({
           </p>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <div className="flex items-center gap-1 rounded-lg border p-0.5">
             <Button
               variant="ghost"

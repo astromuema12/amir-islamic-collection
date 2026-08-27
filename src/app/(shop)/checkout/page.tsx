@@ -445,7 +445,7 @@ export default function CheckoutPage() {
                               onChange={(e) => setShippingMethod(e.target.value)}
                               className="h-4 w-4 text-primary"
                             />
-                            <div className="flex items-center gap-3 flex-1">
+                            <div className="flex flex-wrap items-center gap-3 flex-1 min-w-0">
                               <Truck
                                 className={`h-5 w-5 ${
                                   shippingMethod === method.name

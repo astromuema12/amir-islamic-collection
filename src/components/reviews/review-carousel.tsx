@@ -91,7 +91,7 @@ export function ReviewCarousel({ reviews }: ReviewCarouselProps) {
       className="outline-none"
     >
       <div className="mx-auto max-w-3xl">
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <div className="pointer-events-none absolute -top-6 left-2 text-primary/10 lg:-left-8">
             <Quote className="h-14 w-14 lg:h-20 lg:w-20" aria-hidden="true" />
           </div>

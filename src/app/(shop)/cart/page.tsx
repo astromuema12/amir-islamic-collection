@@ -215,7 +215,7 @@ export default function CartPage() {
               animate={{ opacity: 1, y: 0 }}
               className="rounded-xl bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 p-4"
             >
-              <div className="flex items-center justify-between text-sm mb-2">
+              <div className="flex flex-col items-start justify-between gap-1 text-sm mb-2 sm:flex-row sm:items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-emerald-700 dark:text-emerald-300 font-medium">
                     Free shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}

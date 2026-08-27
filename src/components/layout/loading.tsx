@@ -53,7 +53,7 @@ export function LoadingPage() {
     <div className="min-h-screen space-y-8 p-6">
       <div className="space-y-2">
         <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-4 w-96" />
+        <Skeleton className="h-4 w-96 max-w-full" />
       </div>
       <LoadingSkeleton />
     </div>

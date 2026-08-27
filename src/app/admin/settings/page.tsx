@@ -132,19 +132,19 @@ export default function AdminSettingsPage() {
             <CardContent className="space-y-4">
               <Input label="Site Name" value={data.siteName} onChange={e => set("siteName")(e.target.value)} placeholder="Your site name" />
               <Textarea label="Site Description" value={data.siteDescription} onChange={e => set("siteDescription")(e.target.value)} rows={2} />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input label="Logo URL" value={data.logo} onChange={e => set("logo")(e.target.value)} placeholder="https://..." />
                 <Input label="Favicon URL" value={data.favicon} onChange={e => set("favicon")(e.target.value)} placeholder="https://..." />
               </div>
               <Separator />
               <h3 className="text-sm font-semibold">Contact Information</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input label="Support Email" value={data.supportEmail} onChange={e => set("supportEmail")(e.target.value)} type="email" />
                 <Input label="Support Phone" value={data.supportPhone} onChange={e => set("supportPhone")(e.target.value)} />
               </div>
               <Separator />
               <h3 className="text-sm font-semibold">Social Media Links</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input label="Facebook URL" value={data.facebook} onChange={e => set("facebook")(e.target.value)} />
                 <Input label="Twitter URL" value={data.twitter} onChange={e => set("twitter")(e.target.value)} />
                 <Input label="Instagram URL" value={data.instagram} onChange={e => set("instagram")(e.target.value)} />
@@ -249,7 +249,7 @@ export default function AdminSettingsPage() {
                 <p className="text-sm text-muted-foreground">Shipping rates in KES</p>
               </div>
               <Input label="Free Shipping Threshold (KES)" type="number" value={data.freeShippingThreshold} onChange={e => set("freeShippingThreshold")(e.target.value)} />
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input label="Standard Rate (KES)" type="number" value={data.standardRate} onChange={e => set("standardRate")(e.target.value)} />
                 <Input label="Express Rate (KES)" type="number" value={data.expressRate} onChange={e => set("expressRate")(e.target.value)} />
               </div>
@@ -272,7 +272,7 @@ export default function AdminSettingsPage() {
                 <Palette className="h-5 w-5 text-primary" />
                 <p className="text-sm text-muted-foreground">Customize colors and branding</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">Primary Color</label>
                   <div className="flex items-center gap-2">

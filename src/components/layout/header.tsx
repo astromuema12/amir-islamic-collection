@@ -62,17 +62,17 @@ export function Header({
       )}
     >
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-4">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
           <MobileNav
             user={user}
             cartItemCount={cartItemCount}
             wishlistItemCount={wishlistCount}
           />
 
-          <Link href="/" className="flex-shrink-0 group" aria-label="Amir Islamic Collections - Home">
+          <Link href="/" className="group min-w-0" aria-label="Amir Islamic Collections - Home">
             <span className="flex items-center gap-1.5">
-              <span className="text-xl sm:text-2xl font-bold tracking-tight premium-heading">
+              <span className="text-lg lg:text-2xl font-bold tracking-tight premium-heading whitespace-nowrap">
                 <span className="text-primary group-hover:text-primary/80 transition-colors">
                   Amir
                 </span>{" "}
@@ -149,7 +149,7 @@ export function Header({
         </div>
       </div>
 
-      <div className="lg:hidden border-t px-4 py-2">
+      <div className="lg:hidden border-t px-3 py-2 sm:px-6">
         <SearchBar />
       </div>
     </header>

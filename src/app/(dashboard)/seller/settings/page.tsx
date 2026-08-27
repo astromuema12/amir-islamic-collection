@@ -99,7 +99,7 @@ export default function SellerSettingsPage() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="general">
             <Store className="h-4 w-4" />
             General

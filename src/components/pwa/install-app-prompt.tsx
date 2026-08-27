@@ -38,7 +38,7 @@ export function InstallAppPrompt() {
   if (isInstalled || dismissed || !showPrompt) return null
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-10 duration-300 sm:left-auto sm:right-6 sm:bottom-6 sm:max-w-sm">
+    <div className="fixed bottom-24 left-4 right-4 z-50 animate-in slide-in-from-bottom-10 duration-300 sm:left-auto sm:right-6 sm:bottom-24 sm:max-w-sm lg:bottom-6">
         <div className="rounded-2xl border bg-background/95 backdrop-blur-xl shadow-2xl p-5">
           <button
             onClick={handleDismiss}

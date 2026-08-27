@@ -148,14 +148,14 @@ function PageEditorCard({
 }) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-start justify-between space-y-0">
-        <div>
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+        <div className="min-w-0">
           <CardTitle className="text-base">{isEditing ? (
             <Input value={editTitle} onChange={e => onTitleChange(e.target.value)} className="font-semibold" />
           ) : page.title}</CardTitle>
           <CardDescription>/{page.slug}</CardDescription>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {page.isPublished ? (
             <Badge variant="success">Published</Badge>
           ) : (

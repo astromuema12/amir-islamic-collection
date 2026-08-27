@@ -17,6 +17,9 @@ export default async function CategoriesPage() {
       <div className="hidden lg:block">
         <Breadcrumbs items={[{ label: "Categories" }]} />
       </div>
+      <div className="lg:hidden mb-3">
+        <h1 className="text-xl font-bold tracking-tight">All Categories</h1>
+      </div>
       <h1 className="sr-only">All Categories</h1>
       <CategoryBrowser categories={categories} />
     </div>
