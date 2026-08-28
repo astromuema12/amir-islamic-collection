@@ -19,17 +19,20 @@ export const productSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   price: z.coerce.number().positive("Price must be positive"),
-  discountPrice: z.coerce.number().positive().optional(),
+  discountPrice: z.coerce.number().positive("Discount price must be positive").optional(),
   categoryId: z.string().uuid(),
   brandId: z.string().uuid().optional(),
   stock: z.coerce.number().int().min(0, "Stock cannot be negative"),
-  weight: z.coerce.number().positive().optional(),
+  weight: z.coerce.number().positive("Weight must be positive").optional(),
   dimensions: z.string().optional(),
   tags: z.array(z.string()).default([]),
   specifications: z.record(z.string(), z.string()).optional(),
   isFeatured: z.boolean().default(false),
   isFlashSale: z.boolean().default(false),
   flashSaleEnds: z.string().optional(),
+}).refine((data) => data.discountPrice === undefined || data.discountPrice < data.price, {
+  message: "Discount price must be lower than price",
+  path: ["discountPrice"],
 });
 
 export const profileSchema = z.object({

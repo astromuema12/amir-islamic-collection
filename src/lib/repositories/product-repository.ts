@@ -345,24 +345,26 @@ class ProductRepository {
     isFeatured: boolean;
     isFlashSale: boolean;
     flashSaleEnds?: Date | null;
-  }) {
-    await db.insert(products).values(data);
+    isActive?: boolean;
+    images?: string[];
+  }, client: typeof db = db) {
+    await client.insert(products).values(data);
     return data.id;
   }
 
-  async update(id: string, data: Record<string, unknown>) {
-    await db
+  async update(id: string, data: Record<string, unknown>, client: typeof db = db) {
+    await client
       .update(products)
       .set({ ...data, updatedAt: new Date() } as typeof products.$inferInsert)
       .where(eq(products.id, id));
   }
 
-  async delete(id: string) {
-    await db.delete(products).where(eq(products.id, id));
+  async delete(id: string, client: typeof db = db) {
+    await client.delete(products).where(eq(products.id, id));
   }
 
-  async toggleFeatured(id: string) {
-    const [product] = await db
+  async toggleFeatured(id: string, client: typeof db = db) {
+    const [product] = await client
       .select()
       .from(products)
       .where(eq(products.id, id))
@@ -370,7 +372,7 @@ class ProductRepository {
 
     if (!product) return null;
 
-    await db
+    await client
       .update(products)
       .set({ isFeatured: !product.isFeatured, updatedAt: new Date() })
       .where(eq(products.id, id));
@@ -378,8 +380,8 @@ class ProductRepository {
     return !product.isFeatured;
   }
 
-  async updateImages(id: string, newImages: string[]) {
-    const [product] = await db
+  async updateImages(id: string, newImages: string[], client: typeof db = db) {
+    const [product] = await client
       .select()
       .from(products)
       .where(eq(products.id, id))
@@ -389,7 +391,7 @@ class ProductRepository {
 
     const updatedImages = [...(product.images || []), ...newImages];
 
-    await db
+    await client
       .update(products)
       .set({ images: updatedImages, updatedAt: new Date() })
       .where(eq(products.id, id));

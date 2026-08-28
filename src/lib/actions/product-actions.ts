@@ -1,15 +1,14 @@
 "use server";
 
-import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { productRepository } from "@/lib/repositories/product-repository";
+import { withRLS } from "@/lib/db/rls";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
 import { productSchema } from "@/lib/validations";
 import { revalidatePath, updateTag } from "next/cache";
 import { CACHE_TAGS } from "@/lib/cache-tags";
-
 export async function createProduct(formData: FormData) {
   try {
     const { requireRole } = await import("@/lib/auth");
@@ -37,29 +36,48 @@ export async function createProduct(formData: FormData) {
       return { error: parsed.error.flatten().fieldErrors };
     }
 
+    if (parsed.data.discountPrice !== undefined && parsed.data.discountPrice >= parsed.data.price) {
+      return { error: { discountPrice: ["Discount price must be lower than price"] } };
+    }
+
+    const isActive = formData.get("isActive") !== "false";
     const slug = slugify(parsed.data.name, { lower: true, strict: true }) + "-" + Date.now().toString(36);
     const id = uuidv4();
 
-    await productRepository.create({
-      id,
-      name: parsed.data.name,
-      slug,
-      description: parsed.data.description,
-      price: parsed.data.price.toString(),
-      discountPrice: parsed.data.discountPrice?.toString(),
-      categoryId: parsed.data.categoryId,
-      brandId: parsed.data.brandId,
-      sellerId: user.id,
-      sku: `${slugify(parsed.data.name, { lower: true, strict: true }).slice(0, 3).toUpperCase()}-${id.slice(-6).toUpperCase()}`,
-      stock: parsed.data.stock,
-      weight: parsed.data.weight?.toString(),
-      dimensions: parsed.data.dimensions,
-      tags: parsed.data.tags,
-      specifications: parsed.data.specifications as Record<string, string> | undefined,
-      isFeatured: parsed.data.isFeatured,
-      isFlashSale: parsed.data.isFlashSale,
-      flashSaleEnds: parsed.data.flashSaleEnds ? new Date(parsed.data.flashSaleEnds) : null,
-    });
+    let images: string[] = [];
+    const imagesRaw = formData.get("images");
+    if (imagesRaw) {
+      try {
+        images = JSON.parse(imagesRaw as string);
+      } catch {
+        images = [];
+      }
+    }
+
+    await withRLS(user, (tx) =>
+      productRepository.create({
+        id,
+        name: parsed.data.name,
+        slug,
+        description: parsed.data.description,
+        price: parsed.data.price.toString(),
+        discountPrice: parsed.data.discountPrice?.toString(),
+        categoryId: parsed.data.categoryId,
+        brandId: parsed.data.brandId,
+        sellerId: user.id,
+        sku: `${slugify(parsed.data.name, { lower: true, strict: true }).slice(0, 3).toUpperCase()}-${id.slice(-6).toUpperCase()}`,
+        stock: parsed.data.stock,
+        weight: parsed.data.weight?.toString(),
+        dimensions: parsed.data.dimensions,
+        tags: parsed.data.tags,
+        specifications: parsed.data.specifications as Record<string, string> | undefined,
+        isFeatured: parsed.data.isFeatured,
+        isFlashSale: parsed.data.isFlashSale,
+        flashSaleEnds: parsed.data.isFlashSale && parsed.data.flashSaleEnds ? new Date(parsed.data.flashSaleEnds) : null,
+        isActive,
+        images,
+      }, tx)
+    );
 
     updateTag(CACHE_TAGS.products);
     revalidatePath("/seller/products");
@@ -95,7 +113,7 @@ export async function updateProduct(productId: string, formData: FormData) {
           updates[field] = val.toString();
         } else if (field === "stock") {
           updates[field] = Number(val);
-        } else if (field === "isFeatured" || field === "isFlashSale") {
+        } else if (field === "isActive" || field === "isFeatured" || field === "isFlashSale") {
           updates[field] = val === "true";
         } else if (field === "flashSaleEnds") {
           updates[field] = val ? new Date(val as string) : null;
@@ -103,6 +121,14 @@ export async function updateProduct(productId: string, formData: FormData) {
           updates[field] = val;
         }
       }
+    }
+
+    const isFlashSale = formData.get("isFlashSale");
+    if (isFlashSale !== "true") {
+      updates.isFlashSale = false;
+      updates.flashSaleEnds = null;
+    } else if (!formData.get("flashSaleEnds")) {
+      updates.flashSaleEnds = null;
     }
 
     const tags = formData.get("tags");
@@ -115,10 +141,19 @@ export async function updateProduct(productId: string, formData: FormData) {
       updates.slug = slugify(formData.get("name") as string, { lower: true, strict: true }) + "-" + Date.now().toString(36);
     }
 
-    await productRepository.update(productId, updates);
+    const newPrice = Number(formData.get("price"));
+    const newDiscount = Number(formData.get("discountPrice"));
+    if (formData.get("discountPrice") && newDiscount >= newPrice) {
+      return { error: "Discount price must be lower than price" };
+    }
+
+    await withRLS(user, (tx) => productRepository.update(productId, updates, tx));
 
     updateTag(CACHE_TAGS.products);
     revalidatePath("/seller/products");
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
+    revalidatePath("/");
 
     return { success: true };
   } catch (error) {
@@ -137,10 +172,11 @@ export async function deleteProduct(productId: string) {
       return { error: "Forbidden" };
     }
 
-    await productRepository.delete(productId);
+    await withRLS(user, (tx) => productRepository.delete(productId, tx));
 
     updateTag(CACHE_TAGS.products);
     revalidatePath("/seller/products");
+    revalidatePath("/admin/products");
 
     return { success: true };
   } catch (error) {
@@ -174,9 +210,9 @@ export async function getProductById(id: string) {
 export async function toggleFeatured(productId: string) {
   try {
     const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin");
+    const user = await requireRole("admin");
 
-    const result = await productRepository.toggleFeatured(productId);
+    const result = await withRLS(user, (tx) => productRepository.toggleFeatured(productId, tx));
     if (result === null) return { error: "Product not found" };
 
     updateTag(CACHE_TAGS.products);
@@ -197,7 +233,7 @@ export async function uploadProductImages(productId: string, images: string[]) {
       return { error: "Forbidden" };
     }
 
-    const updatedImages = await productRepository.updateImages(productId, images);
+    const updatedImages = await withRLS(user, (tx) => productRepository.updateImages(productId, images, tx));
     if (!updatedImages) return { error: "Failed to upload images" };
 
     updateTag(CACHE_TAGS.products);
@@ -218,10 +254,12 @@ export async function setProductImages(productId: string, images: string[]) {
       return { error: "Forbidden" };
     }
 
-    await db
-      .update(products)
-      .set({ images, updatedAt: new Date() })
-      .where(eq(products.id, productId));
+    await withRLS(user, (tx) =>
+      tx
+        .update(products)
+        .set({ images, updatedAt: new Date() })
+        .where(eq(products.id, productId))
+    );
 
     updateTag(CACHE_TAGS.products);
     return { success: true, images };
@@ -241,10 +279,12 @@ export async function setProductStatus(productId: string, isActive: boolean) {
       return { error: "Forbidden" };
     }
 
-    await db
-      .update(products)
-      .set({ isActive, updatedAt: new Date() })
-      .where(eq(products.id, productId));
+    await withRLS(user, (tx) =>
+      tx
+        .update(products)
+        .set({ isActive, updatedAt: new Date() })
+        .where(eq(products.id, productId))
+    );
 
     updateTag(CACHE_TAGS.products);
     revalidatePath("/admin/products");

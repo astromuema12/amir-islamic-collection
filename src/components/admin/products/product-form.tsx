@@ -127,6 +127,12 @@ export function ProductForm({ mode, initial, categories, brands }: ProductFormPr
     if (!price || Number(price) <= 0) next.price = "Price must be positive"
     if (!categoryId) next.categoryId = "Select a category"
     if (stock === "" || Number(stock) < 0) next.stock = "Stock cannot be negative"
+    if (discountPrice !== "" && discountPrice !== "0" && Number(discountPrice) <= 0) {
+      next.discountPrice = "Discount price must be positive"
+    }
+    if (discountPrice !== "" && Number(discountPrice) > 0 && Number(price) > 0 && Number(discountPrice) >= Number(price)) {
+      next.discountPrice = "Discount price must be lower than price"
+    }
     setErrors(next)
     return Object.keys(next).length === 0
   }
@@ -153,18 +159,25 @@ export function ProductForm({ mode, initial, categories, brands }: ProductFormPr
       fd.append("isActive", String(isActive))
       fd.append("isFeatured", String(isFeatured))
       fd.append("isFlashSale", String(isFlashSale))
-      if (flashSaleEnds) fd.append("flashSaleEnds", new Date(flashSaleEnds).toISOString())
+      if (flashSaleEnds && isFlashSale) fd.append("flashSaleEnds", new Date(flashSaleEnds).toISOString())
+      if (mode === "create" && images.length > 0) fd.append("images", JSON.stringify(images))
 
       const result =
         mode === "create" ? await createProduct(fd) : await updateProduct(initial!.id, fd)
 
       if ("error" in result) {
-        toast.error(typeof result.error === "string" ? result.error : "Please check the form fields")
+        if (typeof result.error === "object" && result.error !== null) {
+          const first = Object.values(result.error)[0]
+          const msg = Array.isArray(first) ? first[0] : ""
+          toast.error(msg || "Please check the form fields")
+        } else {
+          toast.error(typeof result.error === "string" ? result.error : "Please check the form fields")
+        }
         return
       }
 
       const productId = "productId" in result && typeof result.productId === "string" ? result.productId : initial!.id
-      if (images.length > 0) {
+      if (mode === "edit" && images.length > 0) {
         await setProductImages(productId, images)
       }
 
@@ -242,6 +255,7 @@ export function ProductForm({ mode, initial, categories, brands }: ProductFormPr
                     placeholder="0.00"
                     value={discountPrice}
                     onChange={(e) => setDiscountPrice(e.target.value)}
+                    error={errors.discountPrice}
                   />
                 </div>
               </CardContent>
