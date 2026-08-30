@@ -46,7 +46,7 @@ export function StatsCard({
       <div className="flex items-start justify-between">
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
-          <p className="text-2xl font-bold tracking-tight text-foreground">
+          <p className="text-2xl font-bold tracking-tight text-foreground break-words">
             {value}
           </p>
           {description && (

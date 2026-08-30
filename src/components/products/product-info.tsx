@@ -186,7 +186,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         </Button>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" className="gap-2" onClick={handleCopyLink}>
           {copied ? (
             <>

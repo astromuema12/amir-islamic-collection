@@ -80,7 +80,7 @@ export function FeaturedCategories() {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm sm:text-base text-card-foreground group-hover:text-primary transition-colors">
+                  <h3 className="font-semibold text-sm sm:text-base text-card-foreground group-hover:text-primary transition-colors break-words leading-snug">
                     {category.name}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground">
