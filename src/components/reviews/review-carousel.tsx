@@ -91,12 +91,12 @@ export function ReviewCarousel({ reviews }: ReviewCarouselProps) {
       className="outline-none"
     >
       <div className="mx-auto max-w-3xl">
-        <div className="relative overflow-hidden">
-          <div className="pointer-events-none absolute -top-6 left-2 text-primary/10 lg:-left-8">
-            <Quote className="h-14 w-14 lg:h-20 lg:w-20" aria-hidden="true" />
+        <div className="relative">
+          <div className="pointer-events-none absolute -top-6 left-2 select-none text-primary/10 lg:-left-8" aria-hidden="true">
+            <Quote className="h-14 w-14 lg:h-20 lg:w-20" />
           </div>
 
-          <div className="flex min-h-[340px] items-center justify-center sm:min-h-[360px]">
+          <div className="flex items-center justify-center py-2">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={current}
