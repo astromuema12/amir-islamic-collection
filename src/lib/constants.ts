@@ -3,16 +3,16 @@ export const APP_DESCRIPTION = "Premium Islamic products marketplace - Prayer ma
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const CATEGORIES = [
-  { name: "Prayer Mats", slug: "prayer-mats", icon: "🕌" },
+  { name: "Prayer Mats", slug: "prayer-mats", icon: "/categories/prayer-mats.jpeg" },
   { name: "Holy Qur'an", slug: "holy-quran", icon: "📖" },
-  { name: "Qur'an Stands", slug: "quran-stands", icon: "🪵" },
+  { name: "Qur'an Stands", slug: "quran-stands", icon: "/categories/quran-stands.jpeg" },
   { name: "Tasbih", slug: "tasbih", icon: "📿" },
-  { name: "Abayas", slug: "abayas", icon: "👗" },
-  { name: "Hijabs", slug: "hijabs", icon: "🧕" },
+  { name: "Abayas", slug: "abayas", icon: "/categories/abayas.jpeg" },
+  { name: "Hijabs", slug: "hijabs", icon: "/categories/hijabs.jpeg" },
   { name: "Niqabs", slug: "niqabs", icon: "https://imgproxy.attic.sh/insecure/f:webp/q:80/w:64/plain/https://attic.sh/naf9keh1uqt570fjgx3k7xj2n6wf" },
   { name: "Thobes", slug: "thobes", icon: "👔" },
   { name: "Islamic Books", slug: "islamic-books", icon: "📚" },
-  { name: "Islamic Clothing", slug: "islamic-clothing", icon: "👕" },
+  { name: "Islamic Clothing", slug: "islamic-clothing", icon: "/categories/islamic-clothing.jpeg" },
   { name: "Perfumes", slug: "perfumes", icon: "🧴" },
   { name: "Prayer Caps", slug: "prayer-caps", icon: "🧢" },
   { name: "Kids Collection", slug: "kids-collection", icon: "👶" },

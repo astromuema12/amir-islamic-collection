@@ -44,7 +44,7 @@ export function getCategoryIcon(category: IconSource): CategoryIcon {
       (c.slug && c.slug === category.slug) ||
       (c.name && c.name.toLowerCase() === name)
     ) {
-      return c.icon?.startsWith("http")
+      return c.icon?.startsWith("http") || c.icon?.startsWith("/")
         ? { kind: "image", value: c.icon }
         : { kind: "emoji", value: c.icon || "🕌" }
     }

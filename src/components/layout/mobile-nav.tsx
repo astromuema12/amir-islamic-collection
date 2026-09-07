@@ -225,7 +225,7 @@ export function MobileNav({
                                 : "hover:bg-accent"
                             )}
                           >
-                            {category.icon?.startsWith("http") ? (
+                            {category.icon?.startsWith("http") || category.icon?.startsWith("/") ? (
                               <Image
                                 src={category.icon}
                                 alt={category.name}

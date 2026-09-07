@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -118,7 +119,18 @@ export function CategoryNav({ className }: CategoryNavProps) {
                             href={`/categories/${cat.slug}`}
                             className="text-sm text-muted-foreground hover:text-primary transition-colors"
                           >
-                            {cat.icon} {cat.name}
+                            {cat.icon?.startsWith("http") || cat.icon?.startsWith("/") ? (
+                              <Image
+                                src={cat.icon}
+                                alt={cat.name}
+                                width={18}
+                                height={18}
+                                className="inline h-[18px] w-[18px] object-contain align-[-3px]"
+                              />
+                            ) : (
+                              <span className="mr-1">{cat.icon}</span>
+                            )}{" "}
+                            {cat.name}
                           </Link>
                         </li>
                       ) : null

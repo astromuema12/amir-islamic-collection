@@ -67,7 +67,7 @@ export function FeaturedCategories() {
                 className="group flex flex-col items-center gap-3 rounded-2xl border border-border/50 bg-card p-4 text-center card-hover sm:p-6"
               >
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/5 text-3xl group-hover:bg-primary/10 transition-colors duration-300">
-                  {category.icon?.startsWith("http") ? (
+                  {category.icon?.startsWith("http") || category.icon?.startsWith("/") ? (
                     <Image
                       src={category.icon}
                       alt={category.name}

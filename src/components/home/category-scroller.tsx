@@ -14,7 +14,7 @@ export function CategoryScroller() {
           className="group flex min-w-[84px] max-w-[84px] flex-col items-center gap-1.5 sm:min-w-[96px] sm:max-w-[96px] rounded-xl p-2 transition-all hover:bg-primary/5"
         >
           <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-muted group-hover:bg-primary/10 sm:h-16 sm:w-16 transition-colors">
-            {category.icon?.startsWith("http") ? (
+            {category.icon?.startsWith("http") || category.icon?.startsWith("/") ? (
               <Image
                 src={category.icon}
                 alt={category.name}
