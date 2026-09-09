@@ -6,6 +6,7 @@ import { Providers } from "@/components/layout/providers"
 import { Header } from "@/components/layout/header"
 import { Footer } from "@/components/layout/footer"
 import { BottomNavigation } from "@/components/layout/bottom-navigation"
+import { WhatsAppButton } from "@/components/layout/whatsapp-button"
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration"
 import { InstallAppPrompt } from "@/components/pwa/install-app-prompt"
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants"
@@ -167,6 +168,7 @@ export default async function RootLayout({
           <Footer />
           <BottomNavigation />
           <InstallAppPrompt />
+          <WhatsAppButton />
         </Providers>
         <ServiceWorkerRegistration />
       </body>
