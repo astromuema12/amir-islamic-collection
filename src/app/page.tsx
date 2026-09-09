@@ -70,12 +70,6 @@ export default function Home() {
         <PromoCarousel />
       </div>
 
-      <section className="mt-4 sm:mt-6">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <CategoryScroller />
-        </div>
-      </section>
-
       <main className="pb-20 lg:pb-10">
         <Suspense fallback={<ProductGridLoader />}>
           <RecommendedSection />
@@ -96,6 +90,12 @@ export default function Home() {
         <Suspense fallback={<ProductGridLoader />}>
           <TrendingSection />
         </Suspense>
+
+        <section className="mt-4 sm:mt-6">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <CategoryScroller />
+          </div>
+        </section>
 
         <ReviewPreview />
         <Newsletter />
