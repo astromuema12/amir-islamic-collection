@@ -55,7 +55,7 @@ const PRODUCT_DATA = [
     name: "Classic Black Hijab", slug: "classic-black-hijab", description: "Soft chiffon hijab in classic black. Lightweight and breathable for all-day comfort.", price: "1200", stock: 150, isFeatured: true, tags: ["hijab", "black", "chiffon"], categorySlug: "hijabs-scarves", brandSlug: "amir-collections",
   },
   {
-    name: "Pearl Embroidered Hijab", slug: "pearl-embroidered-hijab", description: "Elegant hijab with delicate pearl embroidery along the edges.", price: "2500", discountPrice: "2000", stock: 45, isFeatured: true, tags: ["hijab", "pearl", "embroidered"], categorySlug: "hijabs-scarves", brandSlug: "noor-threads",
+    name: "Pearl Embroidered Hijab", slug: "pearl-embroidered-hijab", description: "Elegant hijab with delicate pearl embroidery along the edges.", price: "2500", discountPrice: "2000", stock: 45, isFeatured: true, isFlashSale: true, tags: ["hijab", "pearl", "embroidered"], categorySlug: "hijabs-scarves", brandSlug: "noor-threads",
   },
   {
     name: "Floral Satin Scarf", slug: "floral-satin-scarf", description: "Luxurious satin scarf with a subtle floral pattern.", price: "1800", stock: 80, tags: ["scarf", "satin", "floral"], categorySlug: "hijabs-scarves", brandSlug: "noor-threads",
@@ -67,7 +67,7 @@ const PRODUCT_DATA = [
     name: "Black Abaya with Lace Trim", slug: "black-abaya-lace-trim", description: "Flowing black abaya with intricate lace detailing on sleeves and hem.", price: "4500", stock: 30, isFeatured: true, tags: ["abaya", "black", "lace"], categorySlug: "abayas-jilbabs", brandSlug: "amir-collections",
   },
   {
-    name: "Embroidered Green Abaya", slug: "embroidered-green-abaya", description: "Rich emerald green abaya with gold embroidery.", price: "5500", discountPrice: "4800", stock: 20, tags: ["abaya", "green", "embroidered"], categorySlug: "abayas-jilbabs", brandSlug: "noor-threads",
+    name: "Embroidered Green Abaya", slug: "embroidered-green-abaya", description: "Rich emerald green abaya with gold embroidery.", price: "5500", discountPrice: "4800", stock: 20, isFlashSale: true, tags: ["abaya", "green", "embroidered"], categorySlug: "abayas-jilbabs", brandSlug: "noor-threads",
   },
   {
     name: "Open-front Jilbab", slug: "open-front-jilbab", description: "Practical open-front jilbab with zipper closure. Ideal for travel.", price: "3800", stock: 35, tags: ["jilbab", "open-front"], categorySlug: "abayas-jilbabs", brandSlug: "sunnah-wear",
@@ -97,7 +97,7 @@ const PRODUCT_DATA = [
     name: "Boys Thobe - Mini", slug: "boys-thobe-mini", description: "Adorable mini thobe for boys ages 3-8. Same quality as adult versions.", price: "1800", stock: 40, tags: ["kids", "thobe", "boys"], categorySlug: "kids-collection", brandSlug: "sunnah-wear",
   },
   {
-    name: "Modest Maxi Dress", slug: "modest-maxi-dress", description: "Flowing maxi dress with built-in sleeves. Contemporary modest fashion.", price: "3500", discountPrice: "2900", stock: 25, isFeatured: true, tags: ["modest", "dress", "maxi"], categorySlug: "modest-fashion", brandSlug: "noor-threads",
+    name: "Modest Maxi Dress", slug: "modest-maxi-dress", description: "Flowing maxi dress with built-in sleeves. Contemporary modest fashion.", price: "3500", discountPrice: "2900", stock: 25, isFeatured: true, isFlashSale: true, tags: ["modest", "dress", "maxi"], categorySlug: "modest-fashion", brandSlug: "noor-threads",
   },
   {
     name: "Linen Wide-Leg Pants", slug: "linen-wide-leg-pants", description: "Comfortable linen wide-leg trousers. Modest and stylish.", price: "2200", stock: 60, tags: ["modest", "pants", "linen"], categorySlug: "modest-fashion", brandSlug: "deen-style",
