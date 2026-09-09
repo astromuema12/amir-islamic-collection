@@ -82,7 +82,10 @@ export async function proxy(request: NextRequest) {
   }
 
   // --- Rate Limiting: Auth endpoints ---
-  if (authRoutes.includes(pathname) && request.method === "POST") {
+  // Server actions already rate-limit internally and return a proper error object;
+  // a redirect here would break the action's response decoding on the client
+  // (surfacing as a generic "unexpected error" toast).
+  if (authRoutes.includes(pathname) && request.method === "POST" && !request.headers.has("next-action")) {
     const result = await authLimiter.limit(`auth:${ip}`);
     if (!result.success) {
       const loginUrl = new URL("/login", request.url);
