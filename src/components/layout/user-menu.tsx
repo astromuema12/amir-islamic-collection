@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { User as UserType } from "@/types"
+import { isAdminEmail } from "@/lib/constants"
 
 interface UserMenuProps {
   user?: UserType | null
@@ -141,7 +142,7 @@ export function UserMenu({
                   </Link>
                 </DropdownMenuItem>
               )}
-              {(user.role === "admin" || user.role === "super_admin") && (
+              {(user.role === "admin" || user.role === "super_admin") && isAdminEmail(user.email) && (
                 <DropdownMenuItem asChild>
                   <Link href="/admin" className="cursor-pointer">
                     <ShieldCheck className="mr-2 h-4 w-4" />

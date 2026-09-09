@@ -4,6 +4,7 @@ import { users, sessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
+import { isAdminEmail } from "@/lib/constants";
 
 export async function createSession(userId: string) {
   const token = uuidv4();
@@ -100,4 +101,12 @@ export async function requireRole(...roles: string[]) {
   const user = await requireAuth();
   if (!roles.includes(user.role)) throw new Error("Forbidden");
   return user;
+}
+
+export function isAdminUser(
+  user: { role: string; email?: string | null } | null | undefined,
+): boolean {
+  if (!user) return false;
+  if (user.role !== "admin" && user.role !== "super_admin") return false;
+  return isAdminEmail(user.email);
 }

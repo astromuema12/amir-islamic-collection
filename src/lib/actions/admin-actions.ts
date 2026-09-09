@@ -17,12 +17,18 @@ import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-tags";
 
 async function requireAdmin() {
   const { requireRole } = await import("@/lib/auth");
-  return requireRole("admin", "super_admin");
+  const { isAdminEmail } = await import("@/lib/constants");
+  const user = await requireRole("admin", "super_admin");
+  if (!isAdminEmail(user.email)) throw new Error("Forbidden");
+  return user;
 }
 
 async function requireSuperAdmin() {
   const { requireRole } = await import("@/lib/auth");
-  return requireRole("super_admin");
+  const { isAdminEmail } = await import("@/lib/constants");
+  const user = await requireRole("super_admin");
+  if (!isAdminEmail(user.email)) throw new Error("Forbidden");
+  return user;
 }
 
 const fetchDashboardData = unstable_cache(

@@ -51,6 +51,16 @@ export const USER_ROLES = {
   SUPER_ADMIN: "super_admin",
 } as const;
 
+const ADMIN_EMAILS = new Set([
+  "amirislamiccollections@gmail.com",
+  "musauedwin2004@gmail.com",
+]);
+
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.has(email.trim().toLowerCase());
+}
+
 export const SHIPPING_METHODS = [
   { name: "Standard Shipping", price: 1500, days: "5-7 business days" },
   { name: "Express Shipping", price: 3500, days: "2-3 business days" },

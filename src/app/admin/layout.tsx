@@ -1,6 +1,6 @@
 import type { ReactNode } from "react"
 import { redirect } from "next/navigation"
-import { getCurrentUser } from "@/lib/auth"
+import { getCurrentUser, isAdminUser } from "@/lib/auth"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { AdminHeader } from "@/components/admin/admin-header"
 import { SidebarProvider } from "@/components/admin/sidebar-context"
@@ -11,7 +11,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   if (!user) {
     redirect("/login")
   }
-  if (user.role !== "admin" && user.role !== "super_admin") {
+  if (!isAdminUser(user)) {
     redirect("/")
   }
 

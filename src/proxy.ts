@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { sessions, users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { isAdminEmail } from "@/lib/constants";
 import { apiLimiter, authLimiter, checkoutLimiter } from "@/lib/rate-limit";
 import {
   CSRF_COOKIE,
@@ -136,13 +137,18 @@ export async function proxy(request: NextRequest) {
     try {
       if (session) {
         const [user] = await db
-          .select({ role: users.role })
+          .select({ role: users.role, email: users.email })
           .from(users)
           .where(eq(users.id, session.userId))
           .limit(1);
 
-        if (!user || (user.role !== "admin" && user.role !== "super_admin")) {
-          // Authenticated but not an admin — keep them out of the admin panel.
+        const isAdmin =
+          user &&
+          (user.role === "admin" || user.role === "super_admin") &&
+          isAdminEmail(user.email);
+
+        if (!isAdmin) {
+          // Authenticated but not an approved admin — keep them out of the admin panel.
           // Redirect browser navigations home, deny non-browser clients with 403.
           if (request.headers.get("accept")?.includes("text/html")) {
             return NextResponse.redirect(new URL("/", request.url));
