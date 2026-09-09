@@ -1,8 +1,8 @@
 "use client"
 
-import { motion } from "framer-motion"
 import { Phone, ExternalLink, Mail, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Reveal } from "@/components/ui/reveal"
 
 const INSTAGRAM_URL =
   "https://www.instagram.com/invites/contact/?utm_source=ig_contact_invite&utm_medium=copy_link&utm_content=4rx6sc5"
@@ -87,11 +87,9 @@ export function ConnectWithUs() {
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/30 to-transparent" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+        <Reveal
+          y={20}
+          duration={0.6}
           className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm p-8 sm:p-12 lg:p-16 overflow-hidden"
         >
           <IslamicPattern />
@@ -102,52 +100,33 @@ export function ConnectWithUs() {
           <div className="relative z-10">
             {/* Header */}
             <div className="text-center max-w-2xl mx-auto mb-12">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-              >
+              <Reveal y={10} delay={0.1}>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/10 px-4 py-1.5 text-xs font-medium text-[#D4AF37] backdrop-blur-sm mb-4">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
                   Stay Connected
                 </span>
-              </motion.div>
+              </Reveal>
 
-              <motion.h2
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white premium-heading"
-              >
-                Connect With{" "}
-                <span className="text-[#D4AF37]">Amir Islamic Collection</span>
-              </motion.h2>
+              <Reveal y={10} delay={0.2}>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white premium-heading">
+                  Connect With{" "}
+                  <span className="text-[#D4AF37]">Amir Islamic Collection</span>
+                </h2>
+              </Reveal>
 
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 }}
-                className="mt-4 text-white/70 max-w-lg mx-auto leading-relaxed"
-              >
-                Stay connected with us for the latest Islamic clothing, modest
-                fashion, exclusive collections, and special offers. Follow us on
-                social media or contact us directly for orders and inquiries.
-              </motion.p>
+              <Reveal y={10} delay={0.3}>
+                <p className="mt-4 text-white/70 max-w-lg mx-auto leading-relaxed">
+                  Stay connected with us for the latest Islamic clothing, modest
+                  fashion, exclusive collections, and special offers. Follow us on
+                  social media or contact us directly for orders and inquiries.
+                </p>
+              </Reveal>
             </div>
 
             {/* Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {/* Phone Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 }}
-                className="group"
-              >
+              <Reveal y={20} delay={0.3} className="group">
                 <a
                   href={PHONE_HREF}
                   className="block h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-[#D4AF37]/30 hover:bg-white/[0.08] hover:shadow-lg hover:shadow-[#D4AF37]/5 hover:-translate-y-1"
@@ -168,16 +147,10 @@ export function ConnectWithUs() {
                     </span>
                   </div>
                 </a>
-              </motion.div>
+              </Reveal>
 
               {/* WhatsApp Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.35 }}
-                className="group"
-              >
+              <Reveal y={20} delay={0.35} className="group">
                 <a
                   href={WHATSAPP_HREF}
                   target="_blank"
@@ -200,16 +173,10 @@ export function ConnectWithUs() {
                     </span>
                   </div>
                 </a>
-              </motion.div>
+              </Reveal>
 
               {/* Email Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.4 }}
-                className="group"
-              >
+              <Reveal y={20} delay={0.4} className="group">
                 <a
                   href={EMAIL_HREF}
                   className="block h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-[#EA4335]/30 hover:bg-white/[0.08] hover:shadow-lg hover:shadow-[#EA4335]/5 hover:-translate-y-1"
@@ -230,16 +197,14 @@ export function ConnectWithUs() {
                     </span>
                   </div>
                 </a>
-              </motion.div>
+              </Reveal>
 
               {/* Social Media Cards */}
               {socialLinks.map((social, index) => (
-                <motion.div
+                <Reveal
                   key={social.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.4 + index * 0.1 }}
+                  y={20}
+                  delay={0.4 + index * 0.1}
                   className="group"
                 >
                   <a
@@ -269,18 +234,13 @@ export function ConnectWithUs() {
                       </span>
                     </div>
                   </a>
-                </motion.div>
+                </Reveal>
               ))}
+
             </div>
 
             {/* CTA Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.6 }}
-              className="mt-12 text-center"
-            >
+            <Reveal y={10} delay={0.6} className="mt-12 text-center">
               <Button
                 asChild
                 size="lg"
@@ -291,9 +251,9 @@ export function ConnectWithUs() {
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </Button>
-            </motion.div>
+            </Reveal>
           </div>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   )

@@ -137,6 +137,7 @@ export function ProductReviews({ reviews, productId, averageRating, reviewCount 
                           alt={`Review image ${i + 1}`}
                           width={64}
                           height={64}
+                          sizes="64px"
                           className="h-16 w-16 rounded-lg object-cover"
                         />
                       ))}

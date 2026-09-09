@@ -133,6 +133,7 @@ export function CartSidebar({
                           src={item.image}
                           alt={item.name}
                           fill
+                          sizes="80px"
                           className="object-cover"
                         />
                       ) : (

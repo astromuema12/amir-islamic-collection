@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
+import { Reveal } from "@/components/ui/reveal"
 import { StarRating } from "./stars"
 import { testimonials } from "@/lib/data"
 
@@ -14,11 +14,9 @@ export function ReviewPreview() {
   return (
     <section className="py-12 lg:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+        <Reveal
+          y={20}
+          margin="-100px"
           className="mx-auto max-w-3xl overflow-hidden rounded-2xl border bg-card p-6 text-center shadow-sm sm:p-8 lg:p-10"
         >
           <h2 className="premium-heading text-2xl text-foreground sm:text-3xl">
@@ -43,7 +41,7 @@ export function ReviewPreview() {
             Read Customer Reviews
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   )

@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "framer-motion"
 import {
   Calendar,
   Clock,
@@ -13,8 +12,8 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Reveal } from "@/components/ui/reveal"
 import { formatDate } from "@/lib/utils"
-import type { BlogPost } from "@/lib/data"
 import { blogPosts } from "@/lib/data"
 
 export function BlogPreview() {
@@ -23,11 +22,9 @@ export function BlogPreview() {
   return (
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+        <Reveal
+          y={20}
+          margin="-100px"
           className="flex items-end justify-between mb-10"
         >
           <div className="flex items-center gap-3">
@@ -50,16 +47,15 @@ export function BlogPreview() {
             View All Posts
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
-        </motion.div>
+        </Reveal>
 
         <div className="grid md:grid-cols-3 gap-6">
           {blogPosts.map((post, index) => (
-            <motion.div
+            <Reveal
               key={post.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
+              y={30}
+              delay={index * 0.1}
+              margin="-50px"
             >
               <Link href={`/blog/${post.slug}`} className="group block h-full">
                 <div className="h-full rounded-2xl border border-border/50 bg-card overflow-hidden card-hover flex flex-col">
@@ -116,24 +112,18 @@ export function BlogPreview() {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </Reveal>
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-8 text-center md:hidden"
-        >
+        <Reveal y={10} delay={0.3} className="mt-8 text-center md:hidden">
           <Link href="/blog">
             <Button variant="outline" className="gap-2 rounded-xl">
               View All Posts
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   )

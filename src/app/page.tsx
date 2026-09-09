@@ -1,15 +1,35 @@
 import { Suspense } from "react"
+import dynamic from "next/dynamic"
 import { PromoCarousel } from "@/components/home/promo-carousel"
 import { CategoryScroller } from "@/components/home/category-scroller"
 import { ProductSection } from "@/components/home/product-section"
-import { FlashSales } from "@/components/home/flash-sales"
-import { ReviewPreview } from "@/components/reviews/review-preview"
-import { Newsletter } from "@/components/home/newsletter"
-import { ConnectWithUs } from "@/components/home/connect-with-us"
-import { BlogPreview } from "@/components/home/blog-preview"
-import { FAQPreview } from "@/components/home/faq-preview"
 import { getProducts } from "@/lib/queries"
 import { Skeleton } from "@/components/ui/skeleton"
+
+const FlashSales = dynamic(() =>
+  import("@/components/home/flash-sales").then((m) => m.FlashSales),
+  { loading: () => null }
+)
+const ReviewPreview = dynamic(() =>
+  import("@/components/reviews/review-preview").then((m) => m.ReviewPreview),
+  { loading: () => null }
+)
+const Newsletter = dynamic(() =>
+  import("@/components/home/newsletter").then((m) => m.Newsletter),
+  { loading: () => null }
+)
+const ConnectWithUs = dynamic(() =>
+  import("@/components/home/connect-with-us").then((m) => m.ConnectWithUs),
+  { loading: () => null }
+)
+const BlogPreview = dynamic(() =>
+  import("@/components/home/blog-preview").then((m) => m.BlogPreview),
+  { loading: () => null }
+)
+const FAQPreview = dynamic(() =>
+  import("@/components/home/faq-preview").then((m) => m.FAQPreview),
+  { loading: () => null }
+)
 
 function ProductGridLoader() {
   return (

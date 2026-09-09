@@ -125,6 +125,7 @@ export function CategoryNav({ className }: CategoryNavProps) {
                                 alt={cat.name}
                                 width={18}
                                 height={18}
+                                sizes="18px"
                                 className="inline h-[18px] w-[18px] object-contain align-[-3px]"
                               />
                             ) : (

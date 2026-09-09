@@ -21,6 +21,7 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 })
 
 const siteUrl = APP_URL

@@ -73,6 +73,7 @@ export function FeaturedCategories() {
                       alt={category.name}
                       width={28}
                       height={28}
+                      sizes="28px"
                       className="h-7 w-7 object-contain"
                     />
                   ) : (

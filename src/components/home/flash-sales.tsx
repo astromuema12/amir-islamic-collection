@@ -3,11 +3,11 @@
 import type { Product } from "@/types"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { Flame, Clock, ShoppingBag, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Reveal } from "@/components/ui/reveal"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
 
 interface TimeLeft {
@@ -85,11 +85,9 @@ export function FlashSales({ products }: { products: Product[] }) {
   return (
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
+        <Reveal
+          y={20}
+          margin="-100px"
           className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10"
         >
           <div className="flex items-center gap-3">
@@ -115,7 +113,7 @@ export function FlashSales({ products }: { products: Product[] }) {
             </div>
             <CountdownTimer />
           </div>
-        </motion.div>
+        </Reveal>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {flashDeals.map((product, index) => {
@@ -124,12 +122,11 @@ export function FlashSales({ products }: { products: Product[] }) {
               : 0
 
             return (
-              <motion.div
+              <Reveal
                 key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                y={30}
+                delay={index * 0.1}
+                margin="-50px"
               >
                 <Link href={`/products/${product.slug}`} className="group block">
                   <div className="relative rounded-2xl border border-border/50 bg-card overflow-hidden card-hover">
@@ -188,7 +185,7 @@ export function FlashSales({ products }: { products: Product[] }) {
                     </div>
                   </div>
                 </Link>
-              </motion.div>
+              </Reveal>
             )
           })}
         </div>

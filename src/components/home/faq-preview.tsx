@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
 import {
   ChevronDown,
   HelpCircle,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Reveal } from "@/components/ui/reveal"
 
 interface FAQItem {
   question: string
@@ -56,11 +56,9 @@ export function FAQPreview() {
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background to-primary/5">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
+          <Reveal
+            x={-20}
+            margin="-100px"
           >
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary mb-4">
               <HelpCircle className="h-3.5 w-3.5" />
@@ -97,13 +95,11 @@ export function FAQPreview() {
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </Reveal>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
+          <Reveal
+            x={20}
+            margin="-100px"
             className="space-y-2"
           >
             {faqs.map((faq, index) => (
@@ -125,24 +121,21 @@ export function FAQPreview() {
                     )}
                   />
                 </button>
-                <AnimatePresence>
-                  {openIndex === index && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
+                <div
+                  className={cn(
+                    "grid transition-[grid-template-rows] duration-200 ease-in-out",
+                    openIndex === index ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                   )}
-                </AnimatePresence>
+                >
+                  <div className="overflow-hidden">
+                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-3">
+                      {faq.answer}
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
-          </motion.div>
+          </Reveal>
         </div>
       </div>
     </section>
