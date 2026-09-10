@@ -15,7 +15,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { CartItem } from "@/components/cart/cart-item"
 import { CouponInput } from "@/components/cart/coupon-input"
 import { OrderSummary } from "@/components/cart/order-summary"
@@ -62,7 +61,6 @@ export default function CartPage() {
 
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 1500
   const tax = subtotal * TAX_RATE
-  const total = Math.max(0, subtotal + shipping + tax - discount)
 
   function toggleSelectAll() {
     if (selectedItems.size === items.length) {

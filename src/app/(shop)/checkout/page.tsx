@@ -19,7 +19,6 @@ import {
   Truck,
   Package,
   ArrowLeft,
-  Loader2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -27,18 +26,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { z } from "zod"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { OrderSummary } from "@/components/cart/order-summary"
 import { formatPrice } from "@/lib/utils"
-import { addressSchema, type AddressInput } from "@/lib/validations"
+import { addressSchema } from "@/lib/validations"
 import { useCartStore } from "@/store/cart-store"
 import { FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants"
 import { createOrder, createCheckoutAddress } from "@/lib/actions/order-actions"
@@ -56,7 +47,7 @@ const steps = [
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, coupon, removeCoupon, clearCart } = useCartStore()
+  const { items, coupon, clearCart } = useCartStore()
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("shipping")
   const [sameAsBilling, setSameAsBilling] = useState(true)
   const [isGuest, setIsGuest] = useState(false)
@@ -89,8 +80,8 @@ export default function CheckoutPage() {
 
   const {
     register,
-    handleSubmit,
     getValues,
+    trigger,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(addressSchema) as Resolver<z.input<typeof addressSchema>>,
@@ -99,9 +90,14 @@ export default function CheckoutPage() {
     },
   })
 
-  function handleNext() {
-    if (currentStep === "shipping") setCurrentStep("payment")
-    else if (currentStep === "payment") setCurrentStep("review")
+  async function handleNext() {
+    if (currentStep === "shipping") {
+      const valid = await trigger(["fullName", "phone", "street", "city", "state", "country"])
+      if (!valid) return
+      setCurrentStep("payment")
+    } else if (currentStep === "payment") {
+      setCurrentStep("review")
+    }
   }
 
   function handleBack() {
@@ -584,9 +580,10 @@ export default function CheckoutPage() {
                           </button>
                         </div>
                         <div className="rounded-lg bg-muted/30 p-3 text-sm text-muted-foreground">
-                          <p className="font-medium text-foreground">Full Name</p>
-                          <p>Street Address, City, State, ZIP</p>
-                          <p>Phone: +254 800 000 0000</p>
+                          <p className="font-medium text-foreground">{getValues("fullName") || "Full Name"}</p>
+                          <p>{[getValues("street"), getValues("city"), getValues("state"), getValues("zipCode")].filter(Boolean).join(", ") || "Street Address, City, State, ZIP"}</p>
+                          <p>Phone: {getValues("phone") || "Not provided"}</p>
+                          {getValues("country") && <p>{getValues("country")}</p>}
                         </div>
                       </div>
 

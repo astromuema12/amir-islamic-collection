@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import type { Metadata } from "next"
 import { ChevronDown, Search, HelpCircle, Package, CreditCard, Truck, RefreshCw, User, Shield, MessageCircle } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Input } from "@/components/ui/input"

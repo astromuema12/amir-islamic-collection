@@ -21,8 +21,7 @@ import {
   Eye,
   Package,
 } from "lucide-react"
-import { formatPrice, formatDate } from "@/lib/utils"
-import { cn } from "@/lib/utils"
+import { formatPrice, formatDate, cn } from "@/lib/utils"
 
 type OrderStatus = "all" | "pending" | "processing" | "shipped" | "delivered" | "cancelled"
 
@@ -114,7 +113,7 @@ export default function OrdersPage() {
         transition={{ duration: 0.3 }}
       >
         <Card>
-          <CardContent className="p-0">
+          <CardContent className="p-0 overflow-x-auto">
             {filtered.length > 0 ? (
               <Table>
                 <TableHeader>

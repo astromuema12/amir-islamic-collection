@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import {
   Plus,
   Search,
@@ -43,7 +42,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
 import { cn, formatPrice } from "@/lib/utils"
 
 interface Product {

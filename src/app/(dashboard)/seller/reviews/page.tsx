@@ -6,8 +6,6 @@ import {
   ThumbsUp,
   MessageSquare,
   Flag,
-  ChevronDown,
-  ChevronUp,
   User,
   Calendar,
 } from "lucide-react"
@@ -15,15 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Separator } from "@/components/ui/separator"
 import { cn, formatDate } from "@/lib/utils"
 import toast from "react-hot-toast"
 
@@ -162,6 +151,19 @@ export default function SellerReviewsPage() {
         </Card>
       </div>
 
+      {reviews.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <Star className="h-8 w-8 text-muted-foreground/60" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">No reviews yet</h3>
+            <p className="mt-1 text-sm text-muted-foreground max-w-sm">
+              Customer reviews will appear here once your products start receiving feedback.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
       <div className="space-y-4">
         {reviews.map((review) => (
           <Card key={review.id}>
@@ -264,6 +266,7 @@ export default function SellerReviewsPage() {
           </Card>
         ))}
       </div>
+      )}
     </div>
   )
 }

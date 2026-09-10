@@ -5,10 +5,8 @@ import Link from "next/link"
 import { X, Plus, ShoppingCart, Heart, ArrowLeft, BarChart3, Star, Check, Minus } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
 
 interface CompareProduct {
   id: string
@@ -24,14 +22,71 @@ interface CompareProduct {
   specs: Record<string, string>
 }
 
-const sampleProducts: CompareProduct[] = []
-
-const allSpecKeys = Array.from(
-  new Set(sampleProducts.flatMap((p) => Object.keys(p.specs)))
-)
+const defaultProducts: CompareProduct[] = [
+  {
+    id: "1",
+    name: "Premium Prayer Mat - Emerald Green",
+    slug: "premium-prayer-mat-emerald",
+    price: 4500,
+    discountPrice: 3500,
+    rating: 4.8,
+    reviewCount: 124,
+    image: "",
+    brand: "Amir Islamic",
+    sku: "PM-001",
+    specs: {
+      Material: "100% Cotton",
+      Size: "70cm x 110cm",
+      Thickness: "1.5cm",
+      Washable: "Yes",
+      "Travel Friendly": "No",
+    },
+  },
+  {
+    id: "2",
+    name: "Travel Prayer Mat - Compact Fold",
+    slug: "travel-prayer-mat-compact",
+    price: 2500,
+    rating: 4.5,
+    reviewCount: 89,
+    image: "",
+    brand: "Amir Islamic",
+    sku: "PM-002",
+    specs: {
+      Material: "Polyester Blend",
+      Size: "65cm x 100cm",
+      Thickness: "0.5cm",
+      Washable: "Yes",
+      "Travel Friendly": "Yes",
+    },
+  },
+  {
+    id: "3",
+    name: "Luxury Velvet Prayer Mat - Royal Blue",
+    slug: "luxury-velvet-prayer-mat-royal",
+    price: 6500,
+    discountPrice: 5200,
+    rating: 4.9,
+    reviewCount: 67,
+    image: "",
+    brand: "Amir Islamic",
+    sku: "PM-003",
+    specs: {
+      Material: "Premium Velvet",
+      Size: "75cm x 120cm",
+      Thickness: "2cm",
+      Washable: "Hand Wash",
+      "Travel Friendly": "No",
+    },
+  },
+]
 
 export default function ComparePage() {
-  const [products, setProducts] = useState<CompareProduct[]>(sampleProducts)
+  const [products, setProducts] = useState<CompareProduct[]>(defaultProducts)
+
+  const allSpecKeys = Array.from(
+    new Set(products.flatMap((p) => Object.keys(p.specs)))
+  )
 
   const removeProduct = (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id))

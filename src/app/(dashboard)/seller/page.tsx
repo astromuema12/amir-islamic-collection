@@ -27,11 +27,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -43,7 +40,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn, formatPrice, formatDate } from "@/lib/utils"
-import { APP_NAME } from "@/lib/constants"
 
 const revenueData: { date: string; revenue: number; orders: number }[] = []
 
@@ -332,7 +328,7 @@ export default function SellerOverviewPage() {
             <ArrowUpRight className="h-3 w-3" />
           </Link>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           {recentOrders.length > 0 && (
             <Table>
               <TableHeader>

@@ -1,6 +1,6 @@
 "use client"
 
-import { MessageSquare, Inbox } from "lucide-react"
+import { Inbox } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 
 export default function SellerMessagesPage() {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Heart,
@@ -21,6 +22,7 @@ import toast from "react-hot-toast"
 
 interface WishlistItem {
   productId: string
+  slug: string
   name: string
   image: string
   price: number
@@ -64,6 +66,7 @@ export default function WishlistPage() {
           for (const p of data.products || []) {
             productMap[p.id] = {
               productId: p.id,
+              slug: p.slug || p.id,
               name: p.name,
               image: p.images?.[0] || "",
               price: Number(p.price),
@@ -131,11 +134,11 @@ export default function WishlistPage() {
     )
   }
 
-  async function handleShare(productId: string) {
-    const url = `${window.location.origin}/products/${productId}`
+  async function handleShare(item: WishlistItem) {
+    const url = `${window.location.origin}/products/${item.slug}`
     try {
       await navigator.clipboard.writeText(url)
-      setCopied(productId)
+      setCopied(item.productId)
       toast.success("Link copied to clipboard")
       timersRef.current.push(
         window.setTimeout(() => setCopied(null), 2000),
@@ -233,7 +236,7 @@ export default function WishlistPage() {
                     <Trash2 className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => handleShare(item.productId)}
+                    onClick={() => handleShare(item)}
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all shadow-sm"
                     aria-label="Copy product link"
                   >
@@ -245,13 +248,15 @@ export default function WishlistPage() {
                   </button>
                 </div>
 
-                <Link href={`/products/${item.productId}`}>
+                <Link href={`/products/${item.slug}`}>
                   <div className="relative aspect-square bg-gradient-to-br from-muted to-muted/50">
                     {item.image ? (
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
-                        className="h-full w-full object-cover"
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
@@ -283,7 +288,7 @@ export default function WishlistPage() {
 
                 <div className="p-4 space-y-3">
                   <div>
-                    <Link href={`/products/${item.productId}`}>
+                    <Link href={`/products/${item.slug}`}>
                       <h3 className="text-sm font-medium leading-snug line-clamp-2 hover:text-primary transition-colors">
                         {item.name}
                       </h3>

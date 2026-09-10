@@ -1,7 +1,5 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { Button } from "@/components/ui/button"
@@ -27,11 +25,8 @@ import {
   Heart,
   MapPin,
   ArrowRight,
-  Clock,
   User,
-  CreditCard,
   ShieldCheck,
-  Gift,
 } from "lucide-react"
 import { formatPrice, formatDate } from "@/lib/utils"
 
@@ -152,7 +147,7 @@ export default function DashboardPage() {
               </Button>
             </Link>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>

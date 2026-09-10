@@ -90,6 +90,7 @@ const statusVariant: Record<string, "success" | "warning" | "default" | "danger"
 export default function OrderDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const orderId = typeof params.id === "string" ? params.id : Array.isArray(params.id) ? params.id[0] ?? "" : ""
   const [cancelOpen, setCancelOpen] = useState(false)
   const [cancelling, setCancelling] = useState(false)
 
@@ -123,7 +124,7 @@ export default function OrderDetailPage() {
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <h2 className="font-serif text-2xl font-bold text-foreground">
-              Order {params.id}
+              Order {orderId}
             </h2>
             <Badge variant={statusVariant[order.status]}>
               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -149,7 +150,7 @@ export default function OrderDetailPage() {
                   Items Ordered
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>

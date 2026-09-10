@@ -3,7 +3,6 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Toaster } from "react-hot-toast"
 import { SellerSidebar } from "@/components/dashboard/seller-sidebar"
 import { csrfFetch } from "@/lib/csrf-client"
 import { APP_NAME } from "@/lib/constants"
@@ -67,18 +66,6 @@ export default function SellerDashboardLayout({
           </motion.div>
         </main>
       </div>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: "var(--color-background)",
-            color: "var(--color-foreground)",
-            border: "1px solid var(--color-border)",
-            borderRadius: "var(--radius)",
-          },
-        }}
-      />
     </div>
   )
 }

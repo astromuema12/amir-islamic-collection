@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import Link from "next/link"
 import {
   DollarSign,
   TrendingUp,
@@ -9,20 +8,15 @@ import {
   Wallet,
   ArrowUpRight,
   Download,
-  Calendar,
 } from "lucide-react"
 import {
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -248,7 +242,7 @@ export default function SellerRevenuePage() {
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>

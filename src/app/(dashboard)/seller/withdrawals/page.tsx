@@ -8,14 +8,12 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  AlertCircle,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import {
   Table,
   TableBody,
@@ -34,7 +32,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
-import { cn, formatPrice, formatDate } from "@/lib/utils"
+import { formatPrice, formatDate } from "@/lib/utils"
 import toast from "react-hot-toast"
 
 interface Withdrawal {
@@ -226,54 +224,68 @@ export default function SellerWithdrawalsPage() {
           <CardTitle className="text-lg">Withdrawal History</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Bank Details</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Requested</TableHead>
-                <TableHead>Updated</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {withdrawals.map((w) => {
-                const config = statusConfig[w.status]
-                const StatusIcon = config.icon
-                return (
-                  <TableRow key={w.id}>
-                    <TableCell className="font-medium text-xs">
-                      {w.id}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {formatPrice(w.amount)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <p className="font-medium">{w.accountName}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {w.bankName} • {w.accountNumber}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Bank Details</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Requested</TableHead>
+                  <TableHead>Updated</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {withdrawals.map((w) => {
+                  const config = statusConfig[w.status]
+                  const StatusIcon = config.icon
+                  return (
+                    <TableRow key={w.id}>
+                      <TableCell className="font-medium text-xs">
+                        {w.id}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {formatPrice(w.amount)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p className="font-medium">{w.accountName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {w.bankName} • {w.accountNumber}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={config.badge}>
+                          <StatusIcon className="mr-1 h-3 w-3" />
+                          {config.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(w.createdAt)}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(w.updatedAt)}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+                {withdrawals.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-32 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <Banknote className="h-8 w-8 text-muted-foreground/50" />
+                        <p className="text-sm text-muted-foreground">
+                          No withdrawals yet. Request your first payout.
                         </p>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={config.badge}>
-                        <StatusIcon className="mr-1 h-3 w-3" />
-                        {config.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(w.createdAt)}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(w.updatedAt)}
-                    </TableCell>
                   </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>

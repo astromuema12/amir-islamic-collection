@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, Fragment } from "react"
 import {
   Search,
   Filter,
@@ -12,7 +12,7 @@ import {
   Mail,
   Clock,
 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { cn, formatPrice, formatDate, formatDateTime } from "@/lib/utils"
+import { formatPrice, formatDate } from "@/lib/utils"
 import toast from "react-hot-toast"
 
 interface OrderItem {
@@ -156,7 +156,7 @@ export default function SellerOrdersPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="rounded-lg border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -172,9 +172,8 @@ export default function SellerOrdersPage() {
               </TableHeader>
               <TableBody>
                 {paginated.map((order) => (
-                  <>
+                  <Fragment key={order.id}>
                     <TableRow
-                      key={order.id}
                       className="cursor-pointer"
                       onClick={() =>
                         setExpandedId(
@@ -349,7 +348,7 @@ export default function SellerOrdersPage() {
                         </TableCell>
                       </TableRow>
                     )}
-                  </>
+                  </Fragment>
                 ))}
                 {paginated.length === 0 && (
                   <TableRow>
