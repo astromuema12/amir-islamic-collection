@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { getCategoryTree, manageCategory, deleteCategory, toggleCategoryActive } from "@/lib/actions/admin-actions"
+import { CATEGORIES } from "@/lib/constants"
 import {
   Plus, Pencil, Trash2, ChevronRight, ChevronDown,
-  ImagePlus, FolderTree, GripVertical
+  FolderTree, GripVertical
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,7 +23,6 @@ import {
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle
 } from "@/components/ui/dialog"
-import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import toast from "react-hot-toast"
 
@@ -39,6 +40,22 @@ interface Category {
 
 const initialCategories: Category[] = []
 
+function resolveCategoryVisual(category: Category) {
+  if (category.image) return { kind: "image" as const, value: category.image }
+
+  const name = category.name.toLowerCase()
+  const match = CATEGORIES.find(
+    (c) =>
+      (c.slug && c.slug === category.slug) ||
+      (c.name && c.name.toLowerCase() === name)
+  )
+  if (!match?.icon) return null
+
+  return match.icon.startsWith("http") || match.icon.startsWith("/")
+    ? { kind: "image" as const, value: match.icon }
+    : { kind: "emoji" as const, value: match.icon }
+}
+
 function CategoryRow({
   category, level, onEdit, onDelete, onToggle
 }: {
@@ -49,6 +66,8 @@ function CategoryRow({
   onToggle: (id: string) => void
 }) {
   const [expanded, setExpanded] = useState(true)
+  const visual = resolveCategoryVisual(category)
+  const categoryHref = `/categories/${category.slug}`
 
   return (
     <>
@@ -71,15 +90,29 @@ function CategoryRow({
         </button>
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/50 cursor-grab" />
         <div className="min-w-0 flex-1 flex items-center gap-3">
-          {category.image ? (
-            <img src={category.image} alt="" className="h-8 w-8 shrink-0 rounded-lg object-cover" />
-          ) : (
-            <FolderTree className="h-5 w-5 shrink-0 text-primary" />
-          )}
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{category.name}</p>
+          <Link
+            href={categoryHref}
+            title={`View ${category.name} products`}
+            className="shrink-0 rounded-lg transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {visual?.kind === "image" ? (
+              <img src={visual.value} alt="" className="h-8 w-8 rounded-lg object-cover" />
+            ) : visual?.kind === "emoji" ? (
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5 text-lg">
+                {visual.value}
+              </span>
+            ) : (
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/5">
+                <FolderTree className="h-5 w-5 text-primary" />
+              </span>
+            )}
+          </Link>
+          <Link href={categoryHref} className="min-w-0 group/name">
+            <p className="truncate text-sm font-medium transition-colors group-hover/name:text-primary">
+              {category.name}
+            </p>
             <p className="truncate text-xs text-muted-foreground">/{category.slug}</p>
-          </div>
+          </Link>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Badge variant="secondary">
