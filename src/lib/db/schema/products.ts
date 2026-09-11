@@ -41,7 +41,7 @@ export const products = pgTable("products", {
   index("products_is_flash_sale_idx").on(table.isFlashSale),
 ]);
 
-export const productsRelations = relations(products, ({ one, many }) => ({
+export const productsRelations = relations(products, ({ one }) => ({
   category: one(categories, {
     fields: [products.categoryId],
     references: [categories.id],

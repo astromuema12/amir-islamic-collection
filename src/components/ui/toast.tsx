@@ -145,13 +145,6 @@ function showToast({
     warning: "bg-warning/10 text-warning-foreground border-warning/30 dark:bg-warning/15",
   }
 
-  const iconMap: Record<string, string> = {
-    default: "#64748b",
-    success: "#22c55e",
-    danger: "#ef4444",
-    warning: "#f59e0b",
-  }
-
   return toast.custom(
     (t) => (
       <div

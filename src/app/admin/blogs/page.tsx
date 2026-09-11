@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
-  Plus, Pencil, Trash2, Search, Eye, EyeOff,
-  Calendar, FileText, User
+  Plus, Pencil, Trash2, Search, Eye, EyeOff
 } from "lucide-react"
 import { getBlogs, manageBlog, deleteBlog, toggleBlogPublished } from "@/lib/actions/admin-actions"
 import { DataTable, type Column } from "@/components/admin/data-table"
@@ -16,7 +15,6 @@ import { Switch } from "@/components/ui/switch"
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle
 } from "@/components/ui/dialog"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { formatDateTime } from "@/lib/utils"
 import toast from "react-hot-toast"
 

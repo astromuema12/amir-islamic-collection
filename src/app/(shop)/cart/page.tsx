@@ -22,7 +22,7 @@ import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/store/cart-store"
 import { useWishlistStore } from "@/store/wishlist-store"
 import { useUIStore } from "@/store/ui-store"
-import { FREE_SHIPPING_THRESHOLD, TAX_RATE } from "@/lib/constants"
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants"
 import toast from "react-hot-toast"
 
 export default function CartPage() {
@@ -60,7 +60,6 @@ export default function CartPage() {
   }, [coupon, subtotal])
 
   const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 1500
-  const tax = subtotal * TAX_RATE
 
   function toggleSelectAll() {
     if (selectedItems.size === items.length) {

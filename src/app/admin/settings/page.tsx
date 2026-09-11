@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Save, Key, Image, Mail, Truck, Palette } from "lucide-react"
+import { Save, Key, Image as ImageIcon, Mail, Truck, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -229,7 +229,7 @@ export default function AdminSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <Image className="h-5 w-5 text-primary" />
+                <ImageIcon className="h-5 w-5 text-primary" />
                 <p className="text-sm text-muted-foreground">Cloudinary is configured via environment variables (NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET)</p>
               </div>
             </CardContent>

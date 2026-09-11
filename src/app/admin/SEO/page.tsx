@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
-  Search, Globe, Image, RefreshCw, Save, Code,
+  Search, Globe, Image as ImageIcon, RefreshCw, Save, Code,
   FileCode, ExternalLink
 } from "lucide-react"
 import { getSettings, updateSettings } from "@/lib/actions/admin-actions"
@@ -14,7 +14,6 @@ import { Switch } from "@/components/ui/switch"
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription
 } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import toast from "react-hot-toast"
 
@@ -104,7 +103,7 @@ export default function AdminSEOPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
-            <Image className="h-5 w-5 text-primary" />
+            <ImageIcon className="h-5 w-5 text-primary" />
             <div>
               <CardTitle>Open Graph</CardTitle>
               <CardDescription>Social media sharing preview</CardDescription>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -67,7 +67,6 @@ const categories = [
 
 export default function EditProductPage() {
   const router = useRouter()
-  const params = useParams()
   const [tags, setTags] = useState<string[]>(["prayer", "velvet", "islamic"])
   const [tagInput, setTagInput] = useState("")
   const [specs, setSpecs] = useState<{ key: string; value: string }[]>([
@@ -159,7 +158,7 @@ export default function EditProductPage() {
     setSpecs(specs.filter((_, i) => i !== index))
   }
 
-  const onSubmit = async (data: ProductFormValues) => {
+  const onSubmit = async () => {
     setSubmitting(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500))

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, Fragment } from "react"
+import { useState, useMemo, useEffect, Fragment } from "react"
 import {
   Search,
   Filter,
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { formatPrice, formatDate } from "@/lib/utils"
+import { getSellerOrders, updateSellerOrderStatus } from "@/lib/actions/seller-actions"
 import toast from "react-hot-toast"
 
 interface OrderItem {
@@ -60,8 +61,6 @@ interface Order {
   notes?: string
 }
 
-const mockOrders: Order[] = []
-
 const statusColor: Record<string, "warning" | "default" | "secondary" | "success" | "danger"> = {
   pending: "warning",
   confirmed: "default",
@@ -85,10 +84,29 @@ export default function SellerOrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [page, setPage] = useState(1)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
   const perPage = 8
 
+  useEffect(() => {
+    let cancelled = false
+    getSellerOrders()
+      .then((data) => {
+        if (cancelled) return
+        setOrders(data as Order[])
+        setLoading(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   const filtered = useMemo(() => {
-    let result = [...mockOrders]
+    let result = [...orders]
 
     if (search) {
       const q = search.toLowerCase()
@@ -103,12 +121,20 @@ export default function SellerOrdersPage() {
     }
 
     return result.sort((a, b) => b.date.getTime() - a.date.getTime())
-  }, [search, statusFilter])
+  }, [orders, search, statusFilter])
 
   const totalPages = Math.ceil(filtered.length / perPage)
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
-  const updateStatus = (orderId: string, newStatus: string) => {
+  const updateStatus = async (orderId: string, newStatus: string) => {
+    const result = await updateSellerOrderStatus(orderId, newStatus)
+    if (result?.error) {
+      toast.error(result.error)
+      return
+    }
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
+    )
     toast.success(`Order ${orderId} updated to ${newStatus}`)
   }
 
@@ -354,7 +380,7 @@ export default function SellerOrdersPage() {
                   <TableRow>
                     <TableCell colSpan={8} className="h-32 text-center">
                       <p className="text-sm text-muted-foreground">
-                        No orders found
+                        {loading ? "Loading orders..." : "No orders found"}
                       </p>
                     </TableCell>
                   </TableRow>

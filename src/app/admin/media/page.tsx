@@ -11,7 +11,6 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { formatDate } from "@/lib/utils"
 import { csrfFetch } from "@/lib/csrf-client"
 import toast from "react-hot-toast"

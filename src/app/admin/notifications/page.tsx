@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Send, Bell, Mail, MessageSquare, History } from "lucide-react"
+import { Send, Bell, History } from "lucide-react"
 import { getUsers, getNotifications, sendBulkNotification } from "@/lib/actions/admin-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,6 @@ import {
   Card, CardContent, CardHeader, CardTitle, CardDescription
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { formatDateTime } from "@/lib/utils"
 import toast from "react-hot-toast"

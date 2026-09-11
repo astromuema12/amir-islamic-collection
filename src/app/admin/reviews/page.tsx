@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import { getReviews } from "@/lib/actions/admin-actions"
 import { setReviewStatus, deleteReview } from "@/lib/actions/review-actions"
 import {
-  Star, ThumbsUp, ThumbsDown, Trash2, Search, MessageSquare
+  Star, ThumbsUp, ThumbsDown, Trash2, Search
 } from "lucide-react"
 import { DataTable, type Column } from "@/components/admin/data-table"
 import { Button } from "@/components/ui/button"
@@ -17,7 +17,7 @@ import {
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle
 } from "@/components/ui/dialog"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { formatDateTime } from "@/lib/utils"
 import toast from "react-hot-toast"
 

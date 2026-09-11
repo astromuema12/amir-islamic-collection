@@ -1,10 +1,10 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { RefreshCw, CreditCard, AlertTriangle, CheckCircle2, XCircle, FileText, Clock } from "lucide-react"
+import { RefreshCw, CreditCard, AlertTriangle, CheckCircle2, XCircle, Clock } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import { APP_NAME, APP_URL } from "@/lib/constants"
+import { APP_URL } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Refund Policy - Amir Islamic Collections",

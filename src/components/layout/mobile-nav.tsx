@@ -14,10 +14,8 @@ import {
   Heart,
   User,
   Package,
-  ChevronRight,
   LogIn,
   UserPlus,
-  Store,
   Phone,
   Info,
   HelpCircle,
@@ -43,10 +41,7 @@ interface MobileNavProps {
 
 export function MobileNav({
   user,
-  cartItemCount = 0,
   wishlistItemCount = 0,
-  onLogin,
-  onRegister,
 }: MobileNavProps) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
@@ -70,18 +65,6 @@ export function MobileNav({
     { href: "/account", label: "My Account", icon: User },
     { href: "/orders", label: "Orders", icon: Package },
   ]
-
-  const accountLinks = user
-    ? [
-        { href: "/account", label: "My Account", icon: User },
-        { href: "/orders", label: "Orders", icon: Package },
-        { href: "/wishlist", label: "Wishlist", icon: Heart, count: wishlistItemCount },
-        { href: "/settings", label: "Settings", icon: User },
-      ]
-    : [
-        { href: "/login", label: "Login", icon: LogIn },
-        { href: "/register", label: "Register", icon: UserPlus },
-      ]
 
   const customerLinks = [
     { href: "/about", label: "About Us", icon: Info },

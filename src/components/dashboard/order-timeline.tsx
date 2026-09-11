@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Check, Package, Truck, X, Clock, Ban } from "lucide-react"
+import { Check, Package, Truck, Clock, Ban } from "lucide-react"
 
 const statusSteps = [
   { key: "pending", label: "Order Placed", icon: Clock },

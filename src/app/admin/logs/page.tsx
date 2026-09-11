@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
-import { Search, Download, Filter, FileSpreadsheet } from "lucide-react"
+import { Search, Download } from "lucide-react"
 import { getAuditLogs } from "@/lib/actions/admin-actions"
 import { DataTable, type Column } from "@/components/admin/data-table"
 import { Button } from "@/components/ui/button"

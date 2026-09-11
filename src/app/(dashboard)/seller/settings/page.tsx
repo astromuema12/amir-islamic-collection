@@ -77,7 +77,7 @@ export default function SellerSettingsPage() {
     },
   })
 
-  const onSubmit = async (data: StoreSettingsValues) => {
+  const onSubmit = async () => {
     setSaving(true)
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000))

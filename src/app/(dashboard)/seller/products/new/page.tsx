@@ -84,7 +84,6 @@ export default function NewProductPage() {
     watch,
     setValue,
     formState: { errors },
-    reset,
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema) as unknown as Resolver<ProductFormValues>,
     defaultValues: {
@@ -132,7 +131,7 @@ export default function NewProductPage() {
     setSpecs(specs.filter((_, i) => i !== index))
   }
 
-  const onSubmit = async (data: ProductFormValues) => {
+  const onSubmit = async () => {
     setSubmitting(true)
     try {
       const specRecord: Record<string, string> = {}

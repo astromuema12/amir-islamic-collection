@@ -10,7 +10,6 @@ import {
   Heart,
   Store,
   ShieldCheck,
-  LayoutDashboard,
   ChevronDown,
   LogIn,
   UserPlus,
@@ -40,8 +39,6 @@ interface UserMenuProps {
 
 export function UserMenu({
   user,
-  onLogin,
-  onRegister,
   onLogout,
   className,
 }: UserMenuProps) {

@@ -2,7 +2,6 @@
 
 import { useRef } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "./product-card"
 import type { Product } from "@/types"

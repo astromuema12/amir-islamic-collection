@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { users, sellerProfiles, products, orders, orderItems, withdrawals } from "@/lib/db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { users, sellerProfiles, products, orders, orderItems, withdrawals, addresses } from "@/lib/db/schema";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import slugify from "slugify";
 import { sellerProfileSchema } from "@/lib/validations";
@@ -220,18 +220,120 @@ export async function getSellerOrders() {
     const { requireRole } = await import("@/lib/auth");
     const user = await requireRole("seller");
 
-    const result = await db
-      .select()
+    const orderRows = await db
+      .select({
+        id: orders.id,
+        status: orders.status,
+        total: orders.total,
+        subtotal: orders.subtotal,
+        shipping: orders.shipping,
+        paymentStatus: orders.paymentStatus,
+        createdAt: orders.createdAt,
+        trackingNumber: orders.trackingNumber,
+        notes: orders.notes,
+        customerName: users.name,
+        customerEmail: users.email,
+        phone: addresses.phone,
+        street: addresses.street,
+        city: addresses.city,
+        state: addresses.state,
+        country: addresses.country,
+      })
       .from(orders)
       .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
       .innerJoin(products, eq(orderItems.productId, products.id))
+      .innerJoin(users, eq(users.id, orders.userId))
+      .innerJoin(addresses, eq(addresses.id, orders.shippingAddressId))
       .where(eq(products.sellerId, user.id))
       .orderBy(desc(orders.createdAt));
 
-    return result;
+    const uniqueOrders = [...new Map(orderRows.map((row) => [row.id, row])).values()];
+    if (uniqueOrders.length === 0) return [];
+
+    const orderIds = uniqueOrders.map((o) => o.id);
+    const itemRows = await db
+      .select({
+        id: orderItems.id,
+        orderId: orderItems.orderId,
+        name: orderItems.productName,
+        image: orderItems.productImage,
+        quantity: orderItems.quantity,
+        price: orderItems.price,
+      })
+      .from(orderItems)
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(and(inArray(orderItems.orderId, orderIds), eq(products.sellerId, user.id)));
+
+    const itemsByOrder = new Map<string, typeof itemRows>();
+    for (const row of itemRows) {
+      const list = itemsByOrder.get(row.orderId) ?? [];
+      list.push(row);
+      itemsByOrder.set(row.orderId, list);
+    }
+
+    return uniqueOrders.map((row) => ({
+      id: row.id,
+      customer: row.customerName,
+      email: row.customerEmail,
+      phone: row.phone,
+      address: [row.street, row.city, row.state, row.country].filter(Boolean).join(", "),
+      items: (itemsByOrder.get(row.id) ?? []).map((item) => ({
+        id: item.id,
+        name: item.name,
+        image: item.image ?? undefined,
+        quantity: item.quantity,
+        price: Number(item.price),
+      })),
+      total: Number(row.total),
+      subtotal: Number(row.subtotal),
+      shipping: Number(row.shipping),
+      status: row.status,
+      paymentStatus: row.paymentStatus,
+      date: row.createdAt,
+      trackingNumber: row.trackingNumber ?? undefined,
+      notes: row.notes ?? undefined,
+    }));
   } catch (error) {
     console.error("[getSellerOrders] Failed to fetch orders:", error);
     return [];
+  }
+}
+
+export async function updateSellerOrderStatus(orderId: string, status: string) {
+  try {
+    const { requireRole } = await import("@/lib/auth");
+    const user = await requireRole("seller");
+
+    const { ORDER_STATUS } = await import("@/lib/constants");
+    const validStatuses = Object.values(ORDER_STATUS);
+    if (!validStatuses.includes(status as (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS])) {
+      return { error: "Invalid status" };
+    }
+
+    // Verify the order actually contains one of this seller's products
+    const [row] = await db
+      .select({ id: orders.id })
+      .from(orders)
+      .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(and(eq(products.sellerId, user.id), eq(orders.id, orderId)))
+      .limit(1);
+
+    if (!row) {
+      return { error: "Order not found" };
+    }
+
+    await db
+      .update(orders)
+      .set({ status: status as (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS], updatedAt: new Date() })
+      .where(eq(orders.id, orderId));
+
+    revalidatePath("/seller/orders");
+    revalidatePath("/admin/orders");
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to update order status" };
   }
 }
 

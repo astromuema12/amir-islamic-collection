@@ -4,7 +4,7 @@ import { Truck, Package, MapPin, Clock, AlertCircle, Globe, CheckCircle2 } from 
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import { APP_NAME, APP_URL } from "@/lib/constants"
+import { APP_URL } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Shipping Policy - Amir Islamic Collections",

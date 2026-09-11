@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import {
-  Shield, Plus, Pencil, Trash2, Check, X, Users, Key
+  Shield, Plus, Pencil, Trash2, Check, Users
 } from "lucide-react"
 import {
   getRolesWithPermissions, manageRole, deleteRole,

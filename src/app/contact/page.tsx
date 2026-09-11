@@ -1,14 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, MessageCircle, Globe, Camera, Play, Briefcase, Clock } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 
 const contactInfo = [
   {

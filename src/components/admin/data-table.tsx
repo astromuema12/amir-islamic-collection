@@ -3,7 +3,7 @@
 import { useState, useCallback, type ReactNode } from "react"
 import {
   ChevronDown, ChevronUp, ChevronsUpDown, ChevronLeft, ChevronRight,
-  Search, Trash2, Download, Columns3
+  Search, Download, Columns3
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,9 +11,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow
 } from "@/components/ui/table"
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from "@/components/ui/select"
 import {
   DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"

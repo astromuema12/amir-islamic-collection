@@ -9,7 +9,6 @@ import {
 import { StatsCard } from "@/components/admin/stats-card"
 import { AreaChartCard, BarChartCard, LineChartCard } from "@/components/admin/chart"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select"

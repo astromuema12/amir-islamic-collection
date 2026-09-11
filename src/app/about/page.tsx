@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { Heart, Target, Eye, Award, Users, BookOpen, Star, MessageCircle, Store, HandHelping } from "lucide-react"
+import { Heart, Target, Eye, Award, Users, BookOpen, Star, Store, HandHelping } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"

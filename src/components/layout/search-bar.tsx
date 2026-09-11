@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { Search, X, Loader2, Clock, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 
 interface SearchSuggestion {
   text: string

@@ -13,7 +13,7 @@ import { MobilePurchaseBar } from "@/components/products/mobile-purchase-bar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
-import { APP_NAME, APP_URL } from "@/lib/constants"
+import { APP_NAME } from "@/lib/constants"
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>

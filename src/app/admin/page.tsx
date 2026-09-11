@@ -1,6 +1,6 @@
 import { getAdminDashboard } from "@/lib/actions/admin-actions";
 import { AdminDashboardClient } from "./admin-dashboard";
-import { AlertTriangle, ShieldAlert, ServerCrash } from "lucide-react";
+import { AlertTriangle, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 

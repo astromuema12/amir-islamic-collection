@@ -16,7 +16,6 @@ import {
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle
 } from "@/components/ui/dialog"
-import { Switch } from "@/components/ui/switch"
 import { formatPrice, formatDate } from "@/lib/utils"
 import toast from "react-hot-toast"
 

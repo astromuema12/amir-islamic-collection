@@ -8,7 +8,6 @@ import {
   useState,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
-  type KeyboardEvent,
 } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -43,9 +42,9 @@ interface CarouselProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const Carousel = forwardRef<HTMLDivElement, CarouselProps>(
-  ({ className, orientation = "horizontal", children, setApi, ...props }, ref) => {
+  ({ className, children, ...props }, ref) => {
     const [currentIndex, setCurrentIndex] = useState(0)
-    const [totalSlides, setTotalSlides] = useState(0)
+    const [totalSlides] = useState(0)
     const [canScrollPrev, setCanScrollPrev] = useState(false)
     const [canScrollNext, setCanScrollNext] = useState(true)
 

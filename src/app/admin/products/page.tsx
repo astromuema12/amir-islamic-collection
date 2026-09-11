@@ -20,7 +20,7 @@ import {
   getAdminProducts, getAdminCategories,
 } from "@/lib/actions/admin-actions"
 import {
-  deleteProduct, setProductStatus, toggleFeatured,
+  deleteProduct, setProductStatus,
 } from "@/lib/actions/product-actions"
 
 interface AdminProduct {
@@ -108,16 +108,6 @@ export default function AdminProductsPage() {
     }
     setProducts((prev) => prev.map((pr) => (pr.id === p.id ? { ...pr, isActive: !p.isActive } : pr)))
     toast.success(p.isActive ? "Product deactivated" : "Product activated")
-  }
-
-  const handleToggleFeatured = async (p: AdminProduct) => {
-    const res = await toggleFeatured(p.id)
-    if ("error" in res) {
-      toast.error(res.error!)
-      return
-    }
-    setProducts((prev) => prev.map((pr) => (pr.id === p.id ? { ...pr, isFeatured: !p.isFeatured } : pr)))
-    toast.success(p.isFeatured ? "Removed from featured" : "Marked as featured")
   }
 
   const handleDelete = async () => {

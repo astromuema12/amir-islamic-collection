@@ -4,7 +4,7 @@ import { Cookie, Settings, Shield, Info, BarChart3, Target } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import { APP_NAME, APP_URL } from "@/lib/constants"
+import { APP_URL } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Cookie Policy - Amir Islamic Collections",

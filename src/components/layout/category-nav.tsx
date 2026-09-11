@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation"
 import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import { CATEGORIES } from "@/lib/constants"
 import { Category } from "@/types"
 
@@ -33,10 +32,6 @@ const MEGA_MENU_GROUPS = [
     categories: ["Ramadan Collection", "Eid Collection", "Gift Boxes", "Islamic Books", "Digital Islamic Products", "Charity Products"],
   },
 ]
-
-function getCategoryBySlug(slug: string) {
-  return CATEGORIES.find((c) => c.slug === slug)
-}
 
 export function CategoryNav({ className }: CategoryNavProps) {
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
