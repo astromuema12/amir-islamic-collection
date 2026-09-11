@@ -38,10 +38,9 @@ import {
   Smartphone,
   AlertTriangle,
   Trash2,
-  Loader2,
   ExternalLink,
 } from "lucide-react"
-import { deleteAccount } from "@/lib/actions/auth-actions"
+import { deleteAccount, changePassword } from "@/lib/actions/auth-actions"
 import { useWishlistStore } from "@/store/wishlist-store"
 
 const passwordSchema = z
@@ -77,9 +76,16 @@ export default function SettingsPage() {
   const onSubmitPassword = async (data: PasswordFormData) => {
     setPasswordLoading(true)
     try {
-      await new Promise((r) => setTimeout(r, 1000))
-      toast.success("Password changed successfully")
-      reset()
+      const fd = new FormData()
+      fd.set("currentPassword", data.currentPassword)
+      fd.set("newPassword", data.newPassword)
+      const result = await changePassword(fd)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Password changed successfully")
+        reset()
+      }
     } catch {
       toast.error("Failed to change password")
     } finally {

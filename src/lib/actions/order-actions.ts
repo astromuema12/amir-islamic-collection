@@ -1,13 +1,13 @@
 "use server";
 
 import { getRlsDb } from "@/lib/db";
-import { orders, orderItems, products, cart, cartItems, addresses } from "@/lib/db/schema";
+import { orders, orderItems, products, cart, cartItems, addresses, coupons } from "@/lib/db/schema";
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath, updateTag } from "next/cache";
 import { checkoutSchema } from "@/lib/validations";
 import { sendOrderConfirmation } from "@/lib/resend";
-import { ORDER_STATUS, PAYMENT_STATUS, FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants";
+import { FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export type CheckoutError = {
@@ -85,6 +85,27 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
         sql`SELECT set_config('app.current_user_role', ${user.role}::text, true)`
       );
 
+      // Verify the supplied addresses actually belong to the authenticated user
+      const addressIds = [
+        parsed.data.shippingAddressId,
+        parsed.data.billingAddressId,
+      ];
+      const ownedAddresses = await tx
+        .select({ id: addresses.id })
+        .from(addresses)
+        .where(
+          and(
+            inArray(addresses.id, addressIds),
+            eq(addresses.userId, user.id)
+          )
+        );
+      if (ownedAddresses.length !== addressIds.length) {
+        throw Object.assign(
+          new Error("Invalid shipping or billing address"),
+          { code: "VALIDATION_ERROR" }
+        );
+      }
+
       const [userCart] = await tx
         .select()
         .from(cart)
@@ -115,6 +136,7 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
       const productMap = new Map(lockedProducts.map((p) => [p.id, p]));
 
       let subtotal = 0;
+      const unitPrices = new Map<string, number>();
 
       for (const item of items) {
         const product = productMap.get(item.productId);
@@ -148,7 +170,13 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
           );
         }
 
-        subtotal += Number(item.price) * item.quantity;
+        // Price must come from the locked server-side product row — never trust
+        // the client-supplied price stored in the cart.
+        const unitPrice = product.discountPrice
+          ? Number(product.discountPrice)
+          : Number(product.price);
+        unitPrices.set(item.productId, unitPrice);
+        subtotal += unitPrice * item.quantity;
       }
 
       for (const item of items) {
@@ -172,7 +200,50 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
 
       const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_METHODS[0].price;
       const tax = subtotal * TAX_RATE;
-      const discount = 0;
+
+      let discount = 0;
+      if (parsed.data.couponCode) {
+        const [coupon] = await tx
+          .select()
+          .from(coupons)
+          .where(eq(coupons.code, parsed.data.couponCode))
+          .limit(1);
+
+        if (!coupon || !coupon.isActive) {
+          throw Object.assign(
+            new Error(`Coupon "${parsed.data.couponCode}" is not valid.`),
+            { code: "VALIDATION_ERROR" }
+          );
+        }
+        if (coupon.expiresAt && coupon.expiresAt.getTime() < Date.now()) {
+          throw Object.assign(new Error("This coupon has expired."), {
+            code: "VALIDATION_ERROR",
+          });
+        }
+        if (coupon.minOrderAmount && subtotal < Number(coupon.minOrderAmount)) {
+          throw Object.assign(
+            new Error(
+              `This coupon requires a minimum order amount of ${Number(coupon.minOrderAmount)}.`
+            ),
+            { code: "VALIDATION_ERROR" }
+          );
+        }
+
+        const rawDiscount =
+          coupon.type === "fixed"
+            ? Number(coupon.value)
+            : subtotal * (Number(coupon.value) / 100);
+        discount = coupon.maxDiscount
+          ? Math.min(rawDiscount, Number(coupon.maxDiscount))
+          : rawDiscount;
+        discount = Math.min(discount, subtotal);
+
+        await tx
+          .update(coupons)
+          .set({ usedCount: (coupon.usedCount || 0) + 1 })
+          .where(eq(coupons.id, coupon.id));
+      }
+
       const total = subtotal + shipping + tax - discount;
 
       await tx.insert(orders).values({
@@ -200,7 +271,7 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
           productName: product.name,
           productImage: product.images?.[0] || null,
           quantity: item.quantity,
-          price: item.price,
+          price: (unitPrices.get(item.productId) ?? Number(product.price)).toString(),
         });
       }
 
@@ -228,7 +299,6 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
 }
 
 export async function createCheckoutAddress(
-  userId: string,
   data: {
     fullName: string;
     phone: string;
@@ -241,13 +311,16 @@ export async function createCheckoutAddress(
   }
 ): Promise<{ id: string } | { error: string }> {
   try {
+    const { requireAuth } = await import("@/lib/auth");
+    const user = await requireAuth();
+
     const rlsDb = getRlsDb();
     const [existing] = await rlsDb
       .select()
       .from(addresses)
       .where(
         and(
-          eq(addresses.userId, userId),
+          eq(addresses.userId, user.id),
           eq(addresses.street, data.street),
           eq(addresses.city, data.city)
         )
@@ -259,7 +332,7 @@ export async function createCheckoutAddress(
     const id = uuidv4();
     await rlsDb.insert(addresses).values({
       id,
-      userId,
+      userId: user.id,
       fullName: data.fullName,
       phone: data.phone,
       street: data.street,
@@ -277,27 +350,19 @@ export async function createCheckoutAddress(
   }
 }
 
-export async function getOrders(userId?: string) {
+export async function getOrders() {
   try {
-    const { getRlsDb: getDb } = await import("@/lib/db");
-    const dbInstance = getDb();
-
-    if (userId) {
-      return await dbInstance
-        .select()
-        .from(orders)
-        .where(eq(orders.userId, userId))
-        .orderBy(orders.createdAt);
-    }
-
     const { requireAuth } = await import("@/lib/auth");
+    const { withRLS } = await import("@/lib/db/rls");
     const user = await requireAuth();
 
-    return await dbInstance
-      .select()
-      .from(orders)
-      .where(eq(orders.userId, user.id))
-      .orderBy(orders.createdAt);
+    return await withRLS(user, async (tx) =>
+      tx
+        .select()
+        .from(orders)
+        .where(eq(orders.userId, user.id))
+        .orderBy(orders.createdAt)
+    );
   } catch (error) {
     console.error("[getOrders] Failed to fetch orders:", error);
     return [];
@@ -326,45 +391,6 @@ export async function getOrder(orderId: string) {
     .where(eq(orderItems.orderId, orderId));
 
   return { ...order, items };
-}
-
-export async function updateOrderStatus(orderId: string, status: string) {
-  try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin", "seller");
-
-    const validStatuses = Object.values(ORDER_STATUS);
-    if (!validStatuses.includes(status as (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS])) {
-      return { error: "Invalid status" };
-    }
-
-    const { getRlsDb: getDb } = await import("@/lib/db");
-    const dbInstance = getDb();
-
-    const [order] = await dbInstance
-      .select()
-      .from(orders)
-      .where(eq(orders.id, orderId))
-      .limit(1);
-
-    if (!order) return { error: "Order not found" };
-
-    await dbInstance
-      .update(orders)
-      .set({
-        status: status as (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS],
-        updatedAt: new Date(),
-      })
-      .where(eq(orders.id, orderId));
-
-    revalidatePath(`/orders/${orderId}`);
-    revalidatePath("/seller/orders");
-    revalidatePath("/admin/orders");
-
-    return { success: true };
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Failed to update order status" };
-  }
 }
 
 export async function cancelOrder(orderId: string) {
@@ -441,33 +467,5 @@ export async function confirmDelivery(orderId: string) {
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Failed to confirm delivery" };
-  }
-}
-
-export async function updatePaymentStatus(orderId: string, status: string) {
-  try {
-    const { requireRole } = await import("@/lib/auth");
-    await requireRole("admin");
-
-    const validStatuses = Object.values(PAYMENT_STATUS);
-    if (!validStatuses.includes(status as (typeof PAYMENT_STATUS)[keyof typeof PAYMENT_STATUS])) {
-      return { error: "Invalid payment status" };
-    }
-
-    const { getRlsDb: getDb } = await import("@/lib/db");
-    const dbInstance = getDb();
-
-    await dbInstance
-      .update(orders)
-      .set({
-        paymentStatus: status as (typeof PAYMENT_STATUS)[keyof typeof PAYMENT_STATUS],
-        updatedAt: new Date(),
-      })
-      .where(eq(orders.id, orderId));
-
-    revalidatePath(`/orders/${orderId}`);
-    return { success: true };
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Failed to update payment status" };
   }
 }

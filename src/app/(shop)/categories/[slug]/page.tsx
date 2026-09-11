@@ -51,6 +51,10 @@ async function CategoryContent({ params, searchParams }: CategoryPageProps) {
     sort: sp.sort || "newest",
     page: sp.page ? Number(sp.page) : 1,
     limit: 24,
+    ...(sp.brand ? { brands: [sp.brand] } : {}),
+    ...(sp.minPrice ? { minPrice: Number(sp.minPrice) } : {}),
+    ...(sp.maxPrice ? { maxPrice: Number(sp.maxPrice) } : {}),
+    ...(sp.rating ? { rating: Number(sp.rating) } : {}),
   })
 
   const view = sp.view === "list" ? "list" : "grid"

@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/db";
+import { db, getRlsDb } from "@/lib/db";
 import {
   users,
   sessions,
@@ -11,11 +11,12 @@ import {
   sellerProfiles,
   cart,
   addresses,
+  orders,
 } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, notInArray, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { hashPassword, verifyPassword, createSession, logout as clearSession, getCurrentUser } from "@/lib/auth";
-import { loginSchema, registerSchema } from "@/lib/validations";
+import { loginSchema, registerSchema, profileSchema } from "@/lib/validations";
 import { sendEmail, sendWelcomeEmail } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
 import { headers, cookies } from "next/headers";
@@ -75,7 +76,7 @@ export async function register(formData: FormData) {
       .limit(1);
 
     if (existingUser.length > 0) {
-      return { error: { email: ["Email already in use"] } };
+      return { error: { email: ["Registration failed. Please try again."] } };
     }
 
     const hashed = await hashPassword(parsed.data.password);
@@ -222,6 +223,15 @@ export async function resetPassword(formData: FormData) {
 
     const hashed = await hashPassword(password);
     await db.update(users).set({ password: hashed }).where(eq(users.email, vt.email));
+    // Invalidate all existing sessions so old session cookies can't stay valid
+    const [targetUser] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.email, vt.email))
+      .limit(1);
+    if (targetUser) {
+      await db.delete(sessions).where(eq(sessions.userId, targetUser.id));
+    }
     await db.delete(verificationTokens).where(eq(verificationTokens.id, vt.id));
 
     revalidatePath("/login");
@@ -266,43 +276,84 @@ export async function deleteAccount() {
     const user = await getCurrentUser();
     if (!user) return { error: "Unauthorized" };
 
-    // Anonymize the user record so orders remain intact for legal/accounting
-    const anonymizedEmail = `deleted-${user.id}@anonymized.invalid`;
-    const result = await db
-      .update(users)
-      .set({
-        name: "Deleted Account",
-        email: anonymizedEmail,
-        phone: null,
-        bio: null,
-        image: null,
-        password: null,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, user.id));
+    const rlsDb = getRlsDb();
+    await rlsDb.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT set_config('app.current_user_id', ${user.id}::text, true)`
+      );
+      await tx.execute(
+        sql`SELECT set_config('app.current_user_role', ${user.role}, true)`
+      );
 
-    if (result.rowCount === 0) {
-      return { error: "No rows affected - deletion failed" };
-    }
+      // Anonymize the user record so orders remain intact for legal/accounting
+      const anonymizedEmail = `deleted-${user.id}@anonymized.invalid`;
+      const result = await tx
+        .update(users)
+        .set({
+          name: "Deleted Account",
+          email: anonymizedEmail,
+          phone: null,
+          bio: null,
+          image: null,
+          password: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, user.id));
 
-    // Delete all cascade-able user data
-    await db.delete(sessions).where(eq(sessions.userId, user.id));
-    await db.delete(notifications).where(eq(notifications.userId, user.id));
-    await db.delete(wishlists).where(eq(wishlists.userId, user.id));
-    await db.delete(reviews).where(eq(reviews.userId, user.id));
-    await db.delete(sellerProfiles).where(eq(sellerProfiles.userId, user.id));
-    // cart cascades to cart_items, addresses cascade to order references — handled
-    await db.delete(cart).where(eq(cart.userId, user.id));
-    await db.delete(addresses).where(eq(addresses.userId, user.id));
+      if (result.rowCount === 0) {
+        throw new Error("No rows affected - deletion failed");
+      }
 
-    // Clear the session cookie
-    await clearSession();
+      // Delete all cascade-able user data
+      await tx.delete(sessions).where(eq(sessions.userId, user.id));
+      await tx.delete(notifications).where(eq(notifications.userId, user.id));
+      await tx.delete(wishlists).where(eq(wishlists.userId, user.id));
+      await tx.delete(reviews).where(eq(reviews.userId, user.id));
+      await tx.delete(sellerProfiles).where(eq(sellerProfiles.userId, user.id));
+      // cart cascades to cart_items
+      await tx.delete(cart).where(eq(cart.userId, user.id));
+
+      // Orders are retained (legal/accounting), and orders.shipping_address_id /
+      // billing_address_id reference addresses with NO onDelete cascade — so only
+      // delete addresses that are not referenced by this user's retained orders.
+      const orderAddressRows = await tx
+        .select({
+          shippingAddressId: orders.shippingAddressId,
+          billingAddressId: orders.billingAddressId,
+        })
+        .from(orders)
+        .where(eq(orders.userId, user.id));
+
+      const referencedAddressIds = new Set<string>();
+      for (const row of orderAddressRows) {
+        if (row.shippingAddressId) referencedAddressIds.add(row.shippingAddressId);
+        if (row.billingAddressId) referencedAddressIds.add(row.billingAddressId);
+      }
+
+      if (referencedAddressIds.size > 0) {
+        await tx.delete(addresses).where(
+          and(
+            eq(addresses.userId, user.id),
+            notInArray(addresses.id, [...referencedAddressIds])
+          )
+        );
+      } else {
+        await tx.delete(addresses).where(eq(addresses.userId, user.id));
+      }
+    });
 
     revalidatePath("/");
     revalidatePath("/admin/customers");
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Account deletion failed" };
+  } finally {
+    // Ensure the session cookie is cleared regardless of any partial failure
+    try {
+      await clearSession();
+    } catch {
+      // ignore — user is either logged out or account is intact
+    }
   }
 }
 
@@ -311,18 +362,75 @@ export async function updateProfile(formData: FormData) {
     const user = await getCurrentUser();
     if (!user) return { error: "Unauthorized" };
 
-    const name = formData.get("name") as string;
-    const phone = formData.get("phone") as string;
-    const bio = formData.get("bio") as string;
+    const parsed = profileSchema.safeParse({
+      name: (formData.get("name") as string) || undefined,
+      phone: (formData.get("phone") as string) || undefined,
+      bio: (formData.get("bio") as string) || undefined,
+    });
+    if (!parsed.success) {
+      return { error: "Invalid profile data", details: parsed.error.flatten().fieldErrors };
+    }
 
     await db
       .update(users)
-      .set({ name, phone, bio, updatedAt: new Date() })
+      .set({
+        name: parsed.data.name,
+        phone: parsed.data.phone ?? null,
+        bio: parsed.data.bio ?? null,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, user.id));
 
-    revalidatePath("/profile");
+    revalidatePath("/account");
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Update failed" };
+  }
+}
+
+export async function changePassword(formData: FormData) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { error: "Unauthorized" };
+
+    const currentPassword = formData.get("currentPassword") as string;
+    const newPassword = formData.get("newPassword") as string;
+
+    if (!currentPassword || !newPassword) {
+      return { error: "Current and new password are required" };
+    }
+    if (newPassword.length < 8) {
+      return { error: "New password must be at least 8 characters" };
+    }
+
+    // Fetch the stored hash (getCurrentUser doesn't include password)
+    const [userRecord] = await db
+      .select({ password: users.password })
+      .from(users)
+      .where(eq(users.id, user.id))
+      .limit(1);
+
+    if (!userRecord?.password) {
+      return { error: "Unable to verify current password" };
+    }
+
+    const valid = await verifyPassword(currentPassword, userRecord.password);
+    if (!valid) {
+      return { error: "Current password is incorrect" };
+    }
+
+    const hashed = await hashPassword(newPassword);
+    await db.update(users).set({ password: hashed, updatedAt: new Date() }).where(eq(users.id, user.id));
+
+    // Invalidate all other sessions
+    await db.delete(sessions).where(
+      and(eq(sessions.userId, user.id))
+    );
+    // Recreate current session so the user isn't logged out
+    await createSession(user.id);
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Password change failed" };
   }
 }

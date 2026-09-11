@@ -12,6 +12,7 @@ interface WishlistState {
 }
 
 let signedIn: boolean | null = null;
+let hydrationPromise: Promise<void> | null = null;
 
 async function syncToServer(items: string[]) {
   if (signedIn === false) return;
@@ -57,33 +58,39 @@ export const useWishlistStore = create<WishlistState>()(
         syncToServer([]);
       },
 
-      hydrateFromServer: async () => {
-        try {
-          const { getWishlistProductIds } = await import(
-            "@/lib/actions/wishlist-actions"
-          );
-          const remote = await getWishlistProductIds();
+      hydrateFromServer: () => {
+        if (hydrationPromise) return hydrationPromise;
+        hydrationPromise = (async () => {
+          try {
+            const { getWishlistProductIds } = await import(
+              "@/lib/actions/wishlist-actions"
+            );
+            const remote = await getWishlistProductIds();
 
-          if (remote === null) {
-            signedIn = false;
-            return;
+            if (remote === null) {
+              signedIn = false;
+              return;
+            }
+
+            signedIn = true;
+
+            const local = get().items;
+            const merged = Array.from(new Set([...local, ...remote]));
+
+            if (merged.length !== local.length) {
+              set({ items: merged });
+            }
+
+            if (merged.length !== remote.length) {
+              syncToServer(merged);
+            }
+          } catch {
+            // Ignore hydration failures
+          } finally {
+            hydrationPromise = null;
           }
-
-          signedIn = true;
-
-          const local = get().items;
-          const merged = Array.from(new Set([...local, ...remote]));
-
-          if (merged.length !== local.length) {
-            set({ items: merged });
-          }
-
-          if (merged.length !== remote.length) {
-            syncToServer(merged);
-          }
-        } catch {
-          // Ignore hydration failures
-        }
+        })();
+        return hydrationPromise;
       },
     }),
     {

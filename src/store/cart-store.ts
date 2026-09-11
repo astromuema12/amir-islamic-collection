@@ -32,8 +32,6 @@ interface CartState {
   removeCoupon: () => void;
   openCart: () => void;
   closeCart: () => void;
-  get totalItems(): number;
-  get subtotal(): number;
 }
 
 export const useCartStore = create<CartState>()(
@@ -107,14 +105,6 @@ export const useCartStore = create<CartState>()(
 
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
-
-      get totalItems() {
-        return get().items.reduce((sum, i) => sum + i.quantity, 0);
-      },
-
-      get subtotal() {
-        return get().items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-      },
     }),
     {
       name: "amir-cart",

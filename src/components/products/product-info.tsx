@@ -200,14 +200,20 @@ export function ProductInfo({ product }: ProductInfoProps) {
             </>
           )}
         </Button>
-        <a
-          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(typeof window !== "undefined" ? window.location.href : "")}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => {
+            window.open(
+              `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(product.name)}`,
+              "_blank",
+              "noopener,noreferrer,width=600,height=400"
+            )
+          }}
+          aria-label="Share on Facebook"
         >
           <Share2 className="h-4 w-4" />
-        </a>
+        </Button>
       </div>
 
       <Separator />

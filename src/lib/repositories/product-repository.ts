@@ -423,10 +423,16 @@ class ProductRepository {
   }
 
   async getCategories() {
-    const result = await db
-      .select()
-      .from(categories)
-      .where(eq(categories.isActive, true));
+    const [result, countRows] = await Promise.all([
+      db.select().from(categories).where(eq(categories.isActive, true)),
+      db
+        .select({ categoryId: products.categoryId, count: sql<number>`count(*)` })
+        .from(products)
+        .where(eq(products.isActive, true))
+        .groupBy(products.categoryId),
+    ]);
+
+    const countMap = new Map(countRows.map((r) => [r.categoryId, Number(r.count)]));
 
     return result.map((c) => ({
       id: c.id,
@@ -435,7 +441,7 @@ class ProductRepository {
       description: c.description || undefined,
       image: c.image || undefined,
       parentId: c.parentId || undefined,
-      productCount: 0,
+      productCount: countMap.get(c.id) || 0,
       createdAt: c.createdAt,
     })) satisfies Category[];
   }
@@ -449,6 +455,11 @@ class ProductRepository {
 
     if (!result) return null;
 
+    const [countRow] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(products)
+      .where(and(eq(products.categoryId, result.id), eq(products.isActive, true)));
+
     return {
       id: result.id,
       name: result.name,
@@ -456,7 +467,7 @@ class ProductRepository {
       description: result.description || undefined,
       image: result.image || undefined,
       parentId: result.parentId || undefined,
-      productCount: 0,
+      productCount: countRow ? Number(countRow.count) : 0,
       createdAt: result.createdAt,
     } satisfies Category;
   }
@@ -507,10 +518,16 @@ class ProductRepository {
   }
 
   async getBrands() {
-    const result = await db
-      .select()
-      .from(brands)
-      .where(eq(brands.isActive, true));
+    const [result, countRows] = await Promise.all([
+      db.select().from(brands).where(eq(brands.isActive, true)),
+      db
+        .select({ brandId: products.brandId, count: sql<number>`count(*)` })
+        .from(products)
+        .where(eq(products.isActive, true))
+        .groupBy(products.brandId),
+    ]);
+
+    const countMap = new Map(countRows.map((r) => [r.brandId, Number(r.count)]));
 
     return result.map((b) => ({
       id: b.id,
@@ -518,7 +535,7 @@ class ProductRepository {
       slug: b.slug,
       logo: b.logo || undefined,
       description: b.description || undefined,
-      productCount: 0,
+      productCount: countMap.get(b.id) || 0,
     }));
   }
 

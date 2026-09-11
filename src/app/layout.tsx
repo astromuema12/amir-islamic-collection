@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     description: APP_DESCRIPTION,
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: APP_NAME,
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${APP_NAME} - Premium Islamic Products Marketplace`,
     description: APP_DESCRIPTION,
-    images: ["/og-image.png"],
+    images: ["/og-image.svg"],
     creator: "@amirislamic",
   },
   icons: {

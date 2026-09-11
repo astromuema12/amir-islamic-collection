@@ -127,7 +127,7 @@ export default function CheckoutPage() {
 
     setIsPlacingOrder(true)
     try {
-      const shippingResult = await createCheckoutAddress(user.id, {
+      const shippingResult = await createCheckoutAddress({
         fullName: addressData.fullName,
         phone: addressData.phone,
         street: addressData.street,

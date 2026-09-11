@@ -1,13 +1,12 @@
-const CACHE_NAME = "amir-islamic-v1";
 const STATIC_CACHE = "amir-static-v1";
 const DYNAMIC_CACHE = "amir-dynamic-v1";
+const MAX_DYNAMIC_ENTRIES = 80;
 
 const STATIC_ASSETS = [
   "/",
   "/products",
   "/categories",
   "/cart",
-  "/offline",
   "/favicon.svg",
   "/apple-touch-icon.png",
   "/icon-192.png",
@@ -38,11 +37,20 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+async function pruneCache(cacheName) {
+  const cache = await caches.open(cacheName);
+  const requests = await cache.keys();
+  if (requests.length > MAX_DYNAMIC_ENTRIES) {
+    await Promise.all(requests.slice(0, requests.length - MAX_DYNAMIC_ENTRIES).map((req) => cache.delete(req)));
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
   if (request.method !== "GET") return;
+  if (!url.origin || url.origin !== self.location.origin) return;
 
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
@@ -56,44 +64,60 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Network-first for document navigations so users always get fresh pages
+  if (request.destination === "document" || request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          if (cached) return cached;
+          const fallback = await caches.match("/");
+          if (fallback) return fallback;
+          return new Response("Offline", { status: 503 });
+        })
+    );
+    return;
+  }
+
+  // Images/fonts: stale-while-revalidate with pruning
   if (request.destination === "image" || request.destination === "font") {
     event.respondWith(
       caches.open(DYNAMIC_CACHE).then((cache) => {
         return cache.match(request).then((cached) => {
-          if (cached) return cached;
-          return fetch(request).then((response) => {
-            if (response.ok) {
-              cache.put(request, response.clone());
-            }
-            return response;
-          });
+          const networkFetch = fetch(request)
+            .then((response) => {
+              if (response && response.ok) {
+                cache.put(request, response.clone());
+                pruneCache(DYNAMIC_CACHE);
+              }
+              return response;
+            })
+            .catch(() => cached);
+          return cached || networkFetch;
         });
       })
     );
     return;
   }
 
+  // Other same-origin GETs (JS/CSS chunks etc.): network-first, cache fallback
   event.respondWith(
-    caches.open(STATIC_CACHE).then((cache) => {
-      return cache.match(request).then((cached) => {
-        const fetched = fetch(request)
-          .then((response) => {
-            if (response.ok && url.origin === self.location.origin) {
-              cache.put(request, response.clone());
-            }
-            return response;
-          })
-          .catch(() => {
-            if (cached) return cached;
-            if (request.destination === "document") {
-              return cache.match("/");
-            }
-            return new Response("Offline", { status: 503 });
-          });
-
-        return cached || fetched;
-      });
-    })
+    fetch(request)
+      .then((response) => {
+        if (response && response.ok) {
+          const copy = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      })
+      .catch(async () => (await caches.match(request)) || new Response("Offline", { status: 503 }))
   );
 });
 

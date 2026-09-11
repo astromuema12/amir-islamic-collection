@@ -30,9 +30,11 @@ export function Header({
   className,
 }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isCartOpen, setIsCartOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const cartItems = useCartStore((s) => s.items)
+  const isCartOpen = useCartStore((s) => s.isOpen)
+  const openCart = useCartStore((s) => s.openCart)
+  const closeCart = useCartStore((s) => s.closeCart)
   const removeCartItem = useCartStore((s) => s.removeItem)
   const updateCartQuantity = useCartStore((s) => s.updateQuantity)
   const wishlistCount = useWishlistStore((s) => s.items.length)
@@ -47,7 +49,7 @@ export function Header({
 
   useEffect(() => {
     useWishlistStore.getState().hydrateFromServer()
-  }, [])
+  }, [user?.id])
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -126,7 +128,7 @@ export function Header({
             <CartSidebar
               items={cartItems}
               isOpen={isCartOpen}
-              onOpenChange={setIsCartOpen}
+              onOpenChange={(open) => (open ? openCart() : closeCart())}
               onRemoveItem={removeCartItem}
               onUpdateQuantity={updateCartQuantity}
             >
