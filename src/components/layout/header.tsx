@@ -12,23 +12,22 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useTheme } from "next-themes"
-import { User as UserType } from "@/types"
 import { SearchBar } from "./search-bar"
 import { UserMenu } from "./user-menu"
 import { CartSidebar } from "./cart-sidebar"
 import { MobileNav } from "./mobile-nav"
 import { useCartStore } from "@/store/cart-store"
 import { useWishlistStore } from "@/store/wishlist-store"
+import { useCurrentUser } from "@/hooks/use-current-user"
 
 interface HeaderProps {
-  user?: UserType | null
   className?: string
 }
 
 export function Header({
-  user,
   className,
 }: HeaderProps) {
+  const { user } = useCurrentUser()
   const [isScrolled, setIsScrolled] = useState(false)
   const { theme, setTheme } = useTheme()
   const cartItems = useCartStore((s) => s.items)
@@ -67,7 +66,7 @@ export function Header({
       <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-2 sm:gap-4">
           <MobileNav
-            user={user}
+            user={user ?? null}
             cartItemCount={cartItemCount}
             wishlistItemCount={wishlistCount}
           />
@@ -123,7 +122,14 @@ export function Header({
               </Link>
             </div>
 
-            <UserMenu user={user} />
+            {user === undefined ? (
+              <div
+                className="h-10 w-10 rounded-lg bg-muted animate-pulse"
+                aria-hidden="true"
+              />
+            ) : (
+              <UserMenu user={user} />
+            )}
 
             <CartSidebar
               items={cartItems}

@@ -26,11 +26,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { User as UserType } from "@/types"
+import type { CurrentUser } from "@/lib/actions/auth-actions"
 import { isAdminEmail } from "@/lib/constants"
 
 interface UserMenuProps {
-  user?: UserType | null
+  user?: CurrentUser
   onLogin?: () => void
   onRegister?: () => void
   onLogout?: () => void

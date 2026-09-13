@@ -10,7 +10,6 @@ import { WhatsAppButton } from "@/components/layout/whatsapp-button"
 import { ServiceWorkerRegistration } from "@/components/pwa/service-worker-registration"
 import { InstallAppPrompt } from "@/components/pwa/install-app-prompt"
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants"
-import { getCurrentUser } from "@/lib/auth"
 
 const inter = Inter({
   variable: "--font-inter",
@@ -127,13 +126,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  let user = null
-  try {
-    user = await getCurrentUser()
-  } catch {
-    console.error("[RootLayout] Failed to get current user")
-  }
-
   const nonce = (await headers()).get("x-nonce") || undefined
 
   return (
@@ -163,7 +155,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col pb-16 lg:pb-0">
         <Providers nonce={nonce}>
-          <Header user={user} />
+          <Header />
           <main className="flex-1">{children}</main>
           <Footer />
           <BottomNavigation />

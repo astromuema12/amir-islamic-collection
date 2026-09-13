@@ -1,5 +1,3 @@
-"use client"
-
 import { Phone, ExternalLink, Mail, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Reveal } from "@/components/ui/reveal"

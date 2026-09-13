@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { getCurrentUserAction, type CurrentUser } from "@/lib/actions/auth-actions";
 
 export function useCurrentUser() {
   const [user, setUser] = useState<CurrentUser | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     let cancelled = false;
@@ -22,7 +24,7 @@ export function useCurrentUser() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [pathname]);
 
   return { user, loading, isGuest: !loading && user === null };
 }
