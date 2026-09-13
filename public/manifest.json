@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Amir Islamic Collection",
   "short_name": "Amir Islamic",
   "description": "Premium Islamic Clothing, Modest Fashion & Islamic Essentials",
@@ -67,15 +68,15 @@
   ],
   "screenshots": [
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Amir Islamic Collection Homepage"
     },
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
+      "src": "/screenshot-narrow.png",
+      "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Amir Islamic Collection Mobile"
