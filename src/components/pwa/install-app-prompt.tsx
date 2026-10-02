@@ -1,8 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Download, X } from "lucide-react"
+import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/layout/logo"
 import { usePWAInstall } from "@/hooks/use-pwa-install"
 
 export function InstallAppPrompt() {
@@ -48,9 +49,7 @@ export function InstallAppPrompt() {
             <X className="h-4 w-4" />
           </button>
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <Download className="h-6 w-6 text-primary" />
-            </div>
+            <Logo markOnly markSize={48} className="shrink-0" />
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm">Install Amir Islamic</h3>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
