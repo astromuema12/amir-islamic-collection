@@ -16,6 +16,7 @@ import { SearchBar } from "./search-bar"
 import { UserMenu } from "./user-menu"
 import { CartSidebar } from "./cart-sidebar"
 import { MobileNav } from "./mobile-nav"
+import { Logo } from "./logo"
 import { useCartStore } from "@/store/cart-store"
 import { useWishlistStore } from "@/store/wishlist-store"
 import { useCurrentUser } from "@/hooks/use-current-user"
@@ -72,19 +73,7 @@ export function Header({
           />
 
           <Link href="/" className="group min-w-0" aria-label="Amir Islamic Collections - Home">
-            <span className="flex items-center gap-1.5">
-              <span className="text-lg lg:text-2xl font-bold tracking-tight premium-heading whitespace-nowrap">
-                <span className="text-primary group-hover:text-primary/80 transition-colors">
-                  Amir
-                </span>{" "}
-                <span className="text-premium group-hover:text-premium/80 transition-colors">
-                  Islamic
-                </span>
-              </span>
-              <span className="hidden sm:inline text-sm font-semibold text-muted-foreground -mt-1">
-                Collections
-              </span>
-            </span>
+            <Logo priority className="transition-opacity group-hover:opacity-80" />
           </Link>
 
           <div className="hidden lg:flex flex-1 max-w-xl mx-4">

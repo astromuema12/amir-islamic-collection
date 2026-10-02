@@ -21,8 +21,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  Package,
 } from "lucide-react"
+import { Logo } from "@/components/layout/logo"
 
 interface NavItem {
   href: string
@@ -94,9 +94,7 @@ export function DashboardSidebar({
         )}
       >
         <div className="flex h-16 items-center gap-3 border-b px-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-premium shadow-sm">
-            <Package className="h-5 w-5 text-white" />
-          </div>
+          <Logo markOnly={isCollapsed} markSize={36} />
           {!isCollapsed && (
             <span className="font-serif text-lg font-bold text-foreground">
               Dashboard

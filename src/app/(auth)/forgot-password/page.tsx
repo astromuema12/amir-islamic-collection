@@ -10,6 +10,7 @@ import { forgotPassword } from "@/lib/actions/auth-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Logo } from "@/components/layout/logo"
 import toast from "react-hot-toast"
 
 const forgotSchema = z.object({
@@ -55,6 +56,7 @@ export default function ForgotPasswordPage() {
       <div className="flex min-h-screen items-center justify-center px-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
+            <Logo markSize={32} className="mb-2 justify-center" />
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
               <CheckCircle2 className="h-8 w-8 text-success" />
             </div>
@@ -92,6 +94,7 @@ export default function ForgotPasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
+          <Logo markSize={32} className="mb-2" />
           <CardTitle>Forgot password?</CardTitle>
           <CardDescription>
             No worries. Enter your email and we&apos;ll send you a reset link.

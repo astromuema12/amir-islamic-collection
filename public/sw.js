@@ -1,4 +1,4 @@
-const STATIC_CACHE = "amir-static-v1";
+const STATIC_CACHE = "amir-static-v2";
 const DYNAMIC_CACHE = "amir-dynamic-v1";
 const MAX_DYNAMIC_ENTRIES = 80;
 

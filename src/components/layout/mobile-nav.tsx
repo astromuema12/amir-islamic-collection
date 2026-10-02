@@ -30,6 +30,7 @@ import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { CurrentUser } from "@/lib/actions/auth-actions"
 import { CATEGORIES, APP_NAME } from "@/lib/constants"
+import { Logo } from "@/components/layout/logo"
 
 interface MobileNavProps {
   user?: CurrentUser
@@ -105,11 +106,10 @@ export function MobileNav({
               <div className="flex items-center justify-between p-4 border-b">
                 <Link
                   href="/"
-                  className="text-lg font-bold"
                   onClick={() => setIsOpen(false)}
+                  aria-label={`${APP_NAME} - Home`}
                 >
-                  <span className="text-primary">{APP_NAME.split(" ")[0]}</span>{" "}
-                  <span className="text-premium">{APP_NAME.split(" ").slice(1).join(" ")}</span>
+                  <Logo markSize={32} />
                 </Link>
                 <Button
                   variant="ghost"

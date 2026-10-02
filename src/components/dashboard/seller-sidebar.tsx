@@ -25,7 +25,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useMediaQuery } from "@/hooks"
-import { APP_NAME } from "@/lib/constants"
+import { Logo } from "@/components/layout/logo"
 
 interface NavItem {
   label: string
@@ -205,9 +205,7 @@ export function SellerSidebar({
                 className="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r bg-sidebar-background shadow-xl"
               >
                 <div className="flex items-center justify-between p-4">
-                  <span className="text-sm font-semibold text-foreground">
-                    {APP_NAME}
-                  </span>
+                  <Logo markSize={28} />
                   <button
                     type="button"
                     onClick={() => setMobileOpen(false)}

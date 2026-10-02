@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
 import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants"
+import { Logo } from "@/components/layout/logo"
 
 export const metadata: Metadata = {
   title: "About Us - Amir Islamic Collections",
@@ -60,9 +61,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <Breadcrumbs items={[{ label: "About Us" }]} className="mb-6" />
           <div className="flex items-center gap-4 mb-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-              <Store className="h-7 w-7 text-primary" />
-            </div>
+            <Logo markOnly markSize={56} />
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">About Us</h1>
               <p className="text-muted-foreground mt-1">Our story, mission, and values</p>
@@ -130,7 +129,7 @@ export default function AboutPage() {
               <div className="relative">
                 <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-premium/10 border flex items-center justify-center">
                   <div className="text-center p-8">
-                    <Store className="h-16 w-16 text-primary mx-auto mb-4" />
+                    <Logo markOnly markSize={96} className="mx-auto mb-4 w-fit" />
                     <p className="text-5xl font-bold text-primary">2022</p>
                     <p className="text-muted-foreground mt-2">Founded with faith</p>
                   </div>

@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { APP_NAME, CATEGORIES } from "@/lib/constants"
+import { Logo } from "@/components/layout/logo"
 
 const QUICK_LINKS = [
   { href: "/about", label: "About Us" },
@@ -95,11 +96,7 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 py-12 lg:py-16">
           <div className="lg:col-span-1 sm:col-span-2">
             <Link href="/" className="inline-block">
-              <span className="text-2xl font-bold tracking-tight">
-                <span className="text-primary">Amir</span>{" "}
-                <span className="text-premium">Islamic</span>
-                <span className="text-foreground"> Collections</span>
-              </span>
+              <Logo markSize={48} />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
               Your trusted source for premium Islamic products. From prayer mats

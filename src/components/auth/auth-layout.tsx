@@ -4,6 +4,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { Moon, Star, Sparkles } from "lucide-react"
 import { APP_NAME } from "@/lib/constants"
+import { Logo } from "@/components/layout/logo"
 
 interface AuthLayoutProps {
   children: React.ReactNode
@@ -18,14 +19,10 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         <div className="mx-auto w-full max-w-sm">
           <Link
             href="/"
-            className="mb-8 inline-flex items-center gap-2 text-xl font-bold tracking-tight"
+            className="mb-8 inline-flex items-center gap-2"
+            aria-label={`${APP_NAME} - Home`}
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 text-white text-sm font-bold shadow-sm shadow-emerald-500/20">
-              A
-            </span>
-            <span className="bg-gradient-to-r from-emerald-600 to-emerald-500 bg-clip-text text-transparent">
-              {APP_NAME}
-            </span>
+            <Logo markSize={32} />
           </Link>
 
           <motion.div
@@ -88,9 +85,11 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
             <div className="mb-8 flex justify-center">
               <div className="relative">
                 <div className="absolute inset-0 animate-pulse rounded-full bg-emerald-400/20 blur-3xl" />
-                <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 shadow-2xl shadow-amber-500/30">
-                  <Moon className="h-12 w-12 text-white" />
-                </div>
+                <Logo
+                  markOnly
+                  markSize={96}
+                  className="relative h-24 w-24 rounded-2xl bg-white shadow-2xl shadow-emerald-950/40"
+                />
               </div>
             </div>
 

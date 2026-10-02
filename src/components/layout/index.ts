@@ -1,5 +1,6 @@
 export { Header } from "./header"
 export { Footer } from "./footer"
+export { Logo } from "./logo"
 export { MobileNav } from "./mobile-nav"
 export { SearchBar } from "./search-bar"
 export { CartSidebar } from "./cart-sidebar"

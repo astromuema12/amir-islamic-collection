@@ -7,6 +7,7 @@ import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Logo } from "@/components/layout/logo"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { useSidebar } from "./sidebar-context"
 
@@ -90,9 +91,7 @@ const roleLabels: Record<string, string> = {
 function AdminBrand() {
   return (
     <Link href="/admin" className="flex h-14 shrink-0 items-center gap-2.5 border-b px-5">
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-        <Store className="h-4 w-4" />
-      </div>
+      <Logo markSize={32} />
       <div className="leading-tight">
         <p className="text-sm font-semibold tracking-tight">Amir Admin</p>
         <p className="text-[11px] text-muted-foreground">Store management</p>
