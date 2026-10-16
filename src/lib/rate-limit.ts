@@ -53,40 +53,48 @@ export type RateLimitResult = {
   resetAt: number;
 };
 
+// Fail open: if Redis is unreachable or misconfigured, allow the request rather
+// than turning a rate-limit outage into a hard failure for the whole app.
+async function safeLimit(limiter: Ratelimit, key: string): Promise<RateLimitResult> {
+  try {
+    const result = await limiter.limit(key);
+    return {
+      success: result.success,
+      remaining: result.remaining,
+      resetAt: result.reset,
+    };
+  } catch (error) {
+    console.error(
+      "[rate-limit] Redis unavailable — allowing request:",
+      error instanceof Error ? error.message : error,
+    );
+    return { success: true, remaining: Infinity, resetAt: Date.now() };
+  }
+}
+
 export async function rateLimit(
   key: string,
   limit: number,
   windowMs: number,
 ): Promise<RateLimitResult> {
   const limiter = getLimiter("default", limit, windowMs);
-  const result = await limiter.limit(key);
-  return {
-    success: result.success,
-    remaining: result.remaining,
-    resetAt: result.reset,
-  };
+  return safeLimit(limiter, key);
 }
 
 export const apiLimiter = {
   async limit(key: string): Promise<RateLimitResult> {
-    const limiter = getLimiter("api", 30, 60_000);
-    const result = await limiter.limit(key);
-    return { success: result.success, remaining: result.remaining, resetAt: result.reset };
+    return safeLimit(getLimiter("api", 30, 60_000), key);
   },
 };
 
 export const authLimiter = {
   async limit(key: string): Promise<RateLimitResult> {
-    const limiter = getLimiter("auth", 5, 60_000);
-    const result = await limiter.limit(key);
-    return { success: result.success, remaining: result.remaining, resetAt: result.reset };
+    return safeLimit(getLimiter("auth", 5, 60_000), key);
   },
 };
 
 export const checkoutLimiter = {
   async limit(key: string): Promise<RateLimitResult> {
-    const limiter = getLimiter("checkout", 10, 60_000);
-    const result = await limiter.limit(key);
-    return { success: result.success, remaining: result.remaining, resetAt: result.reset };
+    return safeLimit(getLimiter("checkout", 10, 60_000), key);
   },
 };
