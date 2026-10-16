@@ -1,96 +1,147 @@
 "use client"
 
-import { useState, Fragment } from "react"
+import { Fragment } from "react"
+import Image from "next/image"
 import Link from "next/link"
-import { X, Plus, ShoppingCart, Heart, ArrowLeft, BarChart3, Star, Check, Minus } from "lucide-react"
+import {
+  X,
+  Plus,
+  ShoppingCart,
+  Heart,
+  ArrowLeft,
+  BarChart3,
+  Star,
+  Check,
+  Minus,
+} from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-
-interface CompareProduct {
-  id: string
-  name: string
-  slug: string
-  price: number
-  discountPrice?: number
-  rating: number
-  reviewCount: number
-  image: string
-  brand: string
-  sku: string
-  specs: Record<string, string>
-}
-
-const defaultProducts: CompareProduct[] = [
-  {
-    id: "1",
-    name: "Premium Prayer Mat - Emerald Green",
-    slug: "premium-prayer-mat-emerald",
-    price: 4500,
-    discountPrice: 3500,
-    rating: 4.8,
-    reviewCount: 124,
-    image: "",
-    brand: "Amir Islamic",
-    sku: "PM-001",
-    specs: {
-      Material: "100% Cotton",
-      Size: "70cm x 110cm",
-      Thickness: "1.5cm",
-      Washable: "Yes",
-      "Travel Friendly": "No",
-    },
-  },
-  {
-    id: "2",
-    name: "Travel Prayer Mat - Compact Fold",
-    slug: "travel-prayer-mat-compact",
-    price: 2500,
-    rating: 4.5,
-    reviewCount: 89,
-    image: "",
-    brand: "Amir Islamic",
-    sku: "PM-002",
-    specs: {
-      Material: "Polyester Blend",
-      Size: "65cm x 100cm",
-      Thickness: "0.5cm",
-      Washable: "Yes",
-      "Travel Friendly": "Yes",
-    },
-  },
-  {
-    id: "3",
-    name: "Luxury Velvet Prayer Mat - Royal Blue",
-    slug: "luxury-velvet-prayer-mat-royal",
-    price: 6500,
-    discountPrice: 5200,
-    rating: 4.9,
-    reviewCount: 67,
-    image: "",
-    brand: "Amir Islamic",
-    sku: "PM-003",
-    specs: {
-      Material: "Premium Velvet",
-      Size: "75cm x 120cm",
-      Thickness: "2cm",
-      Washable: "Hand Wash",
-      "Travel Friendly": "No",
-    },
-  },
-]
+import { cn, formatPrice } from "@/lib/utils"
+import { useUIStore } from "@/store/ui-store"
+import { useCartStore } from "@/store/cart-store"
+import { useWishlistStore } from "@/store/wishlist-store"
+import type { Product } from "@/types"
+import toast from "react-hot-toast"
 
 export default function ComparePage() {
-  const [products, setProducts] = useState<CompareProduct[]>(defaultProducts)
+  const products = useUIStore((s) => s.compareItems)
+  const removeFromCompare = useUIStore((s) => s.removeFromCompare)
+  const addItem = useCartStore((s) => s.addItem)
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem)
+  const wishlistItems = useWishlistStore((s) => s.items)
 
   const allSpecKeys = Array.from(
-    new Set(products.flatMap((p) => Object.keys(p.specs)))
+    new Set(products.flatMap((p) => Object.keys(p.specifications ?? {})))
   )
 
-  const removeProduct = (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id))
+  const handleAddToCart = (product: Product) => {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      image: product.images?.[0] || "/placeholder.svg",
+      price: product.discountPrice || product.price,
+      quantity: 1,
+      maxQuantity: product.stock,
+    })
+    toast.success("Added to cart")
   }
+
+  const handleToggleWishlist = (product: Product) => {
+    const inWishlist = wishlistItems.includes(product.id)
+    toggleWishlist(product.id)
+    toast.success(inWishlist ? "Removed from wishlist" : "Added to wishlist")
+  }
+
+  const renderProductCard = (product: Product) => (
+    <Card className="border-2 h-full">
+      <CardContent className="p-4 text-center">
+        <Link
+          href={`/products/${product.slug}`}
+          className="relative mb-4 flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-premium/10"
+        >
+          {product.images?.[0] ? (
+            <Image
+              src={product.images[0]}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 90vw, 240px"
+              className="object-cover"
+            />
+          ) : (
+            <BarChart3 className="h-12 w-12 text-primary/30" />
+          )}
+        </Link>
+        {product.brand?.name && (
+          <Badge variant="secondary" className="mb-2">
+            {product.brand.name}
+          </Badge>
+        )}
+        <h3 className="font-semibold text-sm line-clamp-2 mb-2">
+          <Link
+            href={`/products/${product.slug}`}
+            className="hover:text-primary transition-colors"
+          >
+            {product.name}
+          </Link>
+        </h3>
+        <div className="flex items-center justify-center gap-1 text-sm mb-3">
+          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+          <span className="font-medium">{product.averageRating}</span>
+          <span className="text-muted-foreground">({product.reviewCount})</span>
+        </div>
+        <div className="mb-3">
+          {product.discountPrice ? (
+            <div className="space-y-0.5">
+              <span className="text-2xl font-bold text-primary">
+                {formatPrice(product.discountPrice)}
+              </span>
+              <div>
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatPrice(product.price)}
+                </span>
+                <Badge variant="success" className="ml-2 text-xs">
+                  Save{" "}
+                  {Math.round(
+                    (1 - product.discountPrice / product.price) * 100
+                  )}
+                  %
+                </Badge>
+              </div>
+            </div>
+          ) : (
+            <span className="text-2xl font-bold">{formatPrice(product.price)}</span>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          <Button
+            size="sm"
+            className="gap-2 w-full"
+            onClick={() => handleAddToCart(product)}
+            disabled={product.stock === 0}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {product.stock === 0 ? "Sold Out" : "Add to Cart"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 w-full"
+            onClick={() => handleToggleWishlist(product)}
+          >
+            <Heart
+              className={cn(
+                "h-4 w-4",
+                wishlistItems.includes(product.id) && "fill-red-500 text-red-500"
+              )}
+            />
+            Wishlist
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,9 +175,9 @@ export default function ComparePage() {
             <h2 className="text-xl font-semibold mb-2">No Products to Compare</h2>
             <p className="text-muted-foreground mb-6">
               Add products to compare by clicking the compare button on product
-              pages.
+              cards.
             </p>
-            <Link href="/">
+            <Link href="/products">
               <Button variant="default" size="lg" className="gap-2">
                 Browse Products
               </Button>
@@ -139,77 +190,27 @@ export default function ComparePage() {
               {products.map((product) => (
                 <div key={product.id} className="relative">
                   <button
-                    onClick={() => removeProduct(product.id)}
+                    onClick={() => removeFromCompare(product.id)}
                     className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors z-10"
                     aria-label={`Remove ${product.name}`}
                   >
                     <X className="h-4 w-4" />
                   </button>
-                  <Card className="border-2 h-full">
-                    <CardContent className="p-4 text-center">
-                      <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-premium/10 flex items-center justify-center mb-4">
-                        <BarChart3 className="h-12 w-12 text-primary/30" />
-                      </div>
-                      <Badge variant="secondary" className="mb-2">
-                        {product.brand}
-                      </Badge>
-                      <h3 className="font-semibold text-sm line-clamp-2 mb-2">
-                        <Link
-                          href={`/products/${product.slug}`}
-                          className="hover:text-primary transition-colors"
-                        >
-                          {product.name}
-                        </Link>
-                      </h3>
-                      <div className="flex items-center justify-center gap-1 text-sm mb-3">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{product.rating}</span>
-                        <span className="text-muted-foreground">
-                          ({product.reviewCount})
-                        </span>
-                      </div>
-                      <div className="mb-3">
-                        {product.discountPrice ? (
-                          <div className="space-y-0.5">
-                            <span className="text-2xl font-bold text-primary">
-                              KES {product.discountPrice.toLocaleString()}
-                            </span>
-                            <div>
-                              <span className="text-sm text-muted-foreground line-through">
-                                KES {product.price.toLocaleString()}
-                              </span>
-                              <Badge variant="success" className="ml-2 text-xs">
-                                Save {Math.round((1 - product.discountPrice / product.price) * 100)}%
-                              </Badge>
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-2xl font-bold">
-                            KES {product.price.toLocaleString()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Button size="sm" className="gap-2 w-full">
-                          <ShoppingCart className="h-4 w-4" />
-                          Add to Cart
-                        </Button>
-                        <Button variant="outline" size="sm" className="gap-2 w-full">
-                          <Heart className="h-4 w-4" />
-                          Wishlist
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  {renderProductCard(product)}
                   {allSpecKeys.length > 0 && (
                     <div className="mt-3 space-y-2">
                       {allSpecKeys.map((key) => (
-                        <div key={key} className="flex items-center justify-between text-sm rounded-lg bg-muted/30 px-3 py-2">
-                          <span className="font-medium text-muted-foreground">{key}</span>
-                          {product.specs[key] ? (
+                        <div
+                          key={key}
+                          className="flex items-center justify-between text-sm rounded-lg bg-muted/30 px-3 py-2"
+                        >
+                          <span className="font-medium text-muted-foreground">
+                            {key}
+                          </span>
+                          {product.specifications?.[key] ? (
                             <span className="flex items-center gap-1.5">
                               <Check className="h-4 w-4 text-success shrink-0" />
-                              {product.specs[key]}
+                              {product.specifications[key]}
                             </span>
                           ) : (
                             <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -253,68 +254,13 @@ export default function ComparePage() {
                 {products.map((product) => (
                   <div key={product.id} className="relative">
                     <button
-                      onClick={() => removeProduct(product.id)}
+                      onClick={() => removeFromCompare(product.id)}
                       className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors z-10"
                       aria-label={`Remove ${product.name}`}
                     >
                       <X className="h-4 w-4" />
                     </button>
-                    <Card className="border-2 h-full">
-                      <CardContent className="p-4 text-center">
-                        <div className="aspect-square rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-premium/10 flex items-center justify-center mb-4">
-                          <BarChart3 className="h-12 w-12 text-primary/30" />
-                        </div>
-                        <Badge variant="secondary" className="mb-2">
-                          {product.brand}
-                        </Badge>
-                        <h3 className="font-semibold text-sm line-clamp-2 mb-2">
-                          <Link
-                            href={`/products/${product.slug}`}
-                            className="hover:text-primary transition-colors"
-                          >
-                            {product.name}
-                          </Link>
-                        </h3>
-                        <div className="flex items-center justify-center gap-1 text-sm mb-3">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="font-medium">{product.rating}</span>
-                          <span className="text-muted-foreground">
-                            ({product.reviewCount})
-                          </span>
-                        </div>
-                        <div className="mb-3">
-                          {product.discountPrice ? (
-                            <div className="space-y-0.5">
-                              <span className="text-2xl font-bold text-primary">
-                                KES {product.discountPrice.toLocaleString()}
-                              </span>
-                              <div>
-                                <span className="text-sm text-muted-foreground line-through">
-                                  KES {product.price.toLocaleString()}
-                                </span>
-                                <Badge variant="success" className="ml-2 text-xs">
-                                  Save {Math.round((1 - product.discountPrice / product.price) * 100)}%
-                                </Badge>
-                              </div>
-                            </div>
-                          ) : (
-                            <span className="text-2xl font-bold">
-                              KES {product.price.toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex flex-col gap-2">
-                          <Button size="sm" className="gap-2 w-full">
-                            <ShoppingCart className="h-4 w-4" />
-                            Add to Cart
-                          </Button>
-                          <Button variant="outline" size="sm" className="gap-2 w-full">
-                            <Heart className="h-4 w-4" />
-                            Wishlist
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    {renderProductCard(product)}
                   </div>
                 ))}
 
@@ -345,10 +291,10 @@ export default function ComparePage() {
                         key={`${product.id}-${key}`}
                         className="flex items-center justify-center text-sm text-center px-3 py-2 rounded-lg bg-muted/10"
                       >
-                        {product.specs[key] ? (
+                        {product.specifications?.[key] ? (
                           <span className="flex items-center gap-1.5">
                             <Check className="h-4 w-4 text-success shrink-0" />
-                            {product.specs[key]}
+                            {product.specifications[key]}
                           </span>
                         ) : (
                           <span className="flex items-center gap-1.5 text-muted-foreground">
@@ -367,7 +313,7 @@ export default function ComparePage() {
             </div>
 
             <div className="mt-8 flex justify-center">
-              <Link href="/">
+              <Link href="/products">
                 <Button variant="outline" size="lg" className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   Continue Shopping

@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { formatPrice } from "@/lib/utils"
-import { FREE_SHIPPING_THRESHOLD, TAX_RATE } from "@/lib/constants"
+import { computeTax } from "@/lib/pricing"
+import { usePricingConfig } from "@/hooks/use-pricing-config"
 
 interface OrderSummaryProps {
   subtotal: number
@@ -30,10 +31,17 @@ export function OrderSummary({
   compact,
   className,
 }: OrderSummaryProps) {
-  const tax = subtotal * TAX_RATE
+  const config = usePricingConfig()
+  const tax = computeTax(subtotal, shipping, discount, config.tax)
   const total = Math.max(0, subtotal + shipping + tax - discount)
-  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
-  const shippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)
+  const freeShippingRemaining = Math.max(
+    0,
+    config.shipping.freeThreshold - subtotal,
+  )
+  const shippingProgress = Math.min(
+    100,
+    (subtotal / config.shipping.freeThreshold) * 100,
+  )
 
   const rows = [
     { label: "Subtotal", value: formatPrice(subtotal) },
@@ -45,7 +53,7 @@ export function OrderSummary({
     {
       label: "Tax",
       value: formatPrice(tax),
-      hint: `Est. ${TAX_RATE * 100}% VAT`,
+      hint: `Est. ${config.tax.rate * 100}% VAT`,
     },
   ]
 

@@ -7,9 +7,27 @@ import { ShoppingBag, TrendingUp, Star, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/lib/utils"
+import { useCartStore } from "@/store"
+import toast from "react-hot-toast"
 
 export function TrendingProducts({ products }: { products: Product[] }) {
+  const addItem = useCartStore((s) => s.addItem)
+
   if (products.length === 0) return null
+
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addItem({
+      productId: product.id,
+      name: product.name,
+      image: product.images?.[0] || "/placeholder.svg",
+      price: product.discountPrice || product.price,
+      quantity: 1,
+      maxQuantity: product.stock,
+    })
+    toast.success("Added to cart")
+  }
 
   return (
     <section className="py-16 lg:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
@@ -95,10 +113,11 @@ export function TrendingProducts({ products }: { products: Product[] }) {
                     <Button
                       size="sm"
                       className="w-full gap-2 rounded-xl"
-                      onClick={(e) => e.preventDefault()}
+                      onClick={(e) => handleAddToCart(e, product)}
+                      disabled={product.stock === 0}
                     >
                       <ShoppingBag className="h-4 w-4" />
-                      Add to Cart
+                      {product.stock === 0 ? "Sold Out" : "Add to Cart"}
                     </Button>
                   </div>
                 </div>

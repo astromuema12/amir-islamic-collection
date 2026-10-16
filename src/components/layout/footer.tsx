@@ -15,11 +15,9 @@ import {
   HeadphonesIcon,
   ChevronRight,
   Loader2,
-  Globe,
   MessageCircle,
   Camera,
-  Play,
-  Briefcase,
+  Music2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -48,11 +46,26 @@ const CUSTOMER_SERVICE = [
 ]
 
 const SOCIAL_LINKS = [
-  { href: "#", label: "Facebook", icon: Globe },
-  { href: "#", label: "Twitter", icon: MessageCircle },
-  { href: "#", label: "Instagram", icon: Camera },
-  { href: "#", label: "Youtube", icon: Play },
-  { href: "#", label: "LinkedIn", icon: Briefcase },
+  {
+    href: "https://www.instagram.com/invites/contact/?utm_source=ig_contact_invite&utm_medium=copy_link&utm_content=4rx6sc5",
+    label: "Instagram",
+    icon: Camera,
+  },
+  {
+    href: "https://www.tiktok.com/@amir.islamic.coll?_r=1&_t=ZS-98Lwhy4rQqw",
+    label: "TikTok",
+    icon: Music2,
+  },
+  {
+    href: "https://wa.me/254759632162",
+    label: "WhatsApp",
+    icon: MessageCircle,
+  },
+  {
+    href: "mailto:amirislamiccollections@gmail.com",
+    label: "Email",
+    icon: Mail,
+  },
 ]
 
 const PAYMENT_METHODS = [

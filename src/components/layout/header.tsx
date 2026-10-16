@@ -20,6 +20,7 @@ import { Logo } from "./logo"
 import { useCartStore } from "@/store/cart-store"
 import { useWishlistStore } from "@/store/wishlist-store"
 import { useCurrentUser } from "@/hooks/use-current-user"
+import { useLogout } from "@/hooks/use-logout"
 
 interface HeaderProps {
   className?: string
@@ -29,6 +30,7 @@ export function Header({
   className,
 }: HeaderProps) {
   const { user } = useCurrentUser()
+  const { logout } = useLogout()
   const [isScrolled, setIsScrolled] = useState(false)
   const { theme, setTheme } = useTheme()
   const cartItems = useCartStore((s) => s.items)
@@ -117,7 +119,7 @@ export function Header({
                 aria-hidden="true"
               />
             ) : (
-              <UserMenu user={user} />
+              <UserMenu user={user} onLogout={logout} />
             )}
 
             <CartSidebar

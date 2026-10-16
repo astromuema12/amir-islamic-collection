@@ -12,11 +12,11 @@ interface LogoProps {
 }
 
 /**
- * Site logo: the mark from `/logo-mark.png` alongside the wordmark.
+ * Site logo: the app icon from `/icon.svg` alongside the wordmark.
  *
- * The mark is dark green on transparency, so it always sits on a light plate.
- * That plate is invisible against the light background and keeps the logo
- * legible in dark mode.
+ * The icon already carries its own white rounded plate, so it stays legible
+ * against both light and dark backgrounds. It is rendered unoptimized because
+ * Next's image optimizer does not process SVGs without `dangerouslyAllowSVG`.
  */
 export function Logo({
   markSize = 36,
@@ -30,15 +30,16 @@ export function Logo({
   return (
     <span className={cn("flex items-center gap-2", className)}>
       <span
-        className="flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white"
+        className="flex shrink-0 items-center justify-center overflow-hidden rounded-lg"
         style={{ width: markSize, height: markSize }}
       >
         <Image
-          src="/logo-mark.png"
+          src="/icon.svg"
           alt=""
           width={markSize}
           height={markSize}
           priority={priority}
+          unoptimized
           className="object-contain"
         />
       </span>

@@ -22,7 +22,8 @@ import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/store/cart-store"
 import { useWishlistStore } from "@/store/wishlist-store"
 import { useUIStore } from "@/store/ui-store"
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants"
+import { computeDiscount, computeShipping, computeSubtotal } from "@/lib/pricing"
+import { usePricingConfig } from "@/hooks/use-pricing-config"
 import toast from "react-hot-toast"
 
 export default function CartPage() {
@@ -40,26 +41,20 @@ export default function CartPage() {
   const addToWishlist = useWishlistStore((s) => s.addItem)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const pricing = usePricingConfig()
 
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [items],
-  )
+  const subtotal = useMemo(() => computeSubtotal(items), [items])
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
-  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
-  const shippingProgress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)
+  const freeShippingRemaining = Math.max(0, pricing.shipping.freeThreshold - subtotal)
+  const shippingProgress = Math.min(100, (subtotal / pricing.shipping.freeThreshold) * 100)
 
-  const discount = useMemo(() => {
-    if (!coupon) return 0
-    if (coupon.type === "fixed") return Math.min(coupon.value, subtotal)
-    const percentOff = subtotal * (coupon.value / 100)
-    return coupon.maxDiscount
-      ? Math.min(percentOff, coupon.maxDiscount)
-      : percentOff
-  }, [coupon, subtotal])
+  const discount = useMemo(
+    () => computeDiscount(subtotal, coupon),
+    [coupon, subtotal],
+  )
 
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 1500
+  const shipping = computeShipping(subtotal, pricing.shipping)
 
   function toggleSelectAll() {
     if (selectedItems.size === items.length) {
@@ -215,7 +210,7 @@ export default function CartPage() {
               <div className="flex flex-col items-start justify-between gap-1 text-sm mb-2 sm:flex-row sm:items-center">
                 <div className="flex items-center gap-2">
                   <span className="text-emerald-700 dark:text-emerald-300 font-medium">
-                    Free shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}
+                    Free shipping on orders over {formatPrice(pricing.shipping.freeThreshold)}
                   </span>
                 </div>
                 <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">

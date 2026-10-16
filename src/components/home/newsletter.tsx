@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Reveal } from "@/components/ui/reveal"
+import { subscribeNewsletter } from "@/lib/actions/contact-actions"
+import toast from "react-hot-toast"
 
 export function Newsletter() {
   const [email, setEmail] = useState("")
@@ -19,12 +21,23 @@ export function Newsletter() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email.trim()) return
+    const value = email.trim()
+    if (!value) return
     setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 1200))
-    setIsSubmitting(false)
-    setIsSubscribed(true)
-    setEmail("")
+    try {
+      const result = await subscribeNewsletter(value)
+      if ("error" in result) {
+        toast.error(result.error)
+        return
+      }
+      setIsSubscribed(true)
+      setEmail("")
+      toast.success("Subscribed successfully")
+    } catch {
+      toast.error("Subscription failed. Please try again later.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (

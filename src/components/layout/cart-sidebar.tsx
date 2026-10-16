@@ -23,7 +23,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import type { CartItem as CartItemType } from "@/store/cart-store"
 import { formatPrice } from "@/lib/utils"
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants"
+import { usePricingConfig } from "@/hooks/use-pricing-config"
 
 interface CartSidebarProps {
   items?: CartItemType[]
@@ -44,15 +44,19 @@ export function CartSidebar({
   onCheckout,
   children,
 }: CartSidebarProps) {
+  const pricing = usePricingConfig()
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   )
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
-  const freeShippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal)
+  const freeShippingRemaining = Math.max(
+    0,
+    pricing.shipping.freeThreshold - subtotal
+  )
   const shippingProgress = Math.min(
     100,
-    (subtotal / FREE_SHIPPING_THRESHOLD) * 100
+    (subtotal / pricing.shipping.freeThreshold) * 100
   )
 
   const totalSavings = 0
@@ -108,7 +112,7 @@ export function CartSidebar({
               <div className="mx-6 mb-4 rounded-lg bg-muted/50 p-3">
                 <div className="flex items-center justify-between text-xs mb-2">
                   <span className="text-muted-foreground">
-                    Free shipping on orders over {formatPrice(FREE_SHIPPING_THRESHOLD)}
+                    Free shipping on orders over {formatPrice(pricing.shipping.freeThreshold)}
                   </span>
                   <span className="font-medium text-primary">
                     {formatPrice(freeShippingRemaining)} away

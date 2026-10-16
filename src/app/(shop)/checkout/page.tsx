@@ -31,7 +31,15 @@ import { OrderSummary } from "@/components/cart/order-summary"
 import { formatPrice } from "@/lib/utils"
 import { addressSchema } from "@/lib/validations"
 import { useCartStore } from "@/store/cart-store"
-import { FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants"
+import {
+  computeDiscount,
+  computeShipping,
+  computeSubtotal,
+  computeTax,
+  findShippingMethod,
+  DEFAULT_PRICING_CONFIG,
+} from "@/lib/pricing"
+import { usePricingConfig } from "@/hooks/use-pricing-config"
 import { createOrder, createCheckoutAddress } from "@/lib/actions/order-actions"
 import { syncCartToDb } from "@/lib/actions/cart-actions"
 import { useCurrentUser } from "@/hooks/use-current-user"
@@ -52,28 +60,23 @@ export default function CheckoutPage() {
   const [sameAsBilling, setSameAsBilling] = useState(true)
   const [isGuest, setIsGuest] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("paystack")
-  const [shippingMethod, setShippingMethod] = useState(SHIPPING_METHODS[0].name)
+  const [shippingMethod, setShippingMethod] = useState(
+    DEFAULT_PRICING_CONFIG.shipping.methods[0].name,
+  )
   const [isPlacingOrder, setIsPlacingOrder] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderId] = useState(() => `AIC-${Date.now().toString(36).toUpperCase()}`)
 
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [items],
+  const pricing = usePricingConfig()
+
+  const subtotal = useMemo(() => computeSubtotal(items), [items])
+  const discount = useMemo(
+    () => computeDiscount(subtotal, coupon),
+    [coupon, subtotal],
   )
-
-  const selectedShipping = SHIPPING_METHODS.find((s) => s.name === shippingMethod)!
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : selectedShipping.price
-  const discount = useMemo(() => {
-    if (!coupon) return 0
-    if (coupon.type === "fixed") return Math.min(coupon.value, subtotal)
-    const percentOff = subtotal * (coupon.value / 100)
-    return coupon.maxDiscount
-      ? Math.min(percentOff, coupon.maxDiscount)
-      : percentOff
-  }, [coupon, subtotal])
-
-  const tax = subtotal * TAX_RATE
+  const shipping = computeShipping(subtotal, pricing.shipping, shippingMethod)
+  const selectedShipping = findShippingMethod(pricing.shipping, shippingMethod)
+  const tax = computeTax(subtotal, shipping, discount, pricing.tax)
   const total = Math.max(0, subtotal + shipping + tax - discount)
 
   const { user } = useCurrentUser()
@@ -424,7 +427,7 @@ export default function CheckoutPage() {
                     <div className="mt-8">
                       <h3 className="text-sm font-semibold mb-3">Shipping Method</h3>
                       <div className="space-y-3">
-                        {SHIPPING_METHODS.map((method) => (
+                        {pricing.shipping.methods.map((method) => (
                           <label
                             key={method.name}
                             className={`flex cursor-pointer items-center gap-4 rounded-xl border p-4 transition-all ${
@@ -602,7 +605,7 @@ export default function CheckoutPage() {
                         </div>
                         <div className="rounded-lg bg-muted/30 p-3 text-sm">
                           <p className="font-medium text-foreground">{shippingMethod}</p>
-                          <p className="text-muted-foreground">{selectedShipping.days}</p>
+                          <p className="text-muted-foreground">{selectedShipping?.days}</p>
                         </div>
                       </div>
 

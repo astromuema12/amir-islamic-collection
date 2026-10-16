@@ -2,12 +2,13 @@
 
 import { getRlsDb } from "@/lib/db";
 import { orders, orderItems, products, cart, cartItems, addresses, coupons } from "@/lib/db/schema";
-import { eq, and, inArray, sql } from "drizzle-orm";
+import { eq, and, inArray, desc, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { revalidatePath, updateTag } from "next/cache";
 import { checkoutSchema } from "@/lib/validations";
 import { sendOrderConfirmation } from "@/lib/resend";
-import { FREE_SHIPPING_THRESHOLD, TAX_RATE, SHIPPING_METHODS } from "@/lib/constants";
+import { computeShipping, computeTax } from "@/lib/pricing";
+import { getPricingConfig } from "@/lib/pricing-config";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export type CheckoutError = {
@@ -76,6 +77,7 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
 
     const rlsDb = getRlsDb();
     const orderId = uuidv4();
+    const pricing = await getPricingConfig();
 
     await rlsDb.transaction(async (tx) => {
       await tx.execute(
@@ -198,8 +200,7 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
           );
       }
 
-      const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_METHODS[0].price;
-      const tax = subtotal * TAX_RATE;
+      const shipping = computeShipping(subtotal, pricing.shipping);
 
       let discount = 0;
       if (parsed.data.couponCode) {
@@ -244,7 +245,8 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
           .where(eq(coupons.id, coupon.id));
       }
 
-      const total = subtotal + shipping + tax - discount;
+      const tax = computeTax(subtotal, shipping, discount, pricing.tax);
+      const total = Math.max(0, subtotal + shipping + tax - discount);
 
       await tx.insert(orders).values({
         id: orderId,
@@ -356,13 +358,23 @@ export async function getOrders() {
     const { withRLS } = await import("@/lib/db/rls");
     const user = await requireAuth();
 
-    return await withRLS(user, async (tx) =>
-      tx
-        .select()
+    return await withRLS(user, async (tx) => {
+      const rows = await tx
+        .select({
+          order: orders,
+          itemCount: sql<number>`count(${orderItems.id})`,
+        })
         .from(orders)
+        .leftJoin(orderItems, eq(orderItems.orderId, orders.id))
         .where(eq(orders.userId, user.id))
-        .orderBy(orders.createdAt)
-    );
+        .groupBy(orders.id)
+        .orderBy(desc(orders.createdAt));
+
+      return rows.map((row) => ({
+        ...row.order,
+        itemCount: Number(row.itemCount),
+      }));
+    });
   } catch (error) {
     console.error("[getOrders] Failed to fetch orders:", error);
     return [];
@@ -390,7 +402,13 @@ export async function getOrder(orderId: string) {
     .from(orderItems)
     .where(eq(orderItems.orderId, orderId));
 
-  return { ...order, items };
+  const [shippingAddress] = await dbInstance
+    .select()
+    .from(addresses)
+    .where(eq(addresses.id, order.shippingAddressId))
+    .limit(1);
+
+  return { ...order, items, shippingAddress: shippingAddress ?? null };
 }
 
 export async function cancelOrder(orderId: string) {

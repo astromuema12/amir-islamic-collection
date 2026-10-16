@@ -1,12 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, MessageCircle, Globe, Camera, Play, Briefcase, Clock } from "lucide-react"
+import { Mail, Phone, MapPin, Send, Loader2, CheckCircle2, MessageCircle, Camera, Music2, Clock } from "lucide-react"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
+import { submitContactMessage } from "@/lib/actions/contact-actions"
+import toast from "react-hot-toast"
 
 const contactInfo = [
   {
@@ -40,11 +42,18 @@ const contactInfo = [
 ]
 
 const socialLinks = [
-  { label: "Facebook", icon: MessageCircle, href: "#" },
-  { label: "Twitter / X", icon: Globe, href: "#" },
-  { label: "Instagram", icon: Camera, href: "#" },
-  { label: "YouTube", icon: Play, href: "#" },
-  { label: "LinkedIn", icon: Briefcase, href: "#" },
+  {
+    label: "Instagram",
+    icon: Camera,
+    href: "https://www.instagram.com/invites/contact/?utm_source=ig_contact_invite&utm_medium=copy_link&utm_content=4rx6sc5",
+  },
+  {
+    label: "TikTok",
+    icon: Music2,
+    href: "https://www.tiktok.com/@amir.islamic.coll?_r=1&_t=ZS-98Lwhy4rQqw",
+  },
+  { label: "WhatsApp", icon: MessageCircle, href: "https://wa.me/254759632162" },
+  { label: "Email", icon: Mail, href: "mailto:amirislamiccollections@gmail.com" },
 ]
 
 export default function ContactPage() {
@@ -60,12 +69,26 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setIsSubmitting(false)
-    setIsSuccess(true)
-    setFormData({ name: "", email: "", subject: "", message: "" })
-    setTimeout(() => setIsSuccess(false), 5000)
+    try {
+      const fd = new FormData()
+      fd.append("name", formData.name)
+      fd.append("email", formData.email)
+      fd.append("subject", formData.subject)
+      fd.append("message", formData.message)
+
+      const result = await submitContactMessage(fd)
+      if ("error" in result) {
+        toast.error(result.error)
+        return
+      }
+      setIsSuccess(true)
+      setFormData({ name: "", email: "", subject: "", message: "" })
+      setTimeout(() => setIsSuccess(false), 5000)
+    } catch {
+      toast.error("Something went wrong. Please try again later.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

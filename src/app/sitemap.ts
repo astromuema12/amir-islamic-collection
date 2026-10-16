@@ -15,7 +15,6 @@ const staticPages: MetadataRoute.Sitemap = [
   { url: `${baseUrl}/cookies`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.2 },
   { url: `${baseUrl}/categories`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.7 },
   { url: `${baseUrl}/reviews`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.6 },
-  { url: `${baseUrl}/sellers`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.5 },
   { url: `${baseUrl}/compare`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.3 },
 ];
 

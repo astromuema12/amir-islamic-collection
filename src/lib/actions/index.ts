@@ -6,3 +6,4 @@ export * from "./cart-actions";
 export { updateOrderStatus, updatePaymentStatus } from "./admin-actions";
 export * from "./admin-actions";
 export * from "./order-actions";
+export * from "./contact-actions";

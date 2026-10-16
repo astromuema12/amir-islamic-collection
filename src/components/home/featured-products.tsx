@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn, formatPrice, calculateDiscount } from "@/lib/utils"
-import { useWishlistStore } from "@/store"
+import { useWishlistStore, useCartStore } from "@/store"
 import toast from "react-hot-toast"
 
 function StarRating({ rating }: { rating: number }) {
@@ -35,11 +35,26 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 function FeaturedProductCard({ product, index }: { product: Product; index: number }) {
+  const addItem = useCartStore((s) => s.addItem)
   const toggleItem = useWishlistStore((s) => s.toggleItem)
   const inWishlist = useWishlistStore((s) => s.isInWishlist(product.id))
   const discount = product.discountPrice
     ? calculateDiscount(product.price, product.discountPrice)
     : 0
+
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    addItem({
+      productId: product.id,
+      name: product.name,
+      image: product.images?.[0] || "/placeholder.svg",
+      price: product.discountPrice || product.price,
+      quantity: 1,
+      maxQuantity: product.stock,
+    })
+    toast.success("Added to cart")
+  }
 
   function handleToggleWishlist(e: React.MouseEvent) {
     e.preventDefault()
@@ -110,10 +125,11 @@ function FeaturedProductCard({ product, index }: { product: Product; index: numb
             <Button
               size="sm"
               className="w-full gap-2 rounded-xl"
-              onClick={(e) => e.preventDefault()}
+              onClick={handleAddToCart}
+              disabled={product.stock === 0}
             >
               <ShoppingBag className="h-4 w-4" />
-              Add to Cart
+              {product.stock === 0 ? "Sold Out" : "Add to Cart"}
             </Button>
           </div>
         </div>

@@ -3,12 +3,13 @@
 import { useMemo } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, ShoppingCart, Star } from "lucide-react"
+import { Heart, ShoppingCart, Star, GitCompare } from "lucide-react"
 import { cn, formatPrice, calculateDiscount } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/store"
 import { useWishlistStore } from "@/store"
+import { useUIStore } from "@/store"
 import toast from "react-hot-toast"
 import type { Product } from "@/types"
 
@@ -21,6 +22,9 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem)
   const toggleItem = useWishlistStore((s) => s.toggleItem)
   const inWishlist = useWishlistStore((s) => s.isInWishlist(product.id))
+  const addToCompare = useUIStore((s) => s.addToCompare)
+  const removeFromCompare = useUIStore((s) => s.removeFromCompare)
+  const inCompare = useUIStore((s) => s.isInCompare(product.id))
 
   const discount = useMemo(() => {
     if (product.discountPrice && product.discountPrice < product.price) {
@@ -52,6 +56,18 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
     const before = useWishlistStore.getState().isInWishlist(product.id)
     toggleItem(product.id)
     toast.success(before ? "Removed from wishlist" : "Added to wishlist")
+  }
+
+  const handleToggleCompare = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (inCompare) {
+      removeFromCompare(product.id)
+      toast.success("Removed from compare")
+    } else {
+      addToCompare(product)
+      toast.success("Added to compare")
+    }
   }
 
   if (view === "list") {
@@ -103,6 +119,15 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
               )}
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-9 w-9"
+                onClick={handleToggleCompare}
+                aria-label={inCompare ? "Remove from compare" : "Add to compare"}
+              >
+                <GitCompare className={cn("h-4 w-4", inCompare && "text-primary")} />
+              </Button>
               <Button
                 size="icon"
                 variant="ghost"
@@ -205,6 +230,15 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
                 Add
               </>
             )}
+          </Button>
+          <Button
+            size="icon"
+            variant="outline"
+            className="h-8 w-8 shrink-0"
+            onClick={handleToggleCompare}
+            aria-label={inCompare ? "Remove from compare" : "Add to compare"}
+          >
+            <GitCompare className={cn("h-3.5 w-3.5", inCompare && "text-primary")} />
           </Button>
           <Button
             size="icon"

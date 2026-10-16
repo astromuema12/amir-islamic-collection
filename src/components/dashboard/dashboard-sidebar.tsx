@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { useCurrentUser } from "@/hooks/use-current-user"
+import { useLogout } from "@/hooks/use-logout"
 import {
   LayoutDashboard,
   User,
@@ -53,6 +54,7 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname()
   const { user, loading } = useCurrentUser()
+  const { logout } = useLogout()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const userName = user?.name ?? ""
@@ -188,6 +190,7 @@ export function DashboardSidebar({
 
         <div className="p-3">
           <button
+            onClick={logout}
             className={cn(
               "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive",
               isCollapsed && "justify-center px-2"

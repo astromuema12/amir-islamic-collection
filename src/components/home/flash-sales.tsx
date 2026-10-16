@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Reveal } from "@/components/ui/reveal"
 import { formatPrice, calculateDiscount } from "@/lib/utils"
+import { useCartStore } from "@/store"
+import toast from "react-hot-toast"
 
 interface TimeLeft {
   days: number
@@ -74,7 +76,23 @@ function CountdownTimer() {
 }
 
 export function FlashSales({ products }: { products: Product[] }) {
+  const addItem = useCartStore((s) => s.addItem)
+
   if (products.length === 0) return null
+
+  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addItem({
+      productId: product.id,
+      name: product.name,
+      image: product.images?.[0] || "/placeholder.svg",
+      price: product.discountPrice || product.price,
+      quantity: 1,
+      maxQuantity: product.stock,
+    })
+    toast.success("Added to cart")
+  }
 
   const flashDeals = products.map((p) => {
     const total = p.salesCount + p.stock
@@ -175,12 +193,11 @@ export function FlashSales({ products }: { products: Product[] }) {
                       <Button
                         size="sm"
                         className="w-full gap-2 rounded-xl"
-                        onClick={(e) => {
-                          e.preventDefault()
-                        }}
+                        onClick={(e) => handleAddToCart(e, product)}
+                        disabled={product.stock === 0}
                       >
                         <ShoppingBag className="h-4 w-4" />
-                        Add to Cart
+                        {product.stock === 0 ? "Sold Out" : "Add to Cart"}
                       </Button>
                     </div>
                   </div>
