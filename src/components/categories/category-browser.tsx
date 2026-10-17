@@ -117,11 +117,11 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
             {categories.map((category) => {
               const isActive = category.slug === active?.slug
               return (
-                <button
+                <Link
                   key={category.id}
-                  type="button"
+                  href={`/categories/${category.slug}`}
                   onClick={() => setActiveSlug(category.slug)}
-                  aria-current={isActive ? "true" : undefined}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "group relative flex items-center gap-1 rounded-md px-2 py-2 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring lg:gap-2.5 lg:rounded-lg lg:px-3 lg:py-2.5",
                     isActive
@@ -150,7 +150,7 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
                   >
                     {category.name}
                   </span>
-                </button>
+                </Link>
               )
             })}
           </nav>
