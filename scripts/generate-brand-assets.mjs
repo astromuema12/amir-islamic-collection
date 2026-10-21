@@ -137,9 +137,11 @@ async function plateSvg(mark, size, scale, rx) {
   const uri = await markDataUri(mark, Math.min(size * 2, 640));
   const pad = (size * (1 - scale)) / 2;
 
+  // `href` (SVG2) and `xlink:href` (SVG1.1) are both emitted so every browser
+  // resolves the embedded artwork.
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Amir Islamic Collections">
   <rect width="${size}" height="${size}" rx="${rx}" fill="${PLATE}"/>
-  <image x="${pad.toFixed(2)}" y="${pad.toFixed(2)}" width="${(size - pad * 2).toFixed(2)}" height="${(size - pad * 2).toFixed(2)}" preserveAspectRatio="xMidYMid meet" xlink:href="${uri}"/>
+  <image x="${pad.toFixed(2)}" y="${pad.toFixed(2)}" width="${(size - pad * 2).toFixed(2)}" height="${(size - pad * 2).toFixed(2)}" preserveAspectRatio="xMidYMid meet" href="${uri}" xlink:href="${uri}"/>
 </svg>
 `;
 }
