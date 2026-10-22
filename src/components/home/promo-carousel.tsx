@@ -15,6 +15,9 @@ const SLIDES = [
     description: "Prayer mats, Qur'an collections, hijabs, perfumes, clothing and more.",
     cta: "Shop Now",
     href: "/products",
+    image: "/categories/quran.jpeg",
+    imageAlt:
+      "Qur'an and book stand photographed against a soft studio backdrop from the premium Islamic essentials collection",
     gradient: "from-emerald-950 via-emerald-900 to-emerald-800",
     accent: "text-amber-300",
   },
@@ -26,6 +29,9 @@ const SLIDES = [
     description: "Beautiful prayer essentials designed for comfort and devotion.",
     cta: "Explore Essentials",
     href: "/categories",
+    image: "/categories/ramadhan-collection.jpeg",
+    imageAlt:
+      "Handcrafted brass lantern glowing warmly, part of the Ramadan worship essentials collection",
     gradient: "from-emerald-950 via-emerald-900 to-teal-900",
     accent: "text-amber-300",
   },
@@ -37,12 +43,12 @@ const SLIDES = [
     description: "Thoughtful gifts for family, friends and loved ones.",
     cta: "Gift Collection",
     href: "/categories/eid-collection",
+    image: "/categories/eid-collection.jpeg",
+    imageAlt: "Eid gift arrangement with golden festive pieces ready to be wrapped",
     gradient: "from-emerald-950 via-emerald-900 to-emerald-900",
     accent: "text-amber-300",
   },
 ]
-
-const HERO_IMAGE = "/hero/hero-essentials.png"
 
 export function PromoCarousel() {
   const [current, setCurrent] = useState(0)
@@ -160,9 +166,9 @@ export function PromoCarousel() {
                   className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-emerald-950/70 to-transparent"
                 />
 
-                <div className="relative grid items-center lg:grid-cols-[45fr_55fr]">
+                <div className="relative grid items-center lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                   {/* Copy column */}
-                  <div className="px-5 pb-4 pt-8 sm:px-8 sm:pb-6 sm:pt-10 lg:px-12 lg:py-16">
+                  <div className="px-5 pb-4 pt-8 sm:px-8 sm:pb-6 sm:pt-10 lg:px-12 lg:py-14">
                     <span
                       className={cn(
                         "inline-flex max-w-full items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] backdrop-blur-sm",
@@ -196,17 +202,41 @@ export function PromoCarousel() {
                     </span>
                   </div>
 
-                  {/* Product photograph column */}
-                  <div className="relative w-full px-3 pb-10 sm:px-6 lg:px-0 lg:pb-0 lg:pr-8">
-                    <div className="relative mx-auto aspect-[16/11] w-full max-w-[520px] lg:aspect-auto lg:h-[500px] lg:max-w-[680px]">
-                      <Image
-                        src={HERO_IMAGE}
-                        alt="Prayer mat, Qur'an, tasbih beads, perfume and folded textile from the Islamic essentials collection"
-                        fill
-                        priority={index === 0}
-                        sizes="(min-width: 1024px) 55vw, 100vw"
-                        className="object-contain"
+                  {/* Framed product photograph */}
+                  <div className="relative w-full px-5 pb-12 sm:px-8 lg:px-8 lg:pb-0 lg:pr-12">
+                    <div className="relative mx-auto w-full max-w-[480px] lg:ml-auto lg:mr-0">
+                      {/* Geometric accent behind the photograph */}
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute -right-4 -top-5 hidden h-56 w-56 rotate-12 rounded-[2rem] border border-amber-300/20 sm:block"
                       />
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute -bottom-8 -left-6 h-52 w-52 rounded-full bg-amber-300/10 blur-3xl"
+                      />
+
+                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl border border-white/12 bg-emerald-950/60 shadow-[0_36px_70px_-28px_rgba(2,20,16,0.9)] ring-1 ring-inset ring-white/10 sm:aspect-[4/3]">
+                        <Image
+                          src={slide.image}
+                          alt={slide.imageAlt}
+                          fill
+                          priority={index === 0}
+                          sizes="(min-width: 640px) 480px, 92vw"
+                          className="object-cover object-[50%_42%]"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-emerald-950/45 via-transparent to-transparent"
+                        />
+                      </div>
+
+                      {/* Slide counter seal */}
+                      <span
+                        aria-hidden="true"
+                        className="absolute -left-3 -top-3 flex h-11 w-11 items-center justify-center rounded-full border border-amber-300/40 bg-emerald-950 text-xs font-semibold tracking-widest text-amber-200 shadow-lg shadow-emerald-950/60 sm:-left-5 sm:-top-5"
+                      >
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
                     </div>
                   </div>
                 </div>
