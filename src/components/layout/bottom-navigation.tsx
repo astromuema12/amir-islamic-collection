@@ -79,12 +79,12 @@ export function BottomNavigation() {
                     </span>
                   )}
                 </span>
-          <span
-            className={cn(
-              "w-full max-w-full truncate text-center text-[8px] font-medium leading-none min-[340px]:text-[9px] min-[360px]:text-[10px] transition-colors",
-              isActive ? "text-primary" : "text-muted-foreground"
-            )}
-          >
+                <span
+                  className={cn(
+                    "w-full max-w-full truncate text-center text-[8px] font-medium leading-none min-[340px]:text-[9px] min-[360px]:text-[10px] transition-colors",
+                    active ? "text-primary" : "text-muted-foreground"
+                  )}
+                >
                   {item.label}
                 </span>
                 <span
