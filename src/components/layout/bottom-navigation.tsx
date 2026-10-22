@@ -64,12 +64,12 @@ export function BottomNavigation() {
                 href={item.href}
                 aria-label={item.label}
                 aria-current={active ? "page" : undefined}
-                className="group relative flex flex-col items-center justify-center gap-1"
+                className="group relative flex min-w-0 flex-col items-center justify-center gap-1 px-0"
               >
                 <span className="relative">
                   <item.icon
                     className={cn(
-                      "h-[22px] w-[22px] transition-colors",
+                      "h-5 w-5 transition-colors min-[360px]:h-[22px] min-[360px]:w-[22px]",
                       active ? "text-primary" : "text-muted-foreground"
                     )}
                   />
@@ -79,12 +79,12 @@ export function BottomNavigation() {
                     </span>
                   )}
                 </span>
-                <span
-                  className={cn(
-                    "text-[10px] font-medium leading-none",
-                    active ? "text-primary" : "text-muted-foreground"
-                  )}
-                >
+          <span
+            className={cn(
+              "w-full max-w-full truncate text-center text-[8px] font-medium leading-none min-[340px]:text-[9px] min-[360px]:text-[10px] transition-colors",
+              isActive ? "text-primary" : "text-muted-foreground"
+            )}
+          >
                   {item.label}
                 </span>
                 <span

@@ -133,7 +133,7 @@ export function FlashSales({ products }: { products: Product[] }) {
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 max-[319px]:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {flashDeals.map((product, index) => {
             const discount = product.discountPrice
               ? calculateDiscount(product.price, product.discountPrice)

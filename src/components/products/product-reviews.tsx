@@ -34,9 +34,9 @@ export function ProductReviews({ reviews, productId, averageRating, reviewCount 
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <h2 className="text-2xl font-bold text-foreground">Customer Reviews</h2>
-        <Button onClick={() => setShowReviewForm(!showReviewForm)}>
+        <Button className="w-full sm:w-auto" onClick={() => setShowReviewForm(!showReviewForm)}>
           {showReviewForm ? "Cancel" : "Write a Review"}
         </Button>
       </div>

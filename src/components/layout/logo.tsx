@@ -44,7 +44,7 @@ export function Logo({
         />
       </span>
       {!markOnly && (
-        <span className="flex min-w-0 flex-col leading-none">
+        <span className="flex min-w-0 flex-col leading-none max-[319px]:hidden">
           <span
             className={cn(
               "font-bold tracking-tight premium-heading whitespace-nowrap text-foreground",

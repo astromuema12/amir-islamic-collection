@@ -80,17 +80,17 @@ export default function HelpPage() {
             <h2 className="text-2xl font-semibold mb-6">Contact Us</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               {contactMethods.map((method) => (
-                <Card key={method.title} className="border-2 hover:border-primary/50 transition-colors">
-                  <a href={method.href} target={method.href?.startsWith("http") ? "_blank" : undefined} rel={method.href?.startsWith("http") ? "noopener noreferrer" : undefined}>
-                    <CardContent className="p-6 text-center">
+                <Card key={method.title} className="border-2 hover:border-primary/50 transition-colors min-w-0">
+                  <a href={method.href} target={method.href?.startsWith("http") ? "_blank" : undefined} rel={method.href?.startsWith("http") ? "noopener noreferrer" : undefined} className="block min-w-0">
+                    <CardContent className="p-4 sm:p-6 text-center min-w-0">
                       <div className="flex justify-center mb-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                           <method.icon className="h-6 w-6 text-primary" />
                         </div>
                       </div>
-                      <h3 className="font-semibold mb-1">{method.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-3">{method.description}</p>
-                      <p className="text-sm font-medium text-primary break-all">{method.action}</p>
+                      <h3 className="font-semibold mb-1 truncate">{method.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 break-all min-w-0">{method.description}</p>
+                      <p className="text-sm font-medium text-primary break-all min-w-0">{method.action}</p>
                     </CardContent>
                   </a>
                 </Card>

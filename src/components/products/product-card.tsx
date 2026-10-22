@@ -98,10 +98,10 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
 
   if (view === "list") {
     return (
-      <div className="group relative flex gap-3 rounded-2xl border border-border/60 bg-card p-3 shadow-[0_1px_1px_rgba(0,0,0,0.01),0_10px_30px_-22px_rgba(16,185,129,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_14px_44px_-20px_rgba(16,185,129,0.6)] sm:gap-4 sm:p-4">
+      <div className="group relative flex gap-3 rounded-2xl border border-border/60 bg-card p-3 shadow-[0_1px_1px_rgba(0,0,0,0.01),0_10px_30px_-22px_rgba(16,185,129,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_14px_44px_-20px_rgba(16,185,129,0.6)] max-[359px]:gap-2.5 max-[359px]:p-2.5 sm:gap-4 sm:p-4">
         <Link
           href={`/products/${product.slug}`}
-          className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-muted/50 to-muted ring-1 ring-inset ring-white/10 sm:h-36 sm:w-36"
+          className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-muted/50 to-muted ring-1 ring-inset ring-white/10 max-[359px]:h-20 max-[359px]:w-20 sm:h-36 sm:w-36"
         >
           <Image
             src={imageUrl}
@@ -183,11 +183,11 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
               <span className={cn("mt-0.5 text-[11px] font-medium", stockTone)}>{stockLabel}</span>
             </div>
 
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1">
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 rounded-full text-muted-foreground transition-colors hover:bg-emerald-500/10 hover:text-emerald-400"
+                className="h-9 w-9 rounded-full text-muted-foreground transition-colors hover:bg-emerald-500/10 hover:text-emerald-400 max-[359px]:h-8 max-[359px]:w-8"
                 onClick={handleToggleCompare}
                 aria-label={inCompare ? "Remove from compare" : "Add to compare"}
               >
@@ -196,7 +196,7 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
               <Button
                 size="icon"
                 variant="ghost"
-                className="h-9 w-9 rounded-full text-muted-foreground transition-colors hover:bg-rose-500/10 hover:text-rose-400"
+                className="h-9 w-9 rounded-full text-muted-foreground transition-colors hover:bg-rose-500/10 hover:text-rose-400 max-[359px]:h-8 max-[359px]:w-8"
                 onClick={handleToggleWishlist}
                 aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
               >
@@ -204,7 +204,7 @@ export function ProductCard({ product, view = "grid" }: ProductCardProps) {
               </Button>
               <Button
                 size="icon"
-                className="h-9 w-9 rounded-full bg-transparent bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_8px_20px_-12px_rgba(16,185,129,0.9)] transition-all hover:bg-transparent hover:from-emerald-400 hover:to-emerald-500 focus-visible:ring-emerald-400/60 active:scale-[0.98] disabled:opacity-50"
+                className="h-9 w-9 rounded-full bg-transparent bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_8px_20px_-12px_rgba(16,185,129,0.9)] transition-all hover:bg-transparent hover:from-emerald-400 hover:to-emerald-500 focus-visible:ring-emerald-400/60 active:scale-[0.98] disabled:opacity-50 max-[359px]:h-8 max-[359px]:w-8"
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
                 aria-label={isOutOfStock ? "Out of stock" : "Add to cart"}

@@ -134,8 +134,8 @@ export default async function CategoryPage(props: CategoryPageProps) {
       fallback={
         <div className="container mx-auto px-4 py-6">
           <div className="space-y-4">
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-6 w-72" />
+            <Skeleton className="h-8 w-48 max-w-full" />
+            <Skeleton className="h-6 w-full max-w-72" />
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <Skeleton key={i} className="aspect-square rounded-xl" />

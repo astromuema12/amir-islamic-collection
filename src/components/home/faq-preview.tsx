@@ -57,7 +57,7 @@ export function FAQPreview() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-start">
           <Reveal
-            x={-20}
+            y={20}
             margin="-100px"
           >
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-medium text-primary mb-4">
@@ -98,9 +98,9 @@ export function FAQPreview() {
           </Reveal>
 
           <Reveal
-            x={20}
+            y={20}
             margin="-100px"
-            className="space-y-2"
+            className="min-w-0 space-y-2"
           >
             {faqs.map((faq, index) => (
               <div

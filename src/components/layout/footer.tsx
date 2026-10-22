@@ -125,9 +125,9 @@ export function Footer() {
                   <Phone className="h-4 w-4 shrink-0 text-primary" />
                   <span>+254769269694</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
                   <Mail className="h-4 w-4 shrink-0 text-primary" />
-                  <a href="mailto:amirislamiccollections@gmail.com" className="hover:text-primary transition-colors">amirislamiccollections@gmail.com</a>
+                  <a href="mailto:amirislamiccollections@gmail.com" className="min-w-0 break-all hover:text-primary transition-colors">amirislamiccollections@gmail.com</a>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MessageCircle className="h-4 w-4 shrink-0 text-primary" />

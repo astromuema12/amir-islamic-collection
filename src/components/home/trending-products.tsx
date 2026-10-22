@@ -54,7 +54,7 @@ export function TrendingProducts({ products }: { products: Product[] }) {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 max-[319px]:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product, index) => (
             <motion.div
               key={product.id}

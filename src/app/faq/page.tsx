@@ -247,26 +247,26 @@ export default function FAQPage() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-        <div className="grid lg:grid-cols-4 gap-8">
-          <nav className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+          <nav className="lg:col-span-1 min-w-0">
             <div className="lg:sticky lg:top-24 space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                 Categories
               </p>
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide lg:flex-col lg:overflow-visible lg:pb-0">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide lg:flex-col lg:overflow-visible lg:pb-0 min-w-0 w-full">
                 {faqCategories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => toggleCategory(cat.id)}
                     className={cn(
-                      "flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg text-sm transition-colors px-3 py-2",
+                      "flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg text-sm transition-colors px-2.5 py-1.5 sm:px-3 sm:py-2 min-w-0 max-w-[70vw] sm:max-w-none",
                       openCategory === cat.id
                         ? "bg-primary/10 text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     )}
                   >
                     <cat.icon className="h-4 w-4 shrink-0" />
-                    <span>{cat.label}</span>
+                    <span className="truncate">{cat.label}</span>
                   </button>
                 ))}
               </div>

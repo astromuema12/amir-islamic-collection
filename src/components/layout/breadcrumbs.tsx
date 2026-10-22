@@ -14,29 +14,30 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   return (
-    <nav aria-label="Breadcrumb" className={cn("flex items-center gap-1 text-sm text-muted-foreground", className)}>
+    <nav aria-label="Breadcrumb" className={cn("flex flex-wrap items-center gap-1 text-xs sm:text-sm text-muted-foreground min-w-0", className)}>
       <Link
         href="/"
-        className="flex items-center gap-1 hover:text-primary transition-colors"
+        className="flex items-center gap-1 hover:text-primary transition-colors min-w-0"
       >
-        <Home className="h-4 w-4" />
+        <Home className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
         <span className="sr-only">Home</span>
       </Link>
       {items.map((item, index) => {
         const isLast = index === items.length - 1
         return (
-          <span key={index} className="flex items-center gap-1">
-            <ChevronRight className="h-4 w-4" />
+          <span key={index} className="flex items-center gap-1 min-w-0">
+            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
             {item.href && !isLast ? (
               <Link
                 href={item.href}
-                className="hover:text-primary transition-colors"
+                className="hover:text-primary transition-colors truncate max-w-[140px] sm:max-w-none"
               >
                 {item.label}
               </Link>
             ) : (
               <span
                 className={cn(
+                  "min-w-0 truncate max-w-[160px] sm:max-w-none",
                   isLast && "text-foreground font-medium"
                 )}
                 aria-current={isLast ? "page" : undefined}

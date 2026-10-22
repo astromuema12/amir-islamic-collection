@@ -118,8 +118,8 @@ export default function ContactPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+        <div className="grid min-w-0 grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="min-w-0 lg:col-span-2">
             <Card className="border-2">
               <CardContent className="p-6 sm:p-8">
                 <h2 className="text-xl font-semibold mb-6">Send Us a Message</h2>
@@ -220,7 +220,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {contactInfo.map((info) => (
               <Card key={info.label} className="border-2">
                 <CardContent className="p-5">
@@ -228,12 +228,12 @@ export default function ContactPage() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 shrink-0">
                       <info.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <h3 className="font-medium text-sm mb-1">{info.label}</h3>
                       {info.href ? (
                         <a
                           href={info.href}
-                          className="text-sm text-muted-foreground hover:text-primary transition-colors whitespace-pre-line"
+                          className="block break-words text-sm text-muted-foreground hover:text-primary transition-colors whitespace-pre-line"
                         >
                           {info.value}
                         </a>

@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 function ProductGridLoader() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-3 max-[319px]:grid-cols-1 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
       {Array.from({ length: 10 }).map((_, i) => (
         <div key={i} className="overflow-hidden rounded-xl border">
           <Skeleton className="aspect-square w-full rounded-none" />
