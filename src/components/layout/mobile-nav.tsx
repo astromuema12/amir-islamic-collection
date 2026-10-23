@@ -23,6 +23,7 @@ import {
   Star,
   Moon,
   Sun,
+  GitCompare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -63,6 +64,7 @@ export function MobileNav({
     { href: "/", label: "Home", icon: Home },
     { href: "/products", label: "Shop", icon: ShoppingBag },
     { href: "/wishlist", label: "Wishlist", icon: Heart, count: wishlistItemCount },
+    { href: "/compare", label: "Compare", icon: GitCompare },
     { href: "/account", label: "My Account", icon: User },
     { href: "/orders", label: "Orders", icon: Package },
   ]

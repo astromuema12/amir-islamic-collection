@@ -32,6 +32,7 @@ const QUICK_LINKS = [
   { href: "/faq", label: "FAQ" },
   { href: "/blog", label: "Our Blog" },
   { href: "/careers", label: "Careers" },
+  { href: "/compare", label: "Compare Products" },
   { href: "/sitemap.xml", label: "Sitemap" },
 ]
 
@@ -331,7 +332,7 @@ export function Footer() {
       <Button
         onClick={scrollToTop}
         size="icon"
-        className="fixed bottom-40 right-4 z-40 h-10 w-10 rounded-full shadow-lg md:bottom-24 md:right-6"
+        className="fixed bottom-[calc(10rem+env(safe-area-inset-bottom,0px))] right-4 z-40 h-10 w-10 rounded-full shadow-lg md:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] md:right-6"
         aria-label="Scroll to top"
       >
         <ArrowUp className="h-5 w-5" />

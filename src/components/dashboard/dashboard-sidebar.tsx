@@ -46,16 +46,28 @@ const navItems: NavItem[] = [
 interface DashboardSidebarProps {
   isCollapsed?: boolean
   onToggle?: () => void
+  mobileOpen?: boolean
+  onMobileOpenChange?: (open: boolean) => void
+  hideMobileTrigger?: boolean
 }
 
 export function DashboardSidebar({
   isCollapsed = false,
   onToggle,
+  mobileOpen: mobileOpenProp,
+  onMobileOpenChange,
+  hideMobileTrigger = false,
 }: DashboardSidebarProps) {
   const pathname = usePathname()
   const { user, loading } = useCurrentUser()
   const { logout } = useLogout()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpenInternal, setMobileOpenInternal] = useState(false)
+  const isMobileControlled = mobileOpenProp !== undefined || onMobileOpenChange !== undefined
+  const mobileOpen = isMobileControlled ? (mobileOpenProp ?? false) : mobileOpenInternal
+  const setMobileOpen = (open: boolean) => {
+    if (onMobileOpenChange) onMobileOpenChange(open)
+    if (!isMobileControlled) setMobileOpenInternal(open)
+  }
 
   const userName = user?.name ?? ""
   const userEmail = user?.email ?? ""
@@ -68,13 +80,15 @@ export function DashboardSidebar({
 
   return (
     <>
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border bg-background shadow-sm lg:hidden"
-        aria-label="Open sidebar"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+      {!hideMobileTrigger && (
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg border bg-background shadow-sm lg:hidden"
+          aria-label="Open sidebar"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      )}
 
       <AnimatePresence>
         {mobileOpen && (

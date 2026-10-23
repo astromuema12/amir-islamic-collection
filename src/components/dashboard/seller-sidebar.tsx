@@ -50,6 +50,9 @@ interface SellerSidebarProps {
   storeLogo?: string
   isVerified?: boolean
   onLogout?: () => void
+  mobileOpen?: boolean
+  onMobileOpenChange?: (open: boolean) => void
+  hideMobileTrigger?: boolean
 }
 
 export function SellerSidebar({
@@ -57,11 +60,20 @@ export function SellerSidebar({
   storeLogo,
   isVerified,
   onLogout,
+  mobileOpen: mobileOpenProp,
+  onMobileOpenChange,
+  hideMobileTrigger = false,
 }: SellerSidebarProps) {
   const pathname = usePathname()
   const isMobile = useMediaQuery("(max-width: 1023px)")
   const [collapsed, setCollapsed] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpenInternal, setMobileOpenInternal] = useState(false)
+  const isMobileControlled = mobileOpenProp !== undefined || onMobileOpenChange !== undefined
+  const mobileOpen = isMobileControlled ? (mobileOpenProp ?? false) : mobileOpenInternal
+  const setMobileOpen = (open: boolean) => {
+    if (onMobileOpenChange) onMobileOpenChange(open)
+    if (!isMobileControlled) setMobileOpenInternal(open)
+  }
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
@@ -180,13 +192,15 @@ export function SellerSidebar({
   if (isMobile) {
     return (
       <>
-        <button
-          type="button"
-          onClick={() => setMobileOpen(true)}
-          className="fixed top-4 left-4 z-40 rounded-lg border bg-background p-2 shadow-sm"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
+        {!hideMobileTrigger && (
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            className="fixed top-4 left-4 z-40 rounded-lg border bg-background p-2 shadow-sm"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
         <AnimatePresence>
           {mobileOpen && (
             <>

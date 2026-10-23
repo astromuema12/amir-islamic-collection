@@ -109,10 +109,10 @@ export function CategoryBrowser({ categories }: CategoryBrowserProps) {
       <SearchBar className="mb-3 lg:mb-6" />
 
       <div className="flex items-stretch gap-2 lg:gap-6">
-        <aside className="w-[30%] max-w-[7.5rem] shrink-0 lg:w-64 lg:max-w-none">
+        <aside className="w-[28%] max-w-[6.5rem] shrink-0 sm:w-[26%] sm:max-w-[7rem] lg:w-64 lg:max-w-none">
           <nav
             aria-label="Main categories"
-            className="sticky top-[120px] flex max-h-[calc(100dvh-200px)] flex-col overflow-y-auto rounded-xl border bg-card p-1.5 shadow-sm scrollbar-thin lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:rounded-2xl lg:p-2"
+            className="sticky top-[120px] flex max-h-[calc(100dvh-200px)] flex-col overflow-y-auto rounded-xl border bg-card p-1 shadow-sm scrollbar-thin lg:top-24 lg:max-h-[calc(100vh-8rem)] lg:rounded-2xl lg:p-2"
           >
             {categories.map((category) => {
               const isActive = category.slug === active?.slug

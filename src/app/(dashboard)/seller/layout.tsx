@@ -6,6 +6,8 @@ import { motion } from "framer-motion"
 import { SellerSidebar } from "@/components/dashboard/seller-sidebar"
 import { csrfFetch } from "@/lib/csrf-client"
 import { APP_NAME } from "@/lib/constants"
+import { Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function SellerDashboardLayout({
   children,
@@ -15,6 +17,7 @@ export default function SellerDashboardLayout({
   const router = useRouter()
   const [storeName] = useState("Amir Store")
   const [isVerified] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const handleLogout = async () => {
     try {
@@ -31,26 +34,40 @@ export default function SellerDashboardLayout({
         storeName={storeName}
         isVerified={isVerified}
         onLogout={handleLogout}
+        mobileOpen={mobileOpen}
+        onMobileOpenChange={setMobileOpen}
+        hideMobileTrigger
       />
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center justify-between border-b bg-card pl-14 pr-4 py-3 lg:px-8">
-          <div className="flex items-center gap-2">
-            {!isVerified && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 rounded-full bg-warning/10 px-3 py-1 text-xs font-medium text-warning-foreground"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-warning" />
-                Your store is not yet verified. Complete your profile to get verified.
-              </motion.div>
-            )}
-            {isVerified && (
-              <div className="flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                Store Verified
-              </div>
-            )}
+        <div className="flex items-center justify-between border-b bg-card px-4 py-3 lg:px-8">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden -ml-1"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-2">
+              {!isVerified && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 rounded-full bg-warning/10 px-3 py-1 text-xs font-medium text-warning-foreground"
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                  Your store is not yet verified. Complete your profile to get verified.
+                </motion.div>
+              )}
+              {isVerified && (
+                <div className="flex items-center gap-2 rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                  Store Verified
+                </div>
+              )}
+            </div>
           </div>
           <p className="text-xs text-muted-foreground hidden sm:block">
             {APP_NAME} Seller Dashboard

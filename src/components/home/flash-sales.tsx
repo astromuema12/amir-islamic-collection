@@ -158,10 +158,21 @@ export function FlashSales({ products }: { products: Product[] }) {
                       </Badge>
                     </div>
 
-                    <div className="aspect-square bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center p-4 sm:p-8">
-                      <div className="text-4xl sm:text-6xl opacity-20 group-hover:scale-110 transition-transform duration-500">
-                        📦
-                      </div>
+                    <div className="relative aspect-square bg-gradient-to-br from-muted to-muted/50 overflow-hidden">
+                      {product.images?.[0] ? (
+                        <img
+                          src={product.images[0]}
+                          alt={product.name}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center p-4 sm:p-8">
+                          <div className="text-4xl sm:text-6xl opacity-20">
+                            📦
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="p-3 sm:p-4 space-y-3">

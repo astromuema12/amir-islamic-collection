@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
+import { Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   LayoutDashboard,
   User,
@@ -28,6 +30,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
@@ -39,10 +42,22 @@ export default function DashboardLayout({
       <DashboardSidebar
         isCollapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        mobileOpen={mobileOpen}
+        onMobileOpenChange={setMobileOpen}
+        hideMobileTrigger
       />
 
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm pl-14 pr-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/80 backdrop-blur-sm px-4 lg:px-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden -ml-1"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
           <div className="flex flex-1 items-center gap-2">
             <h1 className="text-lg font-semibold text-foreground">
               My Account
