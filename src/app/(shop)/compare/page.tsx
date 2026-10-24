@@ -177,11 +177,9 @@ export default function ComparePage() {
               Add products to compare by clicking the compare button on product
               cards.
             </p>
-            <Link href="/products">
-              <Button variant="default" size="lg" className="gap-2">
-                Browse Products
-              </Button>
-            </Link>
+            <Button asChild variant="default" size="lg" className="gap-2">
+              <Link href="/products">Browse Products</Link>
+            </Button>
           </div>
         ) : (
           <>
@@ -226,14 +224,14 @@ export default function ComparePage() {
               {products.length < 4 && (
                 <Card className="border-2 border-dashed">
                   <CardContent className="p-4 flex items-center justify-center min-h-[200px]">
-                    <div className="text-center">
+                    <Link href="/products" className="block text-center">
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mx-auto mb-3">
                         <Plus className="h-6 w-6 text-muted-foreground" />
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Add another product to compare
                       </p>
-                    </div>
+                    </Link>
                   </CardContent>
                 </Card>
               )}
@@ -268,14 +266,14 @@ export default function ComparePage() {
                   <div className="flex items-center justify-center">
                     <Card className="border-2 border-dashed h-full w-full">
                       <CardContent className="p-4 flex items-center justify-center h-full min-h-[400px]">
-                        <div className="text-center">
+                        <Link href="/products" className="block text-center">
                           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mx-auto mb-3">
                             <Plus className="h-6 w-6 text-muted-foreground" />
                           </div>
                           <p className="text-sm text-muted-foreground">
                             Add another product to compare
                           </p>
-                        </div>
+                        </Link>
                       </CardContent>
                     </Card>
                   </div>
@@ -313,12 +311,12 @@ export default function ComparePage() {
             </div>
 
             <div className="mt-8 flex justify-center">
-              <Link href="/products">
-                <Button variant="outline" size="lg" className="gap-2">
+              <Button asChild variant="outline" size="lg" className="gap-2">
+                <Link href="/products">
                   <ArrowLeft className="h-4 w-4" />
                   Continue Shopping
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </>
         )}

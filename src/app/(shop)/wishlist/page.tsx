@@ -173,12 +173,12 @@ export default function WishlistPage() {
               Save your favorite items here and come back to them later.
             </p>
           </div>
-          <Link href="/products">
-            <Button size="lg" className="gap-2 mt-2">
+          <Button asChild size="lg" className="gap-2 mt-2">
+            <Link href="/products">
               Explore Products
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </motion.div>
       </div>
     )

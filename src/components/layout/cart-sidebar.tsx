@@ -212,14 +212,23 @@ export function CartSidebar({
               <p className="text-xs text-muted-foreground">
                 Shipping and taxes calculated at checkout
               </p>
-              <Button
-                className="w-full gap-2"
-                size="lg"
-                onClick={onCheckout}
-              >
-                Checkout
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              {onCheckout ? (
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  onClick={onCheckout}
+                >
+                  Checkout
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button asChild className="w-full gap-2" size="lg">
+                  <Link href="/checkout">
+                    Checkout
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
               <Link
                 href="/cart"
                 className="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none border border-input bg-background hover:bg-accent hover:text-accent-foreground active:scale-[0.97] h-10 px-4 py-2 gap-2 w-full"

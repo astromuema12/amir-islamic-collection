@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { Phone, ExternalLink, Mail, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Reveal } from "@/components/ui/reveal"
@@ -244,10 +245,10 @@ export function ConnectWithUs() {
                 size="lg"
                 className="h-14 px-10 rounded-2xl bg-gradient-to-r from-[#D4AF37] to-[#c9a230] text-white hover:from-[#c9a230] hover:to-[#b8922a] shadow-lg shadow-[#D4AF37]/25 text-base gap-2 font-semibold transition-all duration-300 hover:shadow-xl hover:shadow-[#D4AF37]/30 hover:-translate-y-0.5"
               >
-                <a href="/contact">
+                <Link href="/contact">
                   Contact Us
                   <ExternalLink className="h-4 w-4" />
-                </a>
+                </Link>
               </Button>
             </Reveal>
           </div>

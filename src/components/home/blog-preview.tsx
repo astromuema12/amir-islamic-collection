@@ -115,12 +115,12 @@ export function BlogPreview() {
         </div>
 
         <Reveal y={10} delay={0.3} className="mt-8 text-center md:hidden">
-          <Link href="/blog">
-            <Button variant="outline" className="gap-2 rounded-xl">
+          <Button asChild variant="outline" className="gap-2 rounded-xl">
+            <Link href="/blog">
               View All Posts
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </Reveal>
       </div>
     </section>

@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   ShoppingBag,
@@ -24,6 +25,7 @@ import { useWishlistStore } from "@/store/wishlist-store"
 import { useUIStore } from "@/store/ui-store"
 import { computeDiscount, computeShipping, computeSubtotal } from "@/lib/pricing"
 import { usePricingConfig } from "@/hooks/use-pricing-config"
+import { validateCoupon } from "@/lib/actions/coupon-actions"
 import toast from "react-hot-toast"
 
 export default function CartPage() {
@@ -75,18 +77,12 @@ export default function CartPage() {
   }
 
   async function handleApplyCoupon(code: string): Promise<boolean> {
-    const couponData = {
-      id: code,
-      code,
-      type: "percentage" as const,
-      value: 10,
-      minOrderAmount: 0,
-      maxDiscount: 5000,
-      usageLimit: 100,
-      usedCount: 0,
-      isActive: true,
+    const result = await validateCoupon(code, subtotal)
+    if ("error" in result) {
+      toast.error(result.error)
+      return false
     }
-    applyCoupon(couponData)
+    applyCoupon(result.coupon)
     return true
   }
 
@@ -101,9 +97,11 @@ export default function CartPage() {
     toast.success("Saved to wishlist")
   }
 
+  const router = useRouter()
+
   function handleCheckout() {
     setIsCheckingOut(true)
-    window.location.href = "/checkout"
+    router.push("/checkout")
   }
 
   if (items.length === 0) {
@@ -124,12 +122,12 @@ export default function CartPage() {
               Looks like you haven&apos;t added anything yet. Start exploring our collection!
             </p>
           </div>
-          <Link href="/categories">
-            <Button size="lg" className="gap-2 mt-2">
+          <Button asChild size="lg" className="gap-2 mt-2">
+            <Link href="/categories">
               Start Shopping
               <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </motion.div>
 
         {recentlyViewed.length > 0 && (

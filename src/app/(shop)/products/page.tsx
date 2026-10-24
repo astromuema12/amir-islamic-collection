@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { Suspense } from "react"
 import { getProducts, getCategories, getBrands } from "@/lib/queries"
 import { Breadcrumbs } from "@/components/layout/breadcrumbs"
@@ -116,11 +117,14 @@ async function ProductsContent({ searchParams }: ProductsPageProps) {
                 if (params.maxPrice) hrefParams.set("maxPrice", params.maxPrice)
                 if (params.rating) hrefParams.set("rating", params.rating)
                 if (params.sort) hrefParams.set("sort", params.sort)
+                if (params.view) hrefParams.set("view", params.view)
                 if (pageNum > 1) hrefParams.set("page", String(pageNum))
                 return (
-                  <a
+                  <Link
                     key={pageNum}
-                    href={`?${hrefParams.toString()}`}
+                    href={`/products?${hrefParams.toString()}`}
+                    scroll={false}
+                    aria-current={isCurrent ? "page" : undefined}
                     className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                       isCurrent
                         ? "bg-primary text-primary-foreground"
@@ -128,7 +132,7 @@ async function ProductsContent({ searchParams }: ProductsPageProps) {
                     }`}
                   >
                     {pageNum}
-                  </a>
+                  </Link>
                 )
               })}
             </div>

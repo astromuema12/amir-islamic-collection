@@ -33,16 +33,17 @@ export function Reveal({
   once = true,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null)
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true
-    if (!("IntersectionObserver" in window)) return true
-    return false
-  })
+  const [visible, setVisible] = useState(true)
 
   useEffect(() => {
     const el = ref.current
-    if (!el || visible) return
+    if (!el) return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    if (!("IntersectionObserver" in window)) return
+
+    if (el.getBoundingClientRect().top < window.innerHeight) return
+
+    setVisible(false)
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -60,7 +61,7 @@ export function Reveal({
 
     observer.observe(el)
     return () => observer.disconnect()
-  }, [margin, once, visible])
+  }, [margin, once])
 
   return (
     <div

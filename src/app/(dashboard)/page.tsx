@@ -140,12 +140,12 @@ export default function DashboardPage() {
               <CardTitle>Recent Orders</CardTitle>
               <CardDescription>Your latest 5 orders</CardDescription>
             </div>
-            <Link href="/orders">
-              <Button variant="outline" size="sm" className="gap-1">
+            <Button asChild variant="outline" size="sm" className="gap-1">
+              <Link href="/orders">
                 View All
                 <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <Table>
@@ -195,30 +195,30 @@ export default function DashboardPage() {
               <CardTitle className="text-base">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Link href="/orders">
-                <Button variant="outline" className="w-full justify-start gap-2">
+              <Button asChild variant="outline" className="w-full justify-start gap-2">
+                <Link href="/orders">
                   <Package className="h-4 w-4" />
                   Track Orders
-                </Button>
-              </Link>
-              <Link href="/account">
-                <Button variant="outline" className="w-full justify-start gap-2">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full justify-start gap-2">
+                <Link href="/account">
                   <User className="h-4 w-4" />
                   Edit Profile
-                </Button>
-              </Link>
-              <Link href="/addresses">
-                <Button variant="outline" className="w-full justify-start gap-2">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full justify-start gap-2">
+                <Link href="/addresses">
                   <MapPin className="h-4 w-4" />
                   Manage Addresses
-                </Button>
-              </Link>
-              <Link href="/wishlist">
-                <Button variant="outline" className="w-full justify-start gap-2">
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full justify-start gap-2">
+                <Link href="/wishlist">
                   <Heart className="h-4 w-4" />
                   View Wishlist
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardContent>
           </Card>
 

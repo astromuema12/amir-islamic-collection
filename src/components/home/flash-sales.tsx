@@ -3,6 +3,7 @@
 import type { Product } from "@/types"
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Flame, Clock, ShoppingBag, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -146,25 +147,30 @@ export function FlashSales({ products }: { products: Product[] }) {
                 delay={index * 0.1}
                 margin="-50px"
               >
-                <Link href={`/products/${product.slug}`} className="group block">
-                  <div className="relative rounded-2xl border border-border/50 bg-card overflow-hidden card-hover">
-                    <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-                      <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 shadow-lg px-3 py-1">
-                        -{discount}%
-                      </Badge>
-                      <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm border-0">
-                        <Flame className="h-3 w-3 mr-1 text-orange-500" />
-                        Flash Sale
-                      </Badge>
-                    </div>
+                <div className="group relative rounded-2xl border border-border/50 bg-card overflow-hidden card-hover">
+                  <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+                    <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 shadow-lg px-3 py-1">
+                      -{discount}%
+                    </Badge>
+                    <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm border-0">
+                      <Flame className="h-3 w-3 mr-1 text-orange-500" />
+                      Flash Sale
+                    </Badge>
+                  </div>
 
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="block"
+                    aria-label={product.name}
+                  >
                     <div className="relative aspect-square bg-gradient-to-br from-muted to-muted/50 overflow-hidden">
                       {product.images?.[0] ? (
-                        <img
+                        <Image
                           src={product.images[0]}
                           alt={product.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          loading="lazy"
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center p-4 sm:p-8">
@@ -175,7 +181,7 @@ export function FlashSales({ products }: { products: Product[] }) {
                       )}
                     </div>
 
-                    <div className="p-3 sm:p-4 space-y-3">
+                    <div className="p-3 pb-0 sm:p-4 sm:pb-0 space-y-3">
                       <h3 className="font-semibold text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
                         {product.name}
                       </h3>
@@ -200,19 +206,21 @@ export function FlashSales({ products }: { products: Product[] }) {
                         </div>
                         <Progress value={product.soldPercent} className="h-1.5" />
                       </div>
-
-                      <Button
-                        size="sm"
-                        className="w-full gap-2 rounded-xl"
-                        onClick={(e) => handleAddToCart(e, product)}
-                        disabled={product.stock === 0}
-                      >
-                        <ShoppingBag className="h-4 w-4" />
-                        {product.stock === 0 ? "Sold Out" : "Add to Cart"}
-                      </Button>
                     </div>
+                  </Link>
+
+                  <div className="p-3 pt-3 sm:p-4 sm:pt-3">
+                    <Button
+                      size="sm"
+                      className="w-full gap-2 rounded-xl"
+                      onClick={(e) => handleAddToCart(e, product)}
+                      disabled={product.stock === 0}
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      {product.stock === 0 ? "Sold Out" : "Add to Cart"}
+                    </Button>
                   </div>
-                </Link>
+                </div>
               </Reveal>
             )
           })}

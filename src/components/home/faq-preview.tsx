@@ -88,12 +88,12 @@ export function FAQPreview() {
                 </div>
               </div>
 
-              <Link href="/faq">
-                <Button variant="outline" className="gap-2 rounded-xl">
+              <Button asChild variant="outline" className="gap-2 rounded-xl">
+                <Link href="/faq">
                   View All FAQs
                   <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </Reveal>
 

@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { APP_NAME, CATEGORIES } from "@/lib/constants"
 import { Logo } from "@/components/layout/logo"
+import { subscribeNewsletter } from "@/lib/actions/contact-actions"
 
 const QUICK_LINKS = [
   { href: "/about", label: "About Us" },
@@ -89,15 +90,26 @@ export function Footer() {
   const [email, setEmail] = useState("")
   const [isSubscribing, setIsSubscribing] = useState(false)
   const [subscribed, setSubscribed] = useState(false)
+  const [error, setError] = useState("")
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
     setIsSubscribing(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsSubscribing(false)
-    setSubscribed(true)
-    setEmail("")
+    setError("")
+    try {
+      const result = await subscribeNewsletter(email)
+      if ("error" in result) {
+        setError(result.error)
+        return
+      }
+      setSubscribed(true)
+      setEmail("")
+    } catch {
+      setError("Subscription failed. Please try again later.")
+    } finally {
+      setIsSubscribing(false)
+    }
   }
 
   const scrollToTop = () => {
@@ -249,6 +261,9 @@ export function Footer() {
                     )}
                     Subscribe
                   </Button>
+                  {error && (
+                    <p className="text-xs text-destructive">{error}</p>
+                  )}
                 </form>
               )}
             </div>
@@ -332,7 +347,7 @@ export function Footer() {
       <Button
         onClick={scrollToTop}
         size="icon"
-        className="fixed bottom-[calc(10rem+env(safe-area-inset-bottom,0px))] right-4 z-40 h-10 w-10 rounded-full shadow-lg md:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] md:right-6"
+        className="fixed bottom-[calc(10rem+env(safe-area-inset-bottom,0px))] left-4 z-40 h-10 w-10 rounded-full shadow-lg md:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] md:left-6"
         aria-label="Scroll to top"
       >
         <ArrowUp className="h-5 w-5" />

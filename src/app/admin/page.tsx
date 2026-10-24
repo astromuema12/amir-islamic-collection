@@ -34,15 +34,15 @@ export default async function AdminDashboardPage() {
         )}
         <div className="flex gap-3">
           {isAuthError ? (
-            <Link href="/login">
-              <Button>Log In</Button>
-            </Link>
+            <Button asChild>
+              <Link href="/login">Log In</Link>
+            </Button>
           ) : (
             <Button onClick={() => window.location.reload()}>Try Again</Button>
           )}
-          <Link href="/">
-            <Button variant="outline">Return Home</Button>
-          </Link>
+          <Button asChild variant="outline">
+            <Link href="/">Return Home</Link>
+          </Button>
         </div>
       </div>
     );

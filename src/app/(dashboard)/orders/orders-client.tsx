@@ -171,11 +171,12 @@ export function OrdersClient({ orders }: { orders: OrderListItem[] }) {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Link href={`/orders/${order.id}`}>
-                          <Button variant="ghost" size="icon">
+                        <Button asChild variant="ghost" size="icon">
+                          <Link href={`/orders/${order.id}`}>
                             <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
+                            <span className="sr-only">View order</span>
+                          </Link>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -195,12 +196,12 @@ export function OrdersClient({ orders }: { orders: OrderListItem[] }) {
                     : "You haven't placed any orders yet"}
                 </p>
                 {!search && (
-                  <Link href="/products">
-                    <Button className="mt-4 gap-2">
+                  <Button asChild className="mt-4 gap-2">
+                    <Link href="/products">
                       <ShoppingBag className="h-4 w-4" />
                       Start Shopping
-                    </Button>
-                  </Link>
+                    </Link>
+                  </Button>
                 )}
               </div>
             )}

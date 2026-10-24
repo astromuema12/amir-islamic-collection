@@ -37,12 +37,12 @@ export default function AdminDashboardError({ error, reset }: AdminErrorProps) {
             <RefreshCw className="h-4 w-4" />
             Try Again
           </Button>
-          <Link href="/admin">
-            <Button variant="outline" className="gap-2">
+          <Button asChild variant="outline" className="gap-2">
+            <Link href="/admin">
               <ArrowLeft className="h-4 w-4" />
               Back to Admin
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       </CardContent>
     </Card>

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Plus,
   Search,
@@ -59,6 +60,7 @@ interface Product {
 const mockProducts: Product[] = []
 
 export default function SellerProductsPage() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [categoryFilter, setCategoryFilter] = useState("all")
@@ -313,7 +315,8 @@ export default function SellerProductsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem onClick={() => window.location.href = `/seller/products/${product.id}/edit`}>
+                          <DropdownMenuItem onClick={() => 
+router.push(`/seller/products/${product.id}/edit`)}>
                             <Edit3 className="h-4 w-4" />
                             Edit
                           </DropdownMenuItem>

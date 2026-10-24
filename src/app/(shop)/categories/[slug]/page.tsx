@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { getCategoryBySlug, getProducts, getCategories, getBrands } from "@/lib/queries"
@@ -38,24 +39,23 @@ async function CategoryContent({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params
   const sp = await searchParams
 
-  const [category, categories, brands] = await Promise.all([
+  const [category, categories, brands, productsData] = await Promise.all([
     getCategoryBySlug(slug),
     getCategories(),
     getBrands(),
+    getProducts({
+      categorySlug: slug,
+      sort: sp.sort || "newest",
+      page: sp.page ? Number(sp.page) : 1,
+      limit: 24,
+      ...(sp.brand ? { brands: [sp.brand] } : {}),
+      ...(sp.minPrice ? { minPrice: Number(sp.minPrice) } : {}),
+      ...(sp.maxPrice ? { maxPrice: Number(sp.maxPrice) } : {}),
+      ...(sp.rating ? { rating: Number(sp.rating) } : {}),
+    }),
   ])
 
   if (!category) notFound()
-
-  const productsData = await getProducts({
-    categorySlug: slug,
-    sort: sp.sort || "newest",
-    page: sp.page ? Number(sp.page) : 1,
-    limit: 24,
-    ...(sp.brand ? { brands: [sp.brand] } : {}),
-    ...(sp.minPrice ? { minPrice: Number(sp.minPrice) } : {}),
-    ...(sp.maxPrice ? { maxPrice: Number(sp.maxPrice) } : {}),
-    ...(sp.rating ? { rating: Number(sp.rating) } : {}),
-  })
 
   const view = sp.view === "list" ? "list" : "grid"
 
@@ -105,11 +105,18 @@ async function CategoryContent({ params, searchParams }: CategoryPageProps) {
                 const isCurrent = pageNum === productsData.page
                 const hrefParams = new URLSearchParams()
                 if (sp.sort) hrefParams.set("sort", sp.sort)
+                if (sp.view) hrefParams.set("view", sp.view)
+                if (sp.brand) hrefParams.set("brand", sp.brand)
+                if (sp.minPrice) hrefParams.set("minPrice", sp.minPrice)
+                if (sp.maxPrice) hrefParams.set("maxPrice", sp.maxPrice)
+                if (sp.rating) hrefParams.set("rating", sp.rating)
                 if (pageNum > 1) hrefParams.set("page", String(pageNum))
                 return (
-                  <a
+                  <Link
                     key={pageNum}
                     href={`/categories/${slug}?${hrefParams.toString()}`}
+                    scroll={false}
+                    aria-current={isCurrent ? "page" : undefined}
                     className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                       isCurrent
                         ? "bg-primary text-primary-foreground"
@@ -117,7 +124,7 @@ async function CategoryContent({ params, searchParams }: CategoryPageProps) {
                     }`}
                   >
                     {pageNum}
-                  </a>
+                  </Link>
                 )
               })}
             </div>

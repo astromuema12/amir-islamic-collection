@@ -81,9 +81,9 @@ export default function ResetPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/forgot-password">
-              <Button className="w-full">Request new reset link</Button>
-            </Link>
+            <Button asChild className="w-full">
+              <Link href="/forgot-password">Request new reset link</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -105,9 +105,9 @@ export default function ResetPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/login">
-              <Button className="w-full">Sign in</Button>
-            </Link>
+            <Button asChild className="w-full">
+              <Link href="/login">Sign in</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>
