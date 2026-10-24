@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { getCurrentUserAction, type CurrentUser } from "@/lib/actions/auth-actions";
+import { useWishlistStore } from "@/store/wishlist-store";
 
 export function useCurrentUser() {
   const [user, setUser] = useState<CurrentUser | undefined>(undefined);
@@ -13,7 +14,12 @@ export function useCurrentUser() {
     let cancelled = false;
     getCurrentUserAction()
       .then((u) => {
-        if (!cancelled) setUser(u);
+        if (!cancelled) {
+          setUser(u);
+          if (u) {
+            useWishlistStore.getState().hydrateFromServer();
+          }
+        }
       })
       .catch(() => {
         if (!cancelled) setUser(null);

@@ -20,7 +20,7 @@ async function syncToServer(items: string[]) {
     const { syncWishlistToDb } = await import("@/lib/actions/wishlist-actions");
     await syncWishlistToDb(items);
   } catch {
-    // Ignore sync failures (offline, network errors, etc.)
+    // Ignore sync failures
   }
 }
 

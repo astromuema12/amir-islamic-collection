@@ -13,14 +13,26 @@ const ALLOWED_TYPES: readonly string[] = [
 ];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+function configureCloudinary() {
+  const cloud_name = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const api_key = process.env.CLOUDINARY_API_KEY;
+  const api_secret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloud_name || !api_key || !api_secret) {
+    throw new Error("Missing Cloudinary env vars");
+  }
+
+  cloudinary.config({
+    cloud_name,
+    api_key,
+    api_secret,
+  });
+}
 
 export async function POST(request: Request) {
   try {
+    configureCloudinary();
+
     const user = await getCurrentUser();
     if (!user || !ALLOWED_ROLES.includes(user.role)) {
       return NextResponse.json(
@@ -59,12 +71,17 @@ export async function POST(request: Request) {
       folder: "amir-islamic",
       resource_type: "image",
       transformation: [{ quality: "auto", fetch_format: "auto" }],
-    });
+      cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    } as any);
 
     return NextResponse.json({ url: result.secure_url });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "Upload failed";
+    console.error("Upload error:", message);
     return NextResponse.json(
-      { status: "error", message: error instanceof Error ? error.message : "Upload failed" },
+      { status: "error", message },
       { status: 500 },
     );
   }
