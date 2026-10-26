@@ -28,5 +28,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - The danger-zone dialog shows deleted vs retained data and links to `/account-deletion`.
 
 ## Env Variables (Vercel)
-- Only `DATABASE_URL` and `NEXT_PUBLIC_APP_URL` are set in Vercel. The rest (`CLOUDINARY_*`, `PAYSTACK_*`, `RESEND_API_KEY`) are missing — Vercel picks up local `.env` during deploy as fallback (triggers the "strongly recommended to use Vercel's env handling" warning).
-- Add missing env vars to https://vercel.com/astromuema12s-projects/amir-islamic-collection/settings/environment-variables
+- Set in Vercel Production: `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
+- Still missing in Vercel: `PAYSTACK_SECRET_KEY`, `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY`, `RESEND_API_KEY` — Vercel picks up local `.env` during deploy as fallback (triggers the "strongly recommended to use Vercel's env handling" warning).
+- Add missing env vars at https://vercel.com/astromuema12s-projects/amir-islamic-collection/settings/environment-variables
+- Changing env vars requires a redeploy (`vercel redeploy <production-url>`) to take effect.
