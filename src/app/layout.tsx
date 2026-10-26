@@ -127,7 +127,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const nonce = (await headers()).get("x-nonce") || undefined
+  const requestHeaders = await headers()
+  const nonce = requestHeaders.get("x-nonce") || undefined
+  const pathname = requestHeaders.get("x-pathname") || ""
+  const isAppShell = pathname.startsWith("/admin")
 
   return (
     <html
@@ -154,14 +157,14 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col pb-16 lg:pb-0">
+      <body className={`min-h-full flex flex-col ${isAppShell ? "" : "pb-16 lg:pb-0"}`}>
         <Providers nonce={nonce}>
-          <Header />
+          {!isAppShell && <Header />}
           <main className="flex-1">{children}</main>
-          <Footer />
-          <BottomNavigation />
-          <InstallAppPrompt />
-          <WhatsAppButton />
+          {!isAppShell && <Footer />}
+          {!isAppShell && <BottomNavigation />}
+          {!isAppShell && <InstallAppPrompt />}
+          {!isAppShell && <WhatsAppButton />}
         </Providers>
         <ServiceWorkerRegistration />
       </body>

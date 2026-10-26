@@ -110,7 +110,7 @@ export function DashboardSidebar({
         )}
       >
         <div className="flex h-16 items-center gap-3 border-b px-4">
-          <Logo markOnly={isCollapsed} markSize={36} />
+          <Logo markOnly markSize={36} />
           {!isCollapsed && (
             <span className="font-serif text-lg font-bold text-foreground">
               Dashboard

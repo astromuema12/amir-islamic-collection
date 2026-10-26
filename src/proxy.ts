@@ -236,6 +236,7 @@ export async function proxy(request: NextRequest) {
   // --- Security Headers + CSRF Cookie + Nonce ---
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("x-pathname", pathname);
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },

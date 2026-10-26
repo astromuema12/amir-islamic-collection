@@ -91,10 +91,10 @@ const roleLabels: Record<string, string> = {
 function AdminBrand() {
   return (
     <Link href="/admin" className="flex h-14 shrink-0 items-center gap-2.5 border-b px-5">
-      <Logo markSize={32} />
-      <div className="leading-tight">
-        <p className="text-sm font-semibold tracking-tight">Amir Admin</p>
-        <p className="text-[11px] text-muted-foreground">Store management</p>
+      <Logo markOnly markSize={32} />
+      <div className="min-w-0 leading-tight">
+        <p className="truncate text-sm font-semibold tracking-tight">Amir Admin</p>
+        <p className="truncate text-[11px] text-muted-foreground">Store management</p>
       </div>
     </Link>
   )
