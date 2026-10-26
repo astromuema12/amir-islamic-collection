@@ -29,11 +29,11 @@ const buttonVariants = cva(
           "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-400 text-premium-foreground hover:from-amber-600 hover:via-yellow-600 hover:to-amber-500 active:scale-[0.97] shadow-md shadow-amber-500/25",
       },
       size: {
-        sm: "h-9 rounded-md px-3 text-xs gap-1.5",
-        md: "h-10 px-4 py-2 gap-2",
-        lg: "h-11 rounded-lg px-8 gap-2",
-        xl: "h-12 rounded-lg px-10 text-base gap-2.5",
-        icon: "h-10 w-10",
+        sm: "h-9 min-h-[44px] sm:min-h-9 rounded-md px-3 text-xs gap-1.5",
+        md: "h-10 min-h-[44px] sm:min-h-10 px-4 py-2 gap-2",
+        lg: "h-11 min-h-[44px] sm:min-h-11 rounded-lg px-8 gap-2",
+        xl: "h-12 min-h-[44px] sm:min-h-12 rounded-lg px-10 text-base gap-2.5",
+        icon: "h-10 w-10 min-h-[44px] min-w-[44px]",
       },
     },
     defaultVariants: {

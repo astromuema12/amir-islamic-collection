@@ -99,7 +99,7 @@ export function Header({
 
               <Link
                 href="/wishlist"
-                className="relative hidden sm:inline-flex items-center justify-center h-10 w-10 rounded-lg hover:bg-accent transition-colors"
+                className="relative hidden sm:inline-flex items-center justify-center h-10 w-10 min-h-[44px] min-w-[44px] rounded-lg hover:bg-accent transition-colors"
               >
                 <Heart className="h-5 w-5 text-muted-foreground hover:text-foreground transition-colors" />
                 {wishlistCount > 0 && (
