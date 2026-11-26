@@ -550,18 +550,13 @@ class ProductRepository {
     return result.map((r) =>
       serializeReview({
         ...r.reviews,
+        // Public product pages stream these props into the RSC payload, so only
+        // a minimal public identity may be included — never email/phone/role.
         user: r.users
           ? {
               id: r.users.id,
               name: r.users.name || "Anonymous",
-              email: r.users.email,
               image: r.users.image || undefined,
-              emailVerified: r.users.emailVerified,
-              role: r.users.role as "user" | "seller" | "admin" | "super_admin",
-              phone: r.users.phone || undefined,
-              bio: r.users.bio || undefined,
-              createdAt: r.users.createdAt,
-              updatedAt: r.users.updatedAt,
             }
           : undefined,
       }),

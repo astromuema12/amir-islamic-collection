@@ -90,11 +90,18 @@ export interface SellerProfile {
   createdAt: Date;
 }
 
+/** Reviewer fields that are safe to expose on a public product page. */
+export interface PublicReviewUser {
+  id: string;
+  name: string;
+  image?: string;
+}
+
 export interface Review {
   id: string;
   productId: string;
   userId: string;
-  user?: User;
+  user?: PublicReviewUser;
   rating: number;
   title?: string;
   content?: string;
