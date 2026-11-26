@@ -21,6 +21,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    agentUpgrade: "security",
     optimizePackageImports: [
       "framer-motion",
       "lucide-react",
