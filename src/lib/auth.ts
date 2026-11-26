@@ -110,3 +110,14 @@ export function isAdminUser(
   if (user.role !== "admin" && user.role !== "super_admin") return false;
   return isAdminEmail(user.email);
 }
+
+/**
+ * Landing route after a successful sign-in. Derived only from the stored user
+ * record, never from a client-supplied parameter, so a normal user cannot
+ * reach the admin area by tampering with a redirect value.
+ */
+export function getPostLoginPath(
+  user: { role: string; email?: string | null } | null | undefined,
+): string {
+  return isAdminUser(user) ? "/admin" : "/";
+}

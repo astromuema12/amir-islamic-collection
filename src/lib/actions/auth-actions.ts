@@ -15,7 +15,7 @@ import {
 } from "@/lib/db/schema";
 import { eq, and, notInArray, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
-import { hashPassword, verifyPassword, createSession, logout as clearSession, getCurrentUser } from "@/lib/auth";
+import { hashPassword, verifyPassword, createSession, logout as clearSession, getCurrentUser, getPostLoginPath } from "@/lib/auth";
 import { loginSchema, registerSchema, profileSchema } from "@/lib/validations";
 import { sendEmail } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
@@ -190,7 +190,7 @@ export async function login(formData: FormData) {
     await createSession(user.id);
     revalidatePath("/");
 
-    return { success: true };
+    return { success: true, redirectTo: getPostLoginPath(user) };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Login failed" };
   }

@@ -6,6 +6,7 @@ import {
 } from "@/lib/payment-security";
 import { normalizeCartQuantities } from "@/lib/cart-validation";
 import { validateCouponForOrder } from "@/lib/coupon-validation";
+import { getPostLoginPath } from "@/lib/auth";
 
 const SECRET = "test_paystack_secret";
 
@@ -108,5 +109,26 @@ describe("coupon validation at order creation", () => {
         200
       )
     ).toThrow();
+  });
+});
+
+describe("post-login landing route", () => {
+  it("sends allowlisted admins to the admin area", () => {
+    expect(
+      getPostLoginPath({ role: "admin", email: "musauedwin2004@gmail.com" })
+    ).toBe("/admin");
+    expect(
+      getPostLoginPath({ role: "super_admin", email: "amirislamiccollections@gmail.com" })
+    ).toBe("/admin");
+  });
+
+  it("sends regular users and sellers to the storefront", () => {
+    expect(getPostLoginPath({ role: "user", email: "buyer@example.com" })).toBe("/");
+    expect(getPostLoginPath({ role: "seller", email: "seller@example.com" })).toBe("/");
+  });
+
+  it("does not grant admin routing from role alone", () => {
+    expect(getPostLoginPath({ role: "admin", email: "attacker@example.com" })).toBe("/");
+    expect(getPostLoginPath(null)).toBe("/");
   });
 });

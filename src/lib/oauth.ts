@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { users, sessions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
+import { getPostLoginPath } from "@/lib/auth";
 
 const OAUTH_STATE_COOKIE = "oauth_state";
 const OAUTH_STATE_MAX_AGE = 600; // 10 minutes
@@ -291,8 +292,17 @@ export async function handleOAuthCallback(
       expiresAt,
     });
 
+    // Route admins to the admin area using the stored role, never a client value.
+    const [signedInUser] = await db
+      .select({ role: users.role, email: users.email })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
     // Set session cookie and redirect
-    const response = NextResponse.redirect(new URL("/", request.url));
+    const response = NextResponse.redirect(
+      new URL(getPostLoginPath(signedInUser), request.url)
+    );
     response.cookies.set("session_token", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { db } from "@/lib/db";
 import { sessions, users, verificationTokens } from "@/lib/db/schema";
 import { sendWelcomeEmail } from "@/lib/resend";
+import { getPostLoginPath } from "@/lib/auth";
 
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
@@ -66,7 +67,9 @@ export async function GET(request: NextRequest) {
     expiresAt,
   });
 
-  const response = NextResponse.redirect(new URL("/", request.url));
+  const response = NextResponse.redirect(
+    new URL(getPostLoginPath(user), request.url)
+  );
   response.cookies.set("session_token", sessionToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

@@ -65,7 +65,7 @@ function LoginForm() {
 
       if (result.success) {
         toast.success("Welcome back!")
-        router.push("/")
+        router.push(result.redirectTo || "/")
         router.refresh()
       } else if (result.error) {
         const errorMsg =
