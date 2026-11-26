@@ -71,10 +71,7 @@ export async function POST(request: Request) {
       folder: "amir-islamic",
       resource_type: "image",
       transformation: [{ quality: "auto", fetch_format: "auto" }],
-      cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    } as any);
+    });
 
     return NextResponse.json({ url: result.secure_url });
   } catch (error) {

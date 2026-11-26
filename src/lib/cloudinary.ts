@@ -25,10 +25,7 @@ export async function uploadImage(
     folder,
     resource_type: "image",
     transformation: [{ quality: "auto", fetch_format: "auto" }],
-    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  } as any);
+  });
   return result.secure_url;
 }
 
@@ -42,11 +39,7 @@ export async function uploadImages(
 
 export async function deleteImage(publicId: string) {
   configureCloudinary();
-  await cloudinary.uploader.destroy(publicId, {
-    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  } as any);
+  await cloudinary.uploader.destroy(publicId);
 }
 
 export function getCloudinaryPublicId(url: string): string {

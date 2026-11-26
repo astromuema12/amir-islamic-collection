@@ -17,6 +17,11 @@
     "db:enable-rls": "npx tsx src/lib/db/enable-rls.ts",
     "generate:icons": "node scripts/generate-brand-assets.mjs"
   },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "^0.28.2"
+    }
+  },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@neondatabase/serverless": "^1.1.0",
