@@ -10,6 +10,8 @@ import { sendOrderConfirmation } from "@/lib/resend";
 import { computeShipping, computeTax } from "@/lib/pricing";
 import { getPricingConfig } from "@/lib/pricing-config";
 import { CACHE_TAGS } from "@/lib/cache-tags";
+import { normalizeCartQuantities } from "@/lib/cart-validation";
+import { validateCouponForOrder } from "@/lib/coupon-validation";
 
 export type CheckoutError = {
   error: string;
@@ -127,7 +129,12 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
         throw Object.assign(new Error("Cart is empty"), { code: "CART_EMPTY" });
       }
 
-      const productIds = items.map((i) => i.productId);
+      // Re-validate quantities at checkout, even though the cart was validated
+      // when it was synced. This also collapses any duplicate product lines.
+      const safeItems = normalizeCartQuantities(
+        items.map(({ productId, quantity }) => ({ productId, quantity }))
+      );
+      const productIds = safeItems.map((i) => i.productId);
 
       const lockedProducts = await tx
         .select()
@@ -140,7 +147,7 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
       let subtotal = 0;
       const unitPrices = new Map<string, number>();
 
-      for (const item of items) {
+      for (const item of safeItems) {
         const product = productMap.get(item.productId);
         if (!product) {
           throw Object.assign(
@@ -181,11 +188,11 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
         subtotal += unitPrice * item.quantity;
       }
 
-      for (const item of items) {
+      for (const item of safeItems) {
         const product = productMap.get(item.productId)!;
         const newStock = product.stock - item.quantity;
 
-        await tx
+        const stockUpdate = await tx
           .update(products)
           .set({
             stock: newStock,
@@ -198,51 +205,60 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
               sql`${products.stock} >= ${item.quantity}`
             )
           );
+
+        if (stockUpdate.rowCount === 0) {
+          throw Object.assign(
+            new Error(`Sorry, "${product.name}" has just sold out.`),
+            { code: "INSUFFICIENT_STOCK" }
+          );
+        }
       }
 
       const shipping = computeShipping(subtotal, pricing.shipping);
 
+      const couponCode = parsed.data.couponCode?.trim().toUpperCase();
       let discount = 0;
-      if (parsed.data.couponCode) {
+      if (couponCode) {
+        // Lock the row so concurrent checkouts cannot both consume the same
+        // single-use coupon.
         const [coupon] = await tx
           .select()
           .from(coupons)
-          .where(eq(coupons.code, parsed.data.couponCode))
-          .limit(1);
+          .where(eq(coupons.code, couponCode))
+          .limit(1)
+          .for("update");
 
-        if (!coupon || !coupon.isActive) {
+        if (!coupon) {
           throw Object.assign(
-            new Error(`Coupon "${parsed.data.couponCode}" is not valid.`),
+            new Error(`Coupon "${couponCode}" is not valid.`),
             { code: "VALIDATION_ERROR" }
           );
         }
-        if (coupon.expiresAt && coupon.expiresAt.getTime() < Date.now()) {
-          throw Object.assign(new Error("This coupon has expired."), {
+
+        discount = validateCouponForOrder(
+          {
+            type: coupon.type,
+            value: coupon.value,
+            maxDiscount: coupon.maxDiscount,
+            minOrderAmount: coupon.minOrderAmount,
+            usageLimit: coupon.usageLimit,
+            usedCount: coupon.usedCount,
+            expiresAt: coupon.expiresAt,
+            isActive: coupon.isActive,
+          },
+          subtotal
+        );
+
+        const usageUpdate = await tx
+          .update(coupons)
+          .set({ usedCount: sql`coalesce(${coupons.usedCount}, 0) + 1` })
+          .where(eq(coupons.id, coupon.id));
+
+        if (usageUpdate.rowCount === 0) {
+          throw Object.assign(new Error("Failed to apply coupon."), {
             code: "VALIDATION_ERROR",
           });
         }
-        if (coupon.minOrderAmount && subtotal < Number(coupon.minOrderAmount)) {
-          throw Object.assign(
-            new Error(
-              `This coupon requires a minimum order amount of ${Number(coupon.minOrderAmount)}.`
-            ),
-            { code: "VALIDATION_ERROR" }
-          );
-        }
-
-        const rawDiscount =
-          coupon.type === "fixed"
-            ? Number(coupon.value)
-            : subtotal * (Number(coupon.value) / 100);
-        discount = coupon.maxDiscount
-          ? Math.min(rawDiscount, Number(coupon.maxDiscount))
-          : rawDiscount;
-        discount = Math.min(discount, subtotal);
-
-        await tx
-          .update(coupons)
-          .set({ usedCount: (coupon.usedCount || 0) + 1 })
-          .where(eq(coupons.id, coupon.id));
       }
 
       const tax = computeTax(subtotal, shipping, discount, pricing.tax);
@@ -257,14 +273,14 @@ export async function createOrder(formData: FormData): Promise<CheckoutSuccess |
         shipping: shipping.toString(),
         tax: tax.toString(),
         discount: discount.toString(),
-        couponCode: parsed.data.couponCode,
+        couponCode,
         shippingAddressId: parsed.data.shippingAddressId,
         billingAddressId: parsed.data.billingAddressId,
         paymentStatus: "pending",
         notes: parsed.data.notes,
       });
 
-      for (const item of items) {
+      for (const item of safeItems) {
         const product = productMap.get(item.productId)!;
         await tx.insert(orderItems).values({
           id: uuidv4(),
@@ -395,7 +411,29 @@ export async function getOrder(orderId: string) {
     .limit(1);
 
   if (!order) return null;
-  if (order.userId !== user.id && user.role === "user") return null;
+
+  if (order.userId !== user.id) {
+    const { isAdminUser } = await import("@/lib/auth");
+
+    if (!isAdminUser(user)) {
+      if (user.role !== "seller") return null;
+
+      // A seller may only view orders that contain their own products.
+      const [sellerItem] = await dbInstance
+        .select({ id: orderItems.id })
+        .from(orderItems)
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .where(
+          and(
+            eq(orderItems.orderId, orderId),
+            eq(products.sellerId, user.id)
+          )
+        )
+        .limit(1);
+
+      if (!sellerItem) return null;
+    }
+  }
 
   const items = await dbInstance
     .select()

@@ -13,6 +13,7 @@ interface OAuthProviderConfig {
   authorizationUrl: string;
   tokenUrl: string;
   userInfoUrl: string;
+  emailsUrl?: string;
   scopes: string[];
   clientId: string;
   clientSecret: string;
@@ -32,6 +33,15 @@ export interface OAuthUserProfile {
   image?: string;
 }
 
+export class OAuthEmailConflictError extends Error {
+  constructor() {
+    super(
+      "An account with this email already exists. Sign in with your password before linking a social account."
+    );
+    this.name = "OAuthEmailConflictError";
+  }
+}
+
 export const providers: Record<string, OAuthProviderConfig> = {
   google: {
     authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth",
@@ -46,6 +56,7 @@ export const providers: Record<string, OAuthProviderConfig> = {
     authorizationUrl: "https://github.com/login/oauth/authorize",
     tokenUrl: "https://github.com/login/oauth/access_token",
     userInfoUrl: "https://api.github.com/user",
+    emailsUrl: "https://api.github.com/user/emails",
     scopes: ["user:email"],
     clientId: process.env.GITHUB_CLIENT_ID || "",
     clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
@@ -123,18 +134,48 @@ export async function fetchUserProfile(
   const data = await response.json();
 
   switch (provider) {
-    case "google":
+    case "google": {
+      const verified = data.email_verified === true || data.email_verified === "true";
+      if (!verified || !data.email) {
+        throw new Error("A verified Google email address is required");
+      }
       return {
-        id: data.id,
+        id: String(data.id),
         email: data.email,
         name: data.name || data.email.split("@")[0],
         image: data.picture,
       };
+    }
     case "github": {
-      const email = data.email || `${data.login}@github.local`;
+      // GitHub's public /user email may be set without verification. Only a
+      // verified primary email from /user/emails is safe to trust.
+      const emailsResponse = await fetch(config.emailsUrl!, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+        },
+      });
+      if (!emailsResponse.ok) {
+        throw new Error("Failed to fetch verified email addresses from GitHub");
+      }
+
+      const emails = (await emailsResponse.json()) as {
+        email: string;
+        primary: boolean;
+        verified: boolean;
+      }[];
+      const verifiedEmail =
+        emails.find((entry) => entry.primary && entry.verified) ??
+        emails.find((entry) => entry.verified);
+
+      if (!verifiedEmail) {
+        throw new Error("A verified GitHub email address is required");
+      }
+
       return {
         id: String(data.id),
-        email,
+        email: verifiedEmail.email,
         name: data.name || data.login,
         image: data.avatar_url,
       };
@@ -156,19 +197,17 @@ export async function findOrCreateOAuthUser(
   if (existingUser.length > 0) {
     const user = existingUser[0];
 
-    // Update image if not set or changed
+    // Never log into a password-based account from an OAuth profile. Even a
+    // verified provider email is not proof that the caller owns the local
+    // account; require an explicit password sign-in/link flow instead.
+    if (user.password) {
+      throw new OAuthEmailConflictError();
+    }
+
     if (profile.image && user.image !== profile.image) {
       await db
         .update(users)
         .set({ image: profile.image, updatedAt: new Date() })
-        .where(eq(users.id, user.id));
-    }
-
-    // Mark email as verified for OAuth users
-    if (!user.emailVerified) {
-      await db
-        .update(users)
-        .set({ emailVerified: true, updatedAt: new Date() })
         .where(eq(users.id, user.id));
     }
 
@@ -265,8 +304,12 @@ export async function handleOAuthCallback(
     return response;
   } catch (err) {
     console.error(`OAuth callback error (${provider}):`, err);
+    const errorCode =
+      err instanceof OAuthEmailConflictError
+        ? "oauth_email_conflict"
+        : "oauth_failed";
     return NextResponse.redirect(
-      new URL("/login?error=oauth_failed", request.url)
+      new URL(`/login?error=${errorCode}`, request.url)
     );
   }
 }

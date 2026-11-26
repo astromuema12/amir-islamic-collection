@@ -17,7 +17,7 @@ import { eq, and, notInArray, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { hashPassword, verifyPassword, createSession, logout as clearSession, getCurrentUser } from "@/lib/auth";
 import { loginSchema, registerSchema, profileSchema } from "@/lib/validations";
-import { sendEmail, sendWelcomeEmail } from "@/lib/resend";
+import { sendEmail } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
 import { headers, cookies } from "next/headers";
 import { rateLimit } from "@/lib/rate-limit";
@@ -48,6 +48,37 @@ export async function getCurrentUserAction(): Promise<CurrentUser> {
 
 function getIp(hdrs: Headers): string {
   return hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() || hdrs.get("x-real-ip") || "127.0.0.1";
+}
+
+async function issueEmailVerification(email: string): Promise<boolean> {
+  const token = uuidv4();
+  await db.insert(verificationTokens).values({
+    id: uuidv4(),
+    email,
+    token,
+    type: "email_verification",
+    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+  });
+
+  const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/auth/verify-email?token=${token}`;
+
+  // Local development without Resend credentials can still complete the flow.
+  if (process.env.NODE_ENV === "development" && !process.env.RESEND_API_KEY) {
+    console.log(`[auth] Verification link for ${email}: ${verifyUrl}`);
+    return true;
+  }
+
+  try {
+    await sendEmail({
+      to: email,
+      subject: "Verify your email address",
+      html: `<p>Please verify your email address to finish creating your account.</p><p><a href="${verifyUrl}">Verify my email</a></p><p>This link expires in 24 hours.</p>`,
+    });
+    return true;
+  } catch (error) {
+    console.error("[auth] Failed to send verification email:", error);
+    return false;
+  }
 }
 
 export async function register(formData: FormData) {
@@ -87,18 +118,29 @@ export async function register(formData: FormData) {
       name: parsed.data.name,
       email: parsed.data.email,
       password: hashed,
-      emailVerified: true,
+      emailVerified: false,
     });
 
-    await createSession(userId);
-
-    sendWelcomeEmail(parsed.data.email, parsed.data.name).catch(() => {
-      console.error("Failed to send welcome email");
-    });
+    const verificationSent = await issueEmailVerification(parsed.data.email);
+    if (!verificationSent) {
+      // Do not leave an unverifiable account behind on a retry.
+      await db
+        .delete(verificationTokens)
+        .where(
+          and(
+            eq(verificationTokens.email, parsed.data.email),
+            eq(verificationTokens.type, "email_verification")
+          )
+        );
+      await db.delete(users).where(eq(users.id, userId));
+      return {
+        error: { email: ["Could not send the verification email. Please try again."] },
+      };
+    }
 
     revalidatePath("/");
 
-    return { success: true };
+    return { success: true, requiresVerification: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Registration failed" };
   }
@@ -136,12 +178,59 @@ export async function login(formData: FormData) {
       return { error: { email: ["Invalid email or password"] } };
     }
 
+    if (!user.emailVerified) {
+      return {
+        error: {
+          email: ["Please verify your email address before signing in."],
+        },
+        code: "UNVERIFIED_EMAIL" as const,
+      };
+    }
+
     await createSession(user.id);
     revalidatePath("/");
 
     return { success: true };
   } catch (error) {
     return { error: error instanceof Error ? error.message : "Login failed" };
+  }
+}
+
+export async function resendVerificationEmail(formData: FormData) {
+  try {
+    const hdrs = await headers();
+    const ip = getIp(hdrs);
+    const rl = await rateLimit(`resend-verification:${ip}`, 3, 3_600_000);
+    if (!rl.success) return { error: "Too many requests. Please try again later." };
+
+    const email = String(formData.get("email") || "").trim().toLowerCase();
+    if (!email) return { error: "Email is required" };
+
+    const [user] = await db
+      .select({ id: users.id, email: users.email, emailVerified: users.emailVerified, password: users.password })
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    // Do not reveal whether an account exists or is already verified.
+    if (!user || user.emailVerified || !user.password) return { success: true };
+
+    await db
+      .delete(verificationTokens)
+      .where(
+        and(
+          eq(verificationTokens.email, user.email),
+          eq(verificationTokens.type, "email_verification")
+        )
+      );
+    const sent = await issueEmailVerification(user.email);
+    if (!sent) {
+      return { error: "Could not send the verification email. Please try again." };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Failed to resend verification email" };
   }
 }
 

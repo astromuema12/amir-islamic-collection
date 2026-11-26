@@ -48,9 +48,8 @@ export default function RegisterPage() {
       const result = await registerUser(formData)
 
       if (result.success) {
-        toast.success("Account created successfully!")
-        router.push("/")
-        router.refresh()
+        toast.success("Account created! Please check your email to verify your address.")
+        router.push("/login?check-email=1")
       } else if (result.error) {
         const errorMsg =
           typeof result.error === "string"
