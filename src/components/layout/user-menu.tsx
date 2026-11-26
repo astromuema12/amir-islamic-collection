@@ -9,7 +9,6 @@ import {
   Package,
   Heart,
   Store,
-  ShieldCheck,
   ChevronDown,
   LogIn,
   UserPlus,
@@ -27,7 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { CurrentUser } from "@/lib/actions/auth-actions"
-import { isAdminEmail } from "@/lib/constants"
 
 interface UserMenuProps {
   user?: CurrentUser
@@ -127,26 +125,21 @@ export function UserMenu({
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        {(user.role === "seller" || user.role === "admin" || user.role === "super_admin") && (
+        {/*
+          Admin access is intentionally not exposed in the UI. Admins use the
+          same /login page as everyone else and reach /admin directly; access
+          is enforced server-side by isAdminUser() and the email allowlist.
+        */}
+        {user.role === "seller" && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              {user.role === "seller" && (
-                <DropdownMenuItem asChild>
-                  <Link href="/seller" className="cursor-pointer">
-                    <Store className="mr-2 h-4 w-4" />
-                    Seller Dashboard
-                  </Link>
-                </DropdownMenuItem>
-              )}
-              {(user.role === "admin" || user.role === "super_admin") && isAdminEmail(user.email) && (
-                <DropdownMenuItem asChild>
-                  <Link href="/admin" className="cursor-pointer">
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    Admin Panel
-                  </Link>
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem asChild>
+                <Link href="/seller" className="cursor-pointer">
+                  <Store className="mr-2 h-4 w-4" />
+                  Seller Dashboard
+                </Link>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
           </>
         )}
