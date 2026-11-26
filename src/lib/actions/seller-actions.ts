@@ -8,6 +8,7 @@ import slugify from "slugify";
 import { sellerProfileSchema } from "@/lib/validations";
 import { revalidatePath } from "next/cache";
 import { productRepository } from "@/lib/repositories/product-repository";
+import { canSellerTransition } from "@/lib/order-status";
 
 export async function createSellerProfile(formData: FormData) {
   try {
@@ -310,23 +311,48 @@ export async function updateSellerOrderStatus(orderId: string, status: string) {
       return { error: "Invalid status" };
     }
 
-    // Verify the order actually contains one of this seller's products
-    const [row] = await db
-      .select({ id: orders.id })
+    const [orderRow] = await db
+      .select({ status: orders.status })
       .from(orders)
-      .innerJoin(orderItems, eq(orderItems.orderId, orders.id))
-      .innerJoin(products, eq(orderItems.productId, products.id))
-      .where(and(eq(products.sellerId, user.id), eq(orders.id, orderId)))
+      .where(eq(orders.id, orderId))
       .limit(1);
 
-    if (!row) {
+    if (!orderRow) {
       return { error: "Order not found" };
     }
 
-    await db
+    // Sellers may only follow the same one-step transitions the UI exposes.
+    if (!canSellerTransition(orderRow.status, status)) {
+      return { error: `Cannot change order from ${orderRow.status} to ${status}` };
+    }
+
+    // An order-level status change affects every item in the order. Allow it
+    // only when all items belong to this seller, so one seller cannot change
+    // fulfillment for another seller's goods.
+    const itemSellers = await db
+      .select({ sellerId: products.sellerId })
+      .from(orderItems)
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(orderItems.orderId, orderId));
+
+    if (
+      itemSellers.length === 0 ||
+      itemSellers.some((item) => item.sellerId !== user.id)
+    ) {
+      return {
+        error:
+          "This order contains items from other sellers. Ask an administrator to update it.",
+      };
+    }
+
+    const updated = await db
       .update(orders)
       .set({ status: status as (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS], updatedAt: new Date() })
-      .where(eq(orders.id, orderId));
+      .where(and(eq(orders.id, orderId), eq(orders.status, orderRow.status)));
+
+    if (updated.rowCount === 0) {
+      return { error: "Order status changed elsewhere. Refresh and try again." };
+    }
 
     revalidatePath("/seller/orders");
     revalidatePath("/admin/orders");

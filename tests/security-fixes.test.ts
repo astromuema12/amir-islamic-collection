@@ -7,6 +7,7 @@ import {
 import { normalizeCartQuantities } from "@/lib/cart-validation";
 import { validateCouponForOrder } from "@/lib/coupon-validation";
 import { getPostLoginPath } from "@/lib/auth";
+import { canSellerTransition } from "@/lib/order-status";
 
 const SECRET = "test_paystack_secret";
 
@@ -130,5 +131,22 @@ describe("post-login landing route", () => {
   it("does not grant admin routing from role alone", () => {
     expect(getPostLoginPath({ role: "admin", email: "attacker@example.com" })).toBe("/");
     expect(getPostLoginPath(null)).toBe("/");
+  });
+});
+
+describe("seller order status transitions", () => {
+  it("allows only the next fulfillment steps", () => {
+    expect(canSellerTransition("pending", "confirmed")).toBe(true);
+    expect(canSellerTransition("confirmed", "processing")).toBe(true);
+    expect(canSellerTransition("processing", "shipped")).toBe(true);
+    expect(canSellerTransition("shipped", "delivered")).toBe(true);
+  });
+
+  it("rejects skipped, terminal and unknown transitions", () => {
+    expect(canSellerTransition("pending", "delivered")).toBe(false);
+    expect(canSellerTransition("delivered", "cancelled")).toBe(false);
+    expect(canSellerTransition("cancelled", "processing")).toBe(false);
+    expect(canSellerTransition("returned", "shipped")).toBe(false);
+    expect(canSellerTransition("pending", "bogus")).toBe(false);
   });
 });
